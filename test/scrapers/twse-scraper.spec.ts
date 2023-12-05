@@ -42,4 +42,28 @@ describe('TwseScraper', () => {
       expect(listedStocks[0].listedDate).toBe('2018-08-08');
     });
   });
+
+  describe('.fetchStocksHistorical()', () => {
+    it('should fetch stocks historical data for the given date', async () => {
+      const data = require('../fixtures/tse-stocks-historical.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const scraper = new TwseScraper();
+      const stocks = await scraper.fetchStocksHistorical({ date: '2023-01-30' });
+
+      expect(stocks).toBeDefined();
+      expect(stocks.length).toBeGreaterThan(0);
+      expect(stocks[0].date).toBe('2023-01-30');
+      expect(stocks[0].symbol).toBe('0050');
+      expect(stocks[0].name).toBe('元大台灣50');
+      expect(stocks[0].open).toBe(120.8);
+      expect(stocks[0].high).toBe(121);
+      expect(stocks[0].low).toBe(120);
+      expect(stocks[0].close).toBe(120.7);
+      expect(stocks[0].volume).toBe(44330389);
+      expect(stocks[0].turnover).toBe(5335880299);
+      expect(stocks[0].transaction).toBe(31199);
+      expect(stocks[0].change).toBe(0);
+    });
+  });
 });

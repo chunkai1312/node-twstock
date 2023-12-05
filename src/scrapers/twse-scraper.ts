@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import * as cheerio from 'cheerio';
 import * as iconv from 'iconv-lite';
+import * as numeral from 'numeral';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
 import { Market } from '../enums';
@@ -28,5 +29,33 @@ export class TwseScraper extends Scraper {
         listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate(),
       };
     }).toArray();
+  }
+
+  async fetchStocksHistorical(options?: { date: string }) {
+    const date = options?.date ?? DateTime.local().toISODate();
+    const query = new URLSearchParams({
+      date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      type: 'ALLBUT0999',
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = (response.data.stat === 'OK') && response.data;
+    if (!json) return null;
+
+    return json.tables[8].data.map((row: any) => {
+      const [symbol, name, ...values] = row;
+      const data: Record<string, any> = { date, symbol, name };
+      data.open = numeral(values[3]).value();
+      data.high = numeral(values[4]).value();
+      data.low = numeral(values[5]).value();
+      data.close = numeral(values[6]).value();
+      data.volume = numeral(values[0]).value();
+      data.turnover = numeral(values[2]).value();
+      data.transaction = numeral(values[1]).value();
+      data.change = values[7].includes('green') ? numeral(values[8]).multiply(-1).value() : numeral(values[8]).value();
+      return data;
+    });
   }
 }
