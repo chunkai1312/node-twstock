@@ -6,4 +6,5 @@ export interface Ticker {
   market: Market;
   industry?: Industry;
   listedDate?: string;
+  alias?: string;
 }
