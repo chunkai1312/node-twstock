@@ -17,8 +17,10 @@ describe('TpexScraper', () => {
 
       expect(indices).toBeDefined();
       expect(indices.length).toBeGreaterThan(0);
-      expect(indices[0].name).toBe('發行量加權股價指數');
-      expect(indices[0].ex_ch).toBe('tse_t00.tw');
+      expect(indices[0]).toEqual({
+        name: '發行量加權股價指數',
+        ex_ch: 'tse_t00.tw',
+      });
     });
 
     it('should fetch listed indices for OTC market', async () => {
@@ -30,8 +32,10 @@ describe('TpexScraper', () => {
 
       expect(indices).toBeDefined();
       expect(indices.length).toBeGreaterThan(0);
-      expect(indices[0].name).toBe('櫃買指數');
-      expect(indices[0].ex_ch).toBe('otc_o00.tw');
+      expect(indices[0]).toEqual({
+        name: '櫃買指數',
+        ex_ch: 'otc_o00.tw',
+      });
     });
   });
 
@@ -98,6 +102,33 @@ describe('TpexScraper', () => {
         bidSize: [ 19341, 244834, 134008, 68495, 112109 ],
         askSize: [ 902, 10260, 7201, 2870, 10048 ],
         lastUpdated: 1701754200000,
+      });
+    });
+  });
+
+  describe('.fetchIndicesQuote()', () => {
+    it('should fetch indices realtime quote', async () => {
+      const data = require('../fixtures/indices-quote.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const scraper = new MisScraper();
+      const indices = await scraper.fetchIndicesQuote({
+        ticker: { symbol: 'IX0001', market: 'TSE', alias: 't00' } as Ticker,
+      });
+
+      expect(indices).toBeDefined();
+      expect(indices.length).toBeGreaterThan(0);
+      expect(indices[0]).toEqual({
+        date: '2023-12-05',
+        symbol: 'IX0001',
+        name: '發行量加權股價指數',
+        previousClose: 17421.48,
+        open: 17401.59,
+        high: 17401.59,
+        low: 17252.57,
+        close: 17328.01,
+        volume: 312526,
+        lastUpdated: 1701754260000,
       });
     });
   });

@@ -57,6 +57,30 @@ export class MisScraper extends Scraper {
     }));
   }
 
+  async fetchIndicesQuote(options: { ticker: Ticker }) {
+    const query = new URLSearchParams({
+      ex_ch: this.extractExChFromTicker(options.ticker),
+    });
+    const url = `http://mis.twse.com.tw/stock/api/getStockInfo.jsp?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = (response.data.rtmessage === 'OK') && response.data;
+    if (!json) return null;
+
+    return json.msgArray.map((row: any) => ({
+      date: DateTime.fromFormat(row.d, 'yyyyMMdd').toISODate(),
+      symbol: options.ticker.symbol,
+      name: row.n,
+      previousClose: row.y && numeral(row.y).value(),
+      open: row.o && numeral(row.o).value(),
+      high: row.h && numeral(row.h).value(),
+      low: row.l && numeral(row.l).value(),
+      close: row.z && numeral(row.z).value(),
+      volume: row.v && numeral(row.v).value(),
+      lastUpdated: row.tlong && numeral(row.tlong).value(),
+    }));
+  }
+
   private extractExChFromTicker(ticker: Ticker) {
     const ex = ticker.market.toLowerCase();
     const ch = (ticker.alias ? ticker.alias : ticker.symbol) + '.tw';
