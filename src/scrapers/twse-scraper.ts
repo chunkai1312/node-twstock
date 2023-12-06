@@ -4,15 +4,15 @@ import * as iconv from 'iconv-lite';
 import * as numeral from 'numeral';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
-import { Market } from '../enums';
+import { Exchange, Market } from '../enums';
 import { asIndex, asIndustry, asMarket, getExchangeByMarket } from '../utils';
 
 export class TwseScraper extends Scraper {
-  async fetchListedStocks(options?: { market: 'TSE' | 'OTC' }) {
-    const market = options?.market ?? 'TSE';
+  async fetchListedStocks(options: { market: 'TSE' | 'OTC' }) {
+    const { market } = options;
     const url = {
-      'TSE': 'https://isin.twse.com.tw/isin/class_main.jsp?market=1&issuetype=1',
-      'OTC': 'https://isin.twse.com.tw/isin/class_main.jsp?market=2&issuetype=4',
+      'TSE': 'https://isin.twse.com.tw/isin/class_main.jsp?market=1',
+      'OTC': 'https://isin.twse.com.tw/isin/class_main.jsp?market=2',
     };
     const response = await this.httpService.get(url[market], { responseType: 'arraybuffer' });
     const page = iconv.decode(response.data, 'big5');
@@ -31,8 +31,8 @@ export class TwseScraper extends Scraper {
     }).toArray();
   }
 
-  async fetchStocksHistorical(options?: { date: string }) {
-    const date = options?.date ?? DateTime.local().toISODate();
+  async fetchStocksHistorical(options: { date: string }) {
+    const { date } = options;
     const query = new URLSearchParams({
       date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
       type: 'ALLBUT0999',
@@ -46,7 +46,12 @@ export class TwseScraper extends Scraper {
 
     return json.tables[8].data.map((row: any) => {
       const [symbol, name, ...values] = row;
-      const data: Record<string, any> = { date, symbol, name };
+      const data: Record<string, any> = {};
+      data.date = date;
+      data.exchange = Exchange.TWSE;
+      data.market = Market.TSE;
+      data.symbol = symbol;
+      data.name = name;
       data.open = numeral(values[3]).value();
       data.high = numeral(values[4]).value();
       data.low = numeral(values[5]).value();
@@ -59,8 +64,8 @@ export class TwseScraper extends Scraper {
     });
   }
 
-  async fetchIndicesHistorical(options?: { date: string }) {
-    const date = options?.date ?? DateTime.local().toISODate();
+  async fetchIndicesHistorical(options: { date: string }) {
+    const { date } = options;
     const query = new URLSearchParams({
       date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
       response: 'json',
@@ -91,7 +96,12 @@ export class TwseScraper extends Scraper {
       .map(quotes => {
         const [prev, ...rows] = quotes;
         const { date, symbol, name } = prev;
-        const data: Record<string, any> = { date, symbol, name};
+        const data: Record<string, any> = {};
+        data.date = date,
+        data.exchange = Exchange.TWSE;
+        data.market = Market.TSE;
+        data.symbol = symbol,
+        data.name = name,
         data.open = _.minBy(rows, 'time').price;
         data.high = _.maxBy(rows, 'price').price;
         data.low = _.minBy(rows, 'price').price;

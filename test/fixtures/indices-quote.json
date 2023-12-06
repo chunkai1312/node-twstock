@@ -1,1 +1,39 @@
-{"msgArray":[{"tv":"22604","c":"t00","d":"20231205","ch":"t00.tw","tlong":"1701754260000","ip":"0","h":"17401.59","i":"tidx.tw","it":"t","l":"17252.57","n":"發行量加權股價指數","o":"17401.59","ex":"tse","t":"13:31:00","v":"312526","y":"17421.48","z":"17328.01"}],"referer":"","userDelay":5000,"rtcode":"0000","queryTime":{"sysDate":"20231206","stockInfoItem":77,"stockInfo":7312,"sessionStr":"UserSession","sysTime":"02:37:00","showChart":false,"sessionFromTime":-1,"sessionLatestTime":-1},"rtmessage":"OK","exKey":"if_tse_t00.tw_zh-tw.null","cachedAlive":4316375}
+{
+  "msgArray": [
+    {
+      "tv": "20528",
+      "c": "t00",
+      "d": "20231208",
+      "ch": "t00.tw",
+      "tlong": "1702013580000",
+      "ip": "0",
+      "h": "17465.35",
+      "i": "tidx.tw",
+      "it": "t",
+      "l": "17309.36",
+      "n": "發行量加權股價指數",
+      "o": "17309.36",
+      "ex": "tse",
+      "t": "13:33:00",
+      "v": "306114",
+      "y": "17278.74",
+      "z": "17383.99"
+    }
+  ],
+  "referer": "",
+  "userDelay": 5000,
+  "rtcode": "0000",
+  "queryTime": {
+    "sysDate": "20231208",
+    "stockInfoItem": 1020,
+    "stockInfo": 253391,
+    "sessionStr": "UserSession",
+    "sysTime": "13:52:25",
+    "showChart": false,
+    "sessionFromTime": -1,
+    "sessionLatestTime": -1
+  },
+  "rtmessage": "OK",
+  "exKey": "if_tse_t00.tw_zh-tw.null",
+  "cachedAlive": 1715
+}

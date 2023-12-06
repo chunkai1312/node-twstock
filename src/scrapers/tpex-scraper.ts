@@ -1,14 +1,14 @@
 import * as _ from 'lodash';
 import * as cheerio from 'cheerio';
 import * as numeral from 'numeral';
-import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
-import { asIndex } from '../utils';
+import { Exchange, Market } from '../enums';
+import { asIndex, isWarrant } from '../utils';
 
 export class TpexScraper extends Scraper {
-  async fetchStocksHistorical(options?: { date: string }) {
-    const date = options?.date ?? DateTime.local().toISODate();
-    const [year, month, day] = date.split('-');
+  async fetchStocksHistorical(options: { date: string }) {
+    const { date } = options;
+    const [ year, month, day ] = date.split('-');
     const query = new URLSearchParams({
       d: `${+year - 1911}/${month}/${day}`,
       o: 'json',
@@ -19,25 +19,16 @@ export class TpexScraper extends Scraper {
     const json = response.data.iTotalRecords > 0 && response.data;
     if (!json) return null;
 
-    const isWarrant = (symbol: string) => {
-      const rules = [
-        /^7[0-3][0-9][0-9][0-9][0-9]$/,
-        /^7[0-3][0-9][0-9][0-9]P$/,
-        /^7[0-3][0-9][0-9][0-9]F$/,
-        /^7[0-3][0-9][0-9][0-9]Q$/,
-        /^7[0-3][0-9][0-9][0-9]C$/,
-        /^7[0-3][0-9][0-9][0-9]B$/,
-        /^7[0-3][0-9][0-9][0-9]X$/,
-        /^7[0-3][0-9][0-9][0-9]Y$/,
-      ];
-      return rules.some(regex => regex.test(symbol));
-    };
-
     return json.aaData
       .filter((row: any) => !isWarrant(row[0]))
       .map((row: any) => {
         const [symbol, name, ...values] = row;
-        const data: Record<string, any> = { date, symbol, name };
+        const data: Record<string, any> = {};
+        data.date = date,
+        data.exchange = Exchange.TPEx;
+        data.market = Market.OTC;
+        data.symbol = symbol,
+        data.name = name,
         data.open = numeral(values[2]).value();
         data.high = numeral(values[3]).value();
         data.low = numeral(values[4]).value();
@@ -50,9 +41,9 @@ export class TpexScraper extends Scraper {
       });
   }
 
-  async fetchIndicesHistorical(options?: { date: string }) {
-    const date = options?.date ?? DateTime.local().toISODate();
-    const [year, month, day] = date.split('-');
+  async fetchIndicesHistorical(options: { date: string }) {
+    const { date } = options;
+    const [ year, month, day ] = date.split('-');
     const query = new URLSearchParams({
       d: `${+year - 1911}/${month}/${day}`,
     });
@@ -91,7 +82,12 @@ export class TpexScraper extends Scraper {
       .map(quotes => {
         const [prev, ...rows] = quotes;
         const { date, symbol, name } = prev;
-        const data: Record<string, any> = { date, symbol, name};
+        const data: Record<string, any> = {};
+        data.date = date,
+        data.exchange = Exchange.TPEx;
+        data.market = Market.OTC;
+        data.symbol = symbol,
+        data.name = name,
         data.open = _.minBy(rows, 'time').price;
         data.high = _.maxBy(rows, 'price').price;
         data.low = _.minBy(rows, 'price').price;

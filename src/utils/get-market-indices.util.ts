@@ -1,6 +1,6 @@
 import { Exchange, Market, Index } from '../enums';
 
-export function getMarketIndices(options?: { market?: Market }) {
+export function getMarketIndices(options?: { market: Market }) {
   const indices = [
     { symbol: Index.TAIEX, name: '發行量加權股價指數', exchange: Exchange.TWSE, market: Market.TSE, alias: 't00' },
     { symbol: Index.NonFinance, name: '未含金融指數', exchange: Exchange.TWSE, market: Market.TSE, alias: 't001' },
@@ -67,5 +67,6 @@ export function getMarketIndices(options?: { market?: Market }) {
     { symbol: Index.TPExDigitalAndCloudServices, name: '櫃買數位雲端類指數', exchange: Exchange.TPEx, market: Market.OTC },
     { symbol: Index.TPExHousehold, name: '櫃買居家生活類指數', exchange: Exchange.TPEx, market: Market.OTC },
   ];
+  /* istanbul ignore next */
   return options?.market ? indices.filter(index => index.market === options.market) : indices;
 }

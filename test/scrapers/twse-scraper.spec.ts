@@ -3,6 +3,12 @@ import mockAxios from 'jest-mock-axios';
 import { TwseScraper } from '../../src/scrapers/twse-scraper';
 
 describe('TwseScraper', () => {
+  let scraper: TwseScraper;
+
+  beforeEach(() => {
+    scraper = new TwseScraper();
+  });
+
   afterEach(() => {
     mockAxios.reset();
   });
@@ -12,18 +18,20 @@ describe('TwseScraper', () => {
       const data = fs.readFileSync('./test/fixtures/tse-listed-stocks.html');
       mockAxios.get.mockResolvedValueOnce({ data });
 
-      const scraper = new TwseScraper();
       const stocks = await scraper.fetchListedStocks({ market: 'TSE' });
-
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://isin.twse.com.tw/isin/class_main.jsp?market=1',
+        { responseType: 'arraybuffer' },
+      );
       expect(stocks).toBeDefined();
       expect(stocks.length).toBeGreaterThan(0);
       expect(stocks[0]).toEqual({
-        symbol: '1101',
-        name: '台泥',
+        symbol: '0050',
+        name: '元大台灣50',
         exchange: 'TWSE',
         market: 'TSE',
-        industry: '01',
-        listedDate: '1962-02-09',
+        industry: '00',
+        listedDate: '2003-06-30',
       });
     });
 
@@ -31,18 +39,20 @@ describe('TwseScraper', () => {
       const data = fs.readFileSync('./test/fixtures/otc-listed-stocks.html');
       mockAxios.get.mockResolvedValueOnce({ data });
 
-      const scraper = new TwseScraper();
       const stocks = await scraper.fetchListedStocks({ market: 'OTC' });
-
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://isin.twse.com.tw/isin/class_main.jsp?market=2',
+        { responseType: 'arraybuffer' },
+      );
       expect(stocks).toBeDefined();
       expect(stocks.length).toBeGreaterThan(0);
       expect(stocks[0]).toEqual({
-        symbol: '1240',
-        name: '茂生農經',
+        symbol: '006201',
+        name: '元大富櫃50',
         exchange: 'TPEx',
         market: 'OTC',
-        industry: '33',
-        listedDate: '2018-08-08',
+        industry: '00',
+        listedDate: '2011-01-27',
       });
     });
   });
@@ -52,13 +62,16 @@ describe('TwseScraper', () => {
       const data = require('../fixtures/tse-stocks-historical.json');
       mockAxios.get.mockResolvedValueOnce({ data });
 
-      const scraper = new TwseScraper();
       const stocks = await scraper.fetchStocksHistorical({ date: '2023-01-30' });
-
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230130&type=ALLBUT0999&response=json',
+      );
       expect(stocks).toBeDefined();
       expect(stocks.length).toBeGreaterThan(0);
       expect(stocks[0]).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
+        market: 'TSE',
         symbol: '0050',
         name: '元大台灣50',
         open: 120.8,
@@ -71,6 +84,16 @@ describe('TwseScraper', () => {
         change: 0,
       });
     });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const stocks = await scraper.fetchStocksHistorical({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230101&type=ALLBUT0999&response=json',
+      );
+      expect(stocks).toBe(null);
+    });
   });
 
   describe('.fetchIndicesHistorical()', () => {
@@ -78,13 +101,16 @@ describe('TwseScraper', () => {
       const data = require('../fixtures/tse-indices-historical.json');
       mockAxios.get.mockResolvedValueOnce({ data });
 
-      const scraper = new TwseScraper();
       const indices = await scraper.fetchIndicesHistorical({ date: '2023-01-30' });
-
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/TAIEX/MI_5MINS_INDEX?date=20230130&response=json',
+      );
       expect(indices).toBeDefined();
       expect(indices.length).toBeGreaterThan(0);
       expect(indices[0]).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
+        market: 'TSE',
         symbol: 'IX0001',
         name: '發行量加權股價指數',
         open: 15291.53,
@@ -93,6 +119,16 @@ describe('TwseScraper', () => {
         close: 15493.82,
         change: 560.89,
       });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const indices = await scraper.fetchIndicesHistorical({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/TAIEX/MI_5MINS_INDEX?date=20230101&response=json',
+      );
+      expect(indices).toBe(null);
     });
   });
 });

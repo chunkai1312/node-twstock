@@ -1,7 +1,7 @@
 {
   "name": "twstock",
   "version": "0.0.0",
-  "description": "",
+  "description": "A client library for scraping real-time quotes and historical data from the Taiwan stock market",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {

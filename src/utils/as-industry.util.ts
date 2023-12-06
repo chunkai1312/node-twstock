@@ -1,6 +1,6 @@
 import { Industry } from '../enums';
 
-export function asIndustry(industry: string): Industry {
+export function asIndustry(industry: string) {
   const industries: Record<string, Industry> = {
     '水泥工業': Industry.Cement,
     '食品工業': Industry.Food,
