@@ -1,7 +1,9 @@
 import * as _ from 'lodash';
+import * as cheerio from 'cheerio';
 import * as numeral from 'numeral';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
+import { asIndex } from '../utils';
 
 export class TpexScraper extends Scraper {
   async fetchStocksHistorical(options?: { date: string }) {
@@ -46,5 +48,56 @@ export class TpexScraper extends Scraper {
         data.change = numeral(values[1]).value();
         return data;
       });
+  }
+
+  async fetchIndicesHistorical(options?: { date: string }) {
+    const date = options?.date ?? DateTime.local().toISODate();
+    const [year, month, day] = date.split('-');
+    const query = new URLSearchParams({
+      d: `${+year - 1911}/${month}/${day}`,
+    });
+    const url = `https://www.tpex.org.tw/web/stock/iNdex_info/minute_index/1MIN_print.php?${query}`;
+
+    const response = await this.httpService.get(url);
+    const page = response.data;
+    const $ = cheerio.load(page);
+
+    const total = $('tfoot tr td').text().trim();
+    if (total === '共0筆') return null;
+
+    const indices = $('thead tr th').slice(1, -7).map((_, el) => {
+      const name = $(el).text().trim();
+      const index = (name !== '櫃買指數') ? `櫃買${name.replace('類', '')}類指數` : name;
+      return {
+        symbol: asIndex(index),
+        name: index,
+      };
+    }).toArray();
+
+    const quotes = $('tbody tr').map((_, el) => {
+      const td = $(el).find('td');
+      const row = td.map((_, el) => $(el).text().trim()).toArray();
+      const [time, ...values] = row;
+      return values.slice(0, -7).map((value: any, i: number) => ({
+        date,
+        time,
+        symbol: indices[i].symbol,
+        name: indices[i].name,
+        price: numeral(value).value(),
+      }));
+    }).toArray() as any;
+
+    return _(quotes).groupBy('symbol')
+      .map(quotes => {
+        const [prev, ...rows] = quotes;
+        const { date, symbol, name } = prev;
+        const data: Record<string, any> = { date, symbol, name};
+        data.open = _.minBy(rows, 'time').price;
+        data.high = _.maxBy(rows, 'price').price;
+        data.low = _.minBy(rows, 'price').price;
+        data.close = _.maxBy(rows, 'time').price;
+        data.change = numeral(data.close).subtract(prev.price).value();
+        return data;
+      }).value() as any;
   }
 }
