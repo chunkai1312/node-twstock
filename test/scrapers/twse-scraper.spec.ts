@@ -72,4 +72,27 @@ describe('TwseScraper', () => {
       });
     });
   });
+
+  describe('.fetchIndicesHistorical()', () => {
+    it('should fetch indices historical data for the given date', async () => {
+      const data = require('../fixtures/tse-indices-historical.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const scraper = new TwseScraper();
+      const indices = await scraper.fetchIndicesHistorical({ date: '2023-01-30' });
+
+      expect(indices).toBeDefined();
+      expect(indices.length).toBeGreaterThan(0);
+      expect(indices[0]).toEqual({
+        date: '2023-01-30',
+        symbol: 'IX0001',
+        name: '發行量加權股價指數',
+        open: 15291.53,
+        high: 15493.82,
+        low: 15291.53,
+        close: 15493.82,
+        change: 560.89,
+      });
+    });
+  });
 });

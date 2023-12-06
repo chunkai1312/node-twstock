@@ -5,7 +5,7 @@ import * as numeral from 'numeral';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
 import { Market } from '../enums';
-import { asIndustry, asMarket, getExchangeByMarket } from '../utils';
+import { asIndex, asIndustry, asMarket, getExchangeByMarket } from '../utils';
 
 export class TwseScraper extends Scraper {
   async fetchListedStocks(options?: { market: 'TSE' | 'OTC' }) {
@@ -26,7 +26,7 @@ export class TwseScraper extends Scraper {
         exchange: getExchangeByMarket(market as Market),
         market: asMarket(td.eq(4).text().trim()),
         industry: asIndustry(td.eq(6).text().trim()),
-        listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate(),
+        listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate() as string,
       };
     }).toArray();
   }
@@ -57,5 +57,47 @@ export class TwseScraper extends Scraper {
       data.change = values[7].includes('green') ? numeral(values[8]).multiply(-1).value() : numeral(values[8]).value();
       return data;
     });
+  }
+
+  async fetchIndicesHistorical(options?: { date: string }) {
+    const date = options?.date ?? DateTime.local().toISODate();
+    const query = new URLSearchParams({
+      date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/TAIEX/MI_5MINS_INDEX?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = (response.data.stat === 'OK') && response.data;
+    if (!json) return null;
+
+    const indices = json.fields.slice(1).map((index: string) => ({
+      symbol: asIndex(index),
+      name: index,
+    }));
+
+    const quotes = json.data.flatMap((row: any) => {
+      const [time, ...values] = row;
+      return values.map((value: any, i: number) => ({
+        date,
+        time,
+        symbol: indices[i].symbol,
+        name: indices[i].name,
+        price: numeral(value).value(),
+      }));
+    });
+
+    return _(quotes).groupBy('symbol')
+      .map(quotes => {
+        const [prev, ...rows] = quotes;
+        const { date, symbol, name } = prev;
+        const data: Record<string, any> = { date, symbol, name};
+        data.open = _.minBy(rows, 'time').price;
+        data.high = _.maxBy(rows, 'price').price;
+        data.low = _.minBy(rows, 'price').price;
+        data.close = _.maxBy(rows, 'time').price;
+        data.change = numeral(data.close).subtract(prev.price).value();
+        return data;
+      }).value() as any;
   }
 }
