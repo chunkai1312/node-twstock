@@ -199,7 +199,7 @@ console.log(indexHistorical);
 
 [npm-image]: https://img.shields.io/npm/v/node-twstock.svg
 [npm-url]: https://npmjs.com/package/node-twstock
-[action-image]: https://img.shields.io/github/actions/workflow/status/chunkai1312/node-twstock/node.js.yml?branch=master
+[action-image]: https://img.shields.io/github/actions/workflow/status/chunkai1312/node-twstock/node.js.yml?branch=main
 [action-url]: https://github.com/chunkai1312/node-twstock/actions/workflows/node.js.yml
 [codecov-image]: https://img.shields.io/codecov/c/github/chunkai1312/node-twstock.svg
 [codecov-url]: https://codecov.io/gh/chunkai1312/node-twstock
