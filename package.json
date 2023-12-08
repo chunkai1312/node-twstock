@@ -1,5 +1,5 @@
 {
-  "name": "twstock",
+  "name": "node-twstock",
   "version": "0.0.0",
   "description": "A client library for scraping real-time quotes and historical data from the Taiwan stock market",
   "main": "lib/index.js",
@@ -20,15 +20,21 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chunkai1312/twstock.git"
+    "url": "git+https://github.com/chunkai1312/node-twstock.git"
   },
-  "keywords": [],
+  "keywords": [
+    "node-twstock",
+    "twstock",
+    "stock",
+    "twse",
+    "tpex"
+  ],
   "author": "Chun-Kai Wang <chunkai1312@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/chunkai1312/twstock/issues"
+    "url": "https://github.com/chunkai1312/node-twstock/issues"
   },
-  "homepage": "https://github.com/chunkai1312/twstock#readme",
+  "homepage": "https://github.com/chunkai1312/node-twstock#readme",
   "dependencies": {
     "axios": "^1.5.1",
     "cheerio": "^1.0.0-rc.12",
