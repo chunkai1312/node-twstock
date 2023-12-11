@@ -41,6 +41,57 @@ export class TpexScraper extends Scraper {
       });
   }
 
+  async fetchStocksInstTrades(options: { date: string }) {
+    const { date } = options;
+    const [year, month, day] = date.split('-');
+    const query = new URLSearchParams({
+      d: `${+year - 1911}/${month}/${day}`,
+      se: 'EW',
+      t: 'D',
+      o: 'json',
+    });
+    const url = `https://www.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.iTotalRecords > 0 && response.data;
+    if (!json) return null;
+
+    return json.aaData.map((row: any) => {
+      const [symbol, name, ...values] = row;
+      const data: Record<string, any> = {};
+      data.date = date;
+      data.exchange = Exchange.TPEx;
+      data.market = Market.OTC;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.finiWithoutDealersBuy = numeral(values[0]).value();
+      data.finiWithoutDealersSell = numeral(values[1]).value();
+      data.finiWithoutDealersNetBuySell = numeral(values[2]).value();
+      data.finiDealersBuy = numeral(values[3]).value();
+      data.finiDealersSell = numeral(values[4]).value();
+      data.finiDealersNetBuySell = numeral(values[5]).value();
+      data.finiBuy = numeral(values[6]).value();
+      data.finiSell = numeral(values[7]).value();
+      data.finiNetBuySell = numeral(values[8]).value();
+      data.sitcBuy = numeral(values[9]).value();
+      data.sitcSell = numeral(values[10]).value();
+      data.sitcNetBuySell = numeral(values[11]).value();
+      data.dealersForProprietaryBuy = numeral(values[12]).value();
+      data.dealersForProprietarySell = numeral(values[13]).value();
+      data.dealersForProprietaryNetBuySell = numeral(values[14]).value();
+      data.dealersForHedgingBuy = numeral(values[15]).value();
+      data.dealersForHedgingSell = numeral(values[16]).value();
+      data.dealersForHedgingNetBuySell = numeral(values[17]).value();
+      data.dealersBuy = numeral(values[18]).value();
+      data.dealersSell = numeral(values[19]).value();
+      data.dealersNetBuySell = numeral(values[20]).value();
+      data.totalInstInvestorsBuy = data.finiBuy + data.sitcBuy + data.dealersBuy;
+      data.totalInstInvestorsSell = data.finiSell + data.sitcSell + data.dealersSell;
+      data.totalInstInvestorsNetBuySell = numeral(values[21]).value();
+      return data;
+    });
+  }
+
   async fetchIndicesHistorical(options: { date: string }) {
     const { date } = options;
     const [ year, month, day ] = date.split('-');

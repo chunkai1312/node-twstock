@@ -11,6 +11,10 @@ jest.mock('../src/scrapers', () => ({
       if (date === '2023-01-30') return require('./fixtures/fetched-tse-stocks-historical.json');
       return null;
     }),
+    fetchStocksInstTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-tse-stocks-inst-trades.json');
+      return null;
+    }),
     fetchIndicesHistorical: jest.fn(({ date }) => {
       if (date === '2023-01-30') return require('./fixtures/fetched-tse-indices-historical.json');
       return null;
@@ -19,6 +23,10 @@ jest.mock('../src/scrapers', () => ({
   TpexScraper: {
     fetchStocksHistorical: jest.fn(({ date }) => {
       if (date === '2023-01-30') return require('./fixtures/fetched-otc-stocks-historical.json');
+      return null;
+    }),
+    fetchStocksInstTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-otc-stocks-inst-trades.json');
       return null;
     }),
     fetchIndicesHistorical: jest.fn(({ date }) => {
@@ -56,8 +64,8 @@ describe('TwStock', () => {
     twstock = new TwStock();
   });
 
-  describe('stocks', () => {
-    describe('list()', () => {
+  describe('.stocks', () => {
+    describe('.list()', () => {
       it('should load stocks and return the list', async () => {
         const stocks = await twstock.stocks.list();
         expect(stocks).toBeDefined();
@@ -79,7 +87,7 @@ describe('TwStock', () => {
       });
     });
 
-    describe('quote()', () => {
+    describe('.quote()', () => {
       it('should fetch stocks realtime quote', async () => {
         const stock = await twstock.stocks.quote({ symbol: '2330' });
         expect(stock).toBeDefined();
@@ -91,7 +99,7 @@ describe('TwStock', () => {
       });
     });
 
-    describe('historical()', () => {
+    describe('.historical()', () => {
       it('should fetch stocks historical data for the symbol', async () => {
         const stock = await twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' });
         expect(stock).toBeDefined();
@@ -116,10 +124,37 @@ describe('TwStock', () => {
         expect(stocks.every((stock: any) => stock.market === 'OTC')).toBe(true);
       });
     });
+
+    describe('.instTrades()', () => {
+      it('should fetch stocks institutional investors\' trades for the symbol', async () => {
+        const stock = await twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' });
+        expect(stock).toBeDefined();
+        expect(stock.symbol).toBe('2330');
+        console.log(stock)
+      });
+
+      it('should throw an error if symbol is not found', async () => {
+        await expect(() => twstock.stocks.instTrades({ date: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+
+      it('should fetch stocks institutional investors\' trades for the TSE market', async () => {
+        const stocks = await twstock.stocks.instTrades({ date: '2023-01-30', market: 'TSE' });
+        expect(stocks).toBeDefined();
+        expect(stocks.length).toBeGreaterThan(0);
+        expect(stocks.every((stock: any) => stock.market === 'TSE')).toBe(true);
+      });
+
+      it('should fetch stocks institutional investors\' trades for the OTC market', async () => {
+        const stocks = await twstock.stocks.instTrades({ date: '2023-01-30', market: 'OTC' });
+        expect(stocks).toBeDefined();
+        expect(stocks.length).toBeGreaterThan(0);
+        expect(stocks.every((stock: any) => stock.market === 'OTC')).toBe(true);
+      });
+    });
   });
 
-  describe('indices', () => {
-    describe('list()', () => {
+  describe('.indices', () => {
+    describe('.list()', () => {
       it('should load indices and return the list', async () => {
         const indices = await twstock.indices.list();
         expect(indices).toBeDefined();
@@ -141,7 +176,7 @@ describe('TwStock', () => {
       });
     });
 
-    describe('quote()', () => {
+    describe('.quote()', () => {
       it('should fetch indices realtime quote', async () => {
         const index = await twstock.indices.quote({ symbol: 'IX0001' });
         expect(index).toBeDefined();
@@ -153,7 +188,7 @@ describe('TwStock', () => {
       });
     });
 
-    describe('historical()', () => {
+    describe('.historical()', () => {
       it('should fetch indices historical data for the symbol', async () => {
         const index = await twstock.indices.historical({ date: '2023-01-30', symbol: 'IX0001' });
         expect(index).toBeDefined();

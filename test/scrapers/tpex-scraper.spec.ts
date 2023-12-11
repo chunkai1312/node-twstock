@@ -52,6 +52,61 @@ describe('TpexScraper', () => {
     });
   });
 
+  describe('.fetchStocksInstTrades()', () => {
+    it('should fetch stocks institutional investors\' trades for the given date', async () => {
+      const data = require('../fixtures/otc-stocks-inst-trades.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const stocks = await scraper.fetchStocksInstTrades({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?d=112%2F01%2F30&se=EW&t=D&o=json',
+      );
+      expect(stocks).toBeDefined();
+      expect(stocks.length).toBeGreaterThan(0);
+      expect(stocks[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TPEx',
+        market: 'OTC',
+        symbol: '00679B',
+        name: '元大美債20年',
+        finiWithoutDealersBuy: 425061,
+        finiWithoutDealersSell: 282000,
+        finiWithoutDealersNetBuySell: 143061,
+        finiDealersBuy: 0,
+        finiDealersSell: 0,
+        finiDealersNetBuySell: 0,
+        finiBuy: 425061,
+        finiSell: 282000,
+        finiNetBuySell: 143061,
+        sitcBuy: 0,
+        sitcSell: 0,
+        sitcNetBuySell: 0,
+        dealersForProprietaryBuy: 250000,
+        dealersForProprietarySell: 0,
+        dealersForProprietaryNetBuySell: 250000,
+        dealersForHedgingBuy: 1874000,
+        dealersForHedgingSell: 9422229,
+        dealersForHedgingNetBuySell: -7548229,
+        dealersBuy: 2124000,
+        dealersSell: 9422229,
+        dealersNetBuySell: -7298229,
+        totalInstInvestorsBuy: 2549061,
+        totalInstInvestorsSell: 9704229,
+        totalInstInvestorsNetBuySell: -7155168,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const stocks = await scraper.fetchStocksInstTrades({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?d=112%2F01%2F01&se=EW&t=D&o=json',
+      );
+      expect(stocks).toBe(null);
+    });
+  });
+
   describe('.fetchIndicesHistorical()', () => {
     it('should fetch indices historical data for the given date', async () => {
       const data = fs.readFileSync('./test/fixtures/otc-indices-historical.html').toString();

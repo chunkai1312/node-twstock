@@ -113,6 +113,53 @@ console.log(stockHistorical);
 // }
 ```
 
+### `stocks.instTrades(params)`
+
+Get institutional investors' trades for a specific stock on a given date.
+
+- `params`:
+  - `date`: Date in the format 'YYYY-MM-DD'
+  - `market` (optional): Filter stocks by market ('TSE' or 'OTC')
+  - `symbol` (optional): Stock symbol
+- Returns: Promise that resolves to the institutional investors' trades.
+
+```js
+const stockInstTrades = await twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' });
+console.log(stockInstTrades);
+// Prints:
+// {
+//   date: '2023-01-30',
+//   exchange: 'TWSE',
+//   market: 'TSE',
+//   symbol: '2330',
+//   name: '台積電',
+//   finiWithoutDealersBuy: 133236588,
+//   finiWithoutDealersSell: 52595539,
+//   finiWithoutDealersNetBuySell: 80641049,
+//   finiDealersBuy: 0,
+//   finiDealersSell: 0,
+//   finiDealersNetBuySell: 0,
+//   finiBuy: 133236588,
+//   finiSell: 52595539,
+//   finiNetBuySell: 80641049,
+//   sitcBuy: 1032000,
+//   sitcSell: 94327,
+//   sitcNetBuySell: 937673,
+//   dealersForProprietaryBuy: 978000,
+//   dealersForProprietarySell: 537000,
+//   dealersForProprietaryNetBuySell: 441000,
+//   dealersForHedgingBuy: 1227511,
+//   dealersForHedgingSell: 788103,
+//   dealersForHedgingNetBuySell: 439408,
+//   dealersBuy: 2205511,
+//   dealersSell: 1325103,
+//   dealersNetBuySell: 880408,
+//   totalInstInvestorsBuy: 136474099,
+//   totalInstInvestorsSell: 54014969,
+//   totalInstInvestorsNetBuySell: 82459130
+// }
+```
+
 ## Indices
 
 ### `indices.list(params)`
