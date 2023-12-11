@@ -1,5 +1,13 @@
 # Changelog
 
+# [0.2.0](https://github.com/chunkai1312/node-twstock/compare/v0.1.0...v0.2.0) (2023-12-11)
+
+
+### Features
+
+* support for fetching OTC stocks institutional investors' trades ([73ebb0a](https://github.com/chunkai1312/node-twstock/commit/73ebb0a7404a3f11e8999bb82b5659385e1f41e0))
+* support for fetching TSE stocks institutional investors' trades ([c931c7c](https://github.com/chunkai1312/node-twstock/commit/c931c7c1212b2627418373702fee302efbb8bb5b))
+
 # 0.1.0 (2023-12-08)
 
 
