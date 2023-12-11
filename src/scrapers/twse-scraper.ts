@@ -64,6 +64,55 @@ export class TwseScraper extends Scraper {
     });
   }
 
+  async fetchStocksInstTrades(options: { date: string }) {
+    const { date } = options;
+    const query = new URLSearchParams({
+      date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      selectType: 'ALLBUT0999',
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/fund/T86?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = (response.data.stat === 'OK') && response.data;
+    if (!json) return null;
+
+    return json.data.map((row: any) => {
+      const [symbol, name, ...values] = row;
+      const data: Record<string, any> = {};
+      data.date = date;
+      data.exchange = Exchange.TWSE;
+      data.market = Market.TSE;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.finiWithoutDealersBuy = numeral(values[0]).value();
+      data.finiWithoutDealersSell = numeral(values[1]).value();
+      data.finiWithoutDealersNetBuySell = numeral(values[2]).value();
+      data.finiDealersBuy = numeral(values[3]).value();
+      data.finiDealersSell = numeral(values[4]).value();
+      data.finiDealersNetBuySell = numeral(values[5]).value();
+      data.finiBuy = data.finiWithoutDealersBuy + data.finiDealersBuy;
+      data.finiSell = data.finiWithoutDealersSell + data.finiDealersSell;
+      data.finiNetBuySell = data.finiWithoutDealersNetBuySell + data.finiDealersNetBuySell;
+      data.sitcBuy = numeral(values[6]).value();
+      data.sitcSell = numeral(values[7]).value();
+      data.sitcNetBuySell = numeral(values[8]).value();
+      data.dealersForProprietaryBuy = numeral(values[10]).value();
+      data.dealersForProprietarySell = numeral(values[11]).value();
+      data.dealersForProprietaryNetBuySell = numeral(values[12]).value();
+      data.dealersForHedgingBuy = numeral(values[13]).value();
+      data.dealersForHedgingSell = numeral(values[14]).value();
+      data.dealersForHedgingNetBuySell = numeral(values[15]).value();
+      data.dealersBuy = data.dealersForProprietaryBuy + data.dealersForHedgingBuy;
+      data.dealersSell = data.dealersForProprietarySell + data.dealersForHedgingSell;
+      data.dealersNetBuySell = numeral(values[9]).value();
+      data.totalInstInvestorsBuy = data.finiBuy + data.sitcBuy + data.dealersBuy;
+      data.totalInstInvestorsSell = data.finiSell + data.sitcSell + data.dealersSell;
+      data.totalInstInvestorsNetBuySell = numeral(values[16]).value();
+      return data;
+    });
+  }
+
   async fetchIndicesHistorical(options: { date: string }) {
     const { date } = options;
     const query = new URLSearchParams({

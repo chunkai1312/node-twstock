@@ -96,6 +96,61 @@ describe('TwseScraper', () => {
     });
   });
 
+  describe('.fetchStocksInstTrades()', () => {
+    it('should fetch stocks institutional investors\' trades for the given date', async () => {
+      const data = require('../fixtures/tse-stocks-inst-trades.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const stocks = await scraper.fetchStocksInstTrades({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/fund/T86?date=20230130&selectType=ALLBUT0999&response=json',
+      );
+      expect(stocks).toBeDefined();
+      expect(stocks.length).toBeGreaterThan(0);
+      expect(stocks[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TWSE',
+        market: 'TSE',
+        symbol: '2303',
+        name: '聯電',
+        finiWithoutDealersBuy: 153168423,
+        finiWithoutDealersSell: 69183073,
+        finiWithoutDealersNetBuySell: 83985350,
+        finiDealersBuy: 0,
+        finiDealersSell: 0,
+        finiDealersNetBuySell: 0,
+        finiBuy: 153168423,
+        finiSell: 69183073,
+        finiNetBuySell: 83985350,
+        sitcBuy: 19338000,
+        sitcSell: 161299,
+        sitcNetBuySell: 19176701,
+        dealersForProprietaryBuy: 3768000,
+        dealersForProprietarySell: 759000,
+        dealersForProprietaryNetBuySell: 3009000,
+        dealersForHedgingBuy: 3766151,
+        dealersForHedgingSell: 416000,
+        dealersForHedgingNetBuySell: 3350151,
+        dealersBuy: 7534151,
+        dealersSell: 1175000,
+        dealersNetBuySell: 6359151,
+        totalInstInvestorsBuy: 180040574,
+        totalInstInvestorsSell: 70519372,
+        totalInstInvestorsNetBuySell: 109521202,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const stocks = await scraper.fetchStocksInstTrades({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/fund/T86?date=20230101&selectType=ALLBUT0999&response=json',
+      );
+      expect(stocks).toBe(null);
+    });
+  });
+
   describe('.fetchIndicesHistorical()', () => {
     it('should fetch indices historical data for the given date', async () => {
       const data = require('../fixtures/tse-indices-historical.json');
