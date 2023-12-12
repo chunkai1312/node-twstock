@@ -1,5 +1,13 @@
 # Changelog
 
+# [0.3.0](https://github.com/chunkai1312/node-twstock/compare/v0.2.0...v0.3.0) (2023-12-12)
+
+
+### Features
+
+* support for fetching OTC stocks values ([db2c396](https://github.com/chunkai1312/node-twstock/commit/db2c396071e7e3bd18b2a4f968a62851c3989854))
+* support for fetching TSE stocks values ([a991591](https://github.com/chunkai1312/node-twstock/commit/a991591087c49e39a5d6c2964f4dd0346f237eec))
+
 # [0.2.0](https://github.com/chunkai1312/node-twstock/compare/v0.1.0...v0.2.0) (2023-12-11)
 
 
