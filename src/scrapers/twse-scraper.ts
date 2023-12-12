@@ -44,14 +44,14 @@ export class TwseScraper extends Scraper {
     const json = (response.data.stat === 'OK') && response.data;
     if (!json) return null;
 
-    return json.tables[8].data.map((row: any) => {
+    return json.tables[8].data.map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
       data.exchange = Exchange.TWSE;
       data.market = Market.TSE;
       data.symbol = symbol;
-      data.name = name;
+      data.name = name.trim();
       data.open = numeral(values[3]).value();
       data.high = numeral(values[4]).value();
       data.low = numeral(values[5]).value();
@@ -77,7 +77,7 @@ export class TwseScraper extends Scraper {
     const json = (response.data.stat === 'OK') && response.data;
     if (!json) return null;
 
-    return json.data.map((row: any) => {
+    return json.data.map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
@@ -113,6 +113,35 @@ export class TwseScraper extends Scraper {
     });
   }
 
+  async fetchStocksValues(options: { date: string }) {
+    const { date } = options;
+    const query = new URLSearchParams({
+      date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      selectType: 'ALL',
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = (response.data.stat === 'OK') && response.data;
+    if (!json) return null;
+
+    return json.data.map((row: string[]) => {
+      const [symbol, name, ...values] = row;
+      const data: Record<string, any> = {};
+      data.date = date;
+      data.exchange = Exchange.TWSE;
+      data.market = Market.TSE;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.peRatio = numeral(values[2]).value();
+      data.pbRatio = numeral(values[3]).value();
+      data.dividendYield = numeral(values[0]).value();
+      data.dividendYear = numeral(values[1]).add(1911).value();
+      return data;
+    });
+  }
+
   async fetchIndicesHistorical(options: { date: string }) {
     const { date } = options;
     const query = new URLSearchParams({
@@ -130,7 +159,7 @@ export class TwseScraper extends Scraper {
       name: index,
     }));
 
-    const quotes = json.data.flatMap((row: any) => {
+    const quotes = json.data.flatMap((row: string[]) => {
       const [time, ...values] = row;
       return values.map((value: any, i: number) => ({
         date,
@@ -150,7 +179,7 @@ export class TwseScraper extends Scraper {
         data.exchange = Exchange.TWSE;
         data.market = Market.TSE;
         data.symbol = symbol,
-        data.name = name,
+        data.name = name.trim();
         data.open = _.minBy(rows, 'time').price;
         data.high = _.maxBy(rows, 'price').price;
         data.low = _.minBy(rows, 'price').price;
