@@ -107,6 +107,41 @@ describe('TpexScraper', () => {
     });
   });
 
+  describe('.fetchStocksValues()', () => {
+    it('should fetch stocks values for the given date', async () => {
+      const data = require('../fixtures/otc-stocks-values.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const stocks = await scraper.fetchStocksValues({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/aftertrading/peratio_analysis/pera_result.php?d=112%2F01%2F30&o=json',
+      );
+      expect(stocks).toBeDefined();
+      expect(stocks.length).toBeGreaterThan(0);
+      expect(stocks[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TPEx',
+        market: 'OTC',
+        symbol: '1240',
+        name: '茂生農經',
+        peRatio: 46.32,
+        pbRatio: 1.42,
+        dividendYield: 5.68,
+        dividendYear: 2022,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const stocks = await scraper.fetchStocksValues({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/aftertrading/peratio_analysis/pera_result.php?d=112%2F01%2F01&o=json',
+      );
+      expect(stocks).toBe(null);
+    });
+  });
+
   describe('.fetchIndicesHistorical()', () => {
     it('should fetch indices historical data for the given date', async () => {
       const data = fs.readFileSync('./test/fixtures/otc-indices-historical.html').toString();

@@ -20,15 +20,15 @@ export class TpexScraper extends Scraper {
     if (!json) return null;
 
     return json.aaData
-      .filter((row: any) => !isWarrant(row[0]))
-      .map((row: any) => {
+      .filter((row: string[]) => !isWarrant(row[0]))
+      .map((row: string[]) => {
         const [symbol, name, ...values] = row;
         const data: Record<string, any> = {};
         data.date = date,
         data.exchange = Exchange.TPEx;
         data.market = Market.OTC;
         data.symbol = symbol,
-        data.name = name,
+        data.name = name.trim();
         data.open = numeral(values[2]).value();
         data.high = numeral(values[3]).value();
         data.low = numeral(values[4]).value();
@@ -56,7 +56,7 @@ export class TpexScraper extends Scraper {
     const json = response.data.iTotalRecords > 0 && response.data;
     if (!json) return null;
 
-    return json.aaData.map((row: any) => {
+    return json.aaData.map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
@@ -88,6 +88,35 @@ export class TpexScraper extends Scraper {
       data.totalInstInvestorsBuy = data.finiBuy + data.sitcBuy + data.dealersBuy;
       data.totalInstInvestorsSell = data.finiSell + data.sitcSell + data.dealersSell;
       data.totalInstInvestorsNetBuySell = numeral(values[21]).value();
+      return data;
+    });
+  }
+
+  async fetchStocksValues(options: { date: string }) {
+    const { date } = options;
+    const [year, month, day] = date.split('-');
+    const query = new URLSearchParams({
+      d: `${+year - 1911}/${month}/${day}`,
+      o: 'json',
+    });
+    const url = `https://www.tpex.org.tw/web/stock/aftertrading/peratio_analysis/pera_result.php?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.iTotalRecords > 0 && response.data;
+    if (!json) return null;
+
+    return json.aaData.map((row: string[]) => {
+      const [symbol, name, ...values] = row;
+      const data: Record<string, any> = {};
+      data.date = date;
+      data.exchange = Exchange.TPEx;
+      data.market = Market.OTC;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.peRatio = numeral(values[0]).value();
+      data.pbRatio = numeral(values[4]).value();
+      data.dividendYield = numeral(values[3]).value();
+      data.dividendYear = numeral(values[2]).add(1911).value();
       return data;
     });
   }
@@ -138,7 +167,7 @@ export class TpexScraper extends Scraper {
         data.exchange = Exchange.TPEx;
         data.market = Market.OTC;
         data.symbol = symbol,
-        data.name = name,
+        data.name = name.trim();
         data.open = _.minBy(rows, 'time').price;
         data.high = _.maxBy(rows, 'price').price;
         data.low = _.minBy(rows, 'price').price;

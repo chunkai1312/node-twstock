@@ -13,6 +13,7 @@ export class TwStock {
       quote: this.getStocksQuote.bind(this),
       historical: this.getStocksHistorical.bind(this),
       instTrades: this.getStocksInstTrades.bind(this),
+      values: this.getStocksValues.bind(this),
     };
   }
 
@@ -118,6 +119,27 @@ export class TwStock {
     const data = (market === Market.OTC)
       ? await TpexScraper.fetchStocksInstTrades({ date })
       : await TwseScraper.fetchStocksInstTrades({ date });
+
+    /* istanbul ignore next */
+    return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
+  }
+
+  private async getStocksValues(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+    const { date, symbol } = params;
+
+    if (!this._stocks.size) {
+      await this.loadStocks();
+    }
+    if (symbol && !this._stocks.has(symbol)) {
+      throw new Error('symbol not found');
+    }
+
+    const ticker = this._stocks.get(symbol as string) as Ticker;
+    const market = symbol ? ticker.market : params.market;
+
+    const data = (market === Market.OTC)
+      ? await TpexScraper.fetchStocksValues({ date })
+      : await TwseScraper.fetchStocksValues({ date });
 
     /* istanbul ignore next */
     return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;

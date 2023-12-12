@@ -15,6 +15,10 @@ jest.mock('../src/scrapers', () => ({
       if (date === '2023-01-30') return require('./fixtures/fetched-tse-stocks-inst-trades.json');
       return null;
     }),
+    fetchStocksValues: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-tse-stocks-values.json');
+      return null;
+    }),
     fetchIndicesHistorical: jest.fn(({ date }) => {
       if (date === '2023-01-30') return require('./fixtures/fetched-tse-indices-historical.json');
       return null;
@@ -27,6 +31,10 @@ jest.mock('../src/scrapers', () => ({
     }),
     fetchStocksInstTrades: jest.fn(({ date }) => {
       if (date === '2023-01-30') return require('./fixtures/fetched-otc-stocks-inst-trades.json');
+      return null;
+    }),
+    fetchStocksValues: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-otc-stocks-values.json');
       return null;
     }),
     fetchIndicesHistorical: jest.fn(({ date }) => {
@@ -146,6 +154,33 @@ describe('TwStock', () => {
 
       it('should fetch stocks institutional investors\' trades for the OTC market', async () => {
         const stocks = await twstock.stocks.instTrades({ date: '2023-01-30', market: 'OTC' });
+        expect(stocks).toBeDefined();
+        expect(stocks.length).toBeGreaterThan(0);
+        expect(stocks.every((stock: any) => stock.market === 'OTC')).toBe(true);
+      });
+    });
+
+    describe('.values()', () => {
+      it('should fetch stocks values for the symbol', async () => {
+        const stock = await twstock.stocks.values({ date: '2023-01-30', symbol: '2330' });
+        expect(stock).toBeDefined();
+        expect(stock.symbol).toBe('2330');
+        console.log(stock)
+      });
+
+      it('should throw an error if symbol is not found', async () => {
+        await expect(() => twstock.stocks.values({ date: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+
+      it('should fetch stocks values for the TSE market', async () => {
+        const stocks = await twstock.stocks.values({ date: '2023-01-30', market: 'TSE' });
+        expect(stocks).toBeDefined();
+        expect(stocks.length).toBeGreaterThan(0);
+        expect(stocks.every((stock: any) => stock.market === 'TSE')).toBe(true);
+      });
+
+      it('should fetch stocks values for the OTC market', async () => {
+        const stocks = await twstock.stocks.values({ date: '2023-01-30', market: 'OTC' });
         expect(stocks).toBeDefined();
         expect(stocks.length).toBeGreaterThan(0);
         expect(stocks.every((stock: any) => stock.market === 'OTC')).toBe(true);

@@ -160,6 +160,33 @@ console.log(stockInstTrades);
 // }
 ```
 
+### `stocks.values(params)`
+
+Get values for a specific stock on a given date.
+
+- `params`:
+  - `date`: Date in the format 'YYYY-MM-DD'
+  - `market` (optional): Filter stocks by market ('TSE' or 'OTC')
+  - `symbol` (optional): Stock symbol
+- Returns: Promise that resolves to the values.
+
+```js
+const stockValues = await twstock.stocks.values({ date: '2023-01-30', symbol: '2330' });
+console.log(stockValues);
+// Prints:
+// {
+  // date: '2023-01-30',
+  // exchange: 'TWSE',
+  // market: 'TSE',
+  // symbol: '2330',
+  // name: '台積電',
+  // peRatio: 15.88,
+  // pbRatio: 5.14,
+  // dividendYield: 2.03,
+  // dividendYear: 2021
+// }
+```
+
 ## Indices
 
 ### `indices.list(params)`
