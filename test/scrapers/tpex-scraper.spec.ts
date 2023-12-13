@@ -142,6 +142,51 @@ describe('TpexScraper', () => {
     });
   });
 
+  describe('.fetchStocksMarginTrades()', () => {
+    it('should fetch stocks values for the given date', async () => {
+      const data = require('../fixtures/otc-stocks-margin-trades.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const stocks = await scraper.fetchStocksMarginTrades({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?d=112%2F01%2F30&o=json',
+      );
+      expect(stocks).toBeDefined();
+      expect(stocks.length).toBeGreaterThan(0);
+      expect(stocks[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TPEx',
+        market: 'OTC',
+        symbol: '00679B',
+        name: '元大美債20年',
+        marginBuy: 57,
+        marginSell: 17,
+        marginRedeem: 1,
+        marginBalancePrev: 1104,
+        marginBalance: 1143,
+        marginQuota: 370423,
+        shortBuy: 0,
+        shortSell: 0,
+        shortRedeem: 0,
+        shortBalancePrev: 49,
+        shortBalance: 49,
+        shortQuota: 370423,
+        offset: 0,
+        note: '',
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const stocks = await scraper.fetchStocksMarginTrades({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?d=112%2F01%2F01&o=json',
+      );
+      expect(stocks).toBe(null);
+    });
+  });
+
   describe('.fetchIndicesHistorical()', () => {
     it('should fetch indices historical data for the given date', async () => {
       const data = fs.readFileSync('./test/fixtures/otc-indices-historical.html').toString();

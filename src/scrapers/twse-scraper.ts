@@ -113,35 +113,6 @@ export class TwseScraper extends Scraper {
     });
   }
 
-  async fetchStocksValues(options: { date: string }) {
-    const { date } = options;
-    const query = new URLSearchParams({
-      date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
-      selectType: 'ALL',
-      response: 'json',
-    });
-    const url = `https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?${query}`;
-
-    const response = await this.httpService.get(url);
-    const json = (response.data.stat === 'OK') && response.data;
-    if (!json) return null;
-
-    return json.data.map((row: string[]) => {
-      const [symbol, name, ...values] = row;
-      const data: Record<string, any> = {};
-      data.date = date;
-      data.exchange = Exchange.TWSE;
-      data.market = Market.TSE;
-      data.symbol = symbol;
-      data.name = name.trim();
-      data.peRatio = numeral(values[2]).value();
-      data.pbRatio = numeral(values[3]).value();
-      data.dividendYield = numeral(values[0]).value();
-      data.dividendYear = numeral(values[1]).add(1911).value();
-      return data;
-    });
-  }
-
   async fetchStocksMarginTrades(options: { date: string }) {
     const { date } = options;
     const query = new URLSearchParams({
@@ -177,6 +148,35 @@ export class TwseScraper extends Scraper {
       data.shortQuota = numeral(values[11]).value();
       data.offset = numeral(values[12]).value();
       data.note = values[13].trim();
+      return data;
+    });
+  }
+
+  async fetchStocksValues(options: { date: string }) {
+    const { date } = options;
+    const query = new URLSearchParams({
+      date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      selectType: 'ALL',
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = (response.data.stat === 'OK') && response.data;
+    if (!json) return null;
+
+    return json.data.map((row: string[]) => {
+      const [symbol, name, ...values] = row;
+      const data: Record<string, any> = {};
+      data.date = date;
+      data.exchange = Exchange.TWSE;
+      data.market = Market.TSE;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.peRatio = numeral(values[2]).value();
+      data.pbRatio = numeral(values[3]).value();
+      data.dividendYield = numeral(values[0]).value();
+      data.dividendYear = numeral(values[1]).add(1911).value();
       return data;
     });
   }

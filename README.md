@@ -160,6 +160,43 @@ console.log(stockInstTrades);
 // }
 ```
 
+### `stocks.marginTrades(params)`
+
+Get margin trades for a specific stock on a given date.
+
+- `params`:
+  - `date`: Date in the format 'YYYY-MM-DD'
+  - `market` (optional): Filter stocks by market ('TSE' or 'OTC')
+  - `symbol` (optional): Stock symbol
+- Returns: Promise that resolves to the margin trades.
+
+```js
+const stockMarginTrades = await twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' });
+console.log(stockMarginTrades);
+// Prints:
+// {
+//   date: '2023-01-30',
+//   exchange: 'TWSE',
+//   market: 'TSE',
+//   symbol: '2330',
+//   name: '台積電',
+//   marginBuy: 1209,
+//   marginSell: 2295,
+//   marginRedeem: 74,
+//   marginBalancePrev: 20547,
+//   marginBalance: 19387,
+//   marginQuota: 6482595,
+//   shortBuy: 56,
+//   shortSell: 284,
+//   shortRedeem: 101,
+//   shortBalancePrev: 1506,
+//   shortBalance: 1633,
+//   shortQuota: 6482595,
+//   offset: 7,
+//   note: ''
+// }
+```
+
 ### `stocks.values(params)`
 
 Get values for a specific stock on a given date.

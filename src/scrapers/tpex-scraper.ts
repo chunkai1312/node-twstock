@@ -92,6 +92,45 @@ export class TpexScraper extends Scraper {
     });
   }
 
+  async fetchStocksMarginTrades(options: { date: string }) {
+    const { date } = options;
+    const [year, month, day] = date.split('-');
+    const query = new URLSearchParams({
+      d: `${+year - 1911}/${month}/${day}`,
+      o: 'json',
+    });
+    const url = `https://www.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.iTotalRecords > 0 && response.data;
+    if (!json) return null;
+
+    return json.aaData.map((row: string[]) => {
+      const [symbol, name, ...values] = row;
+      const data: Record<string, any> = {};
+      data.date = date;
+      data.exchange = Exchange.TPEx;
+      data.market = Market.OTC;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.marginBuy = numeral(values[1]).value();
+      data.marginSell = numeral(values[2]).value();
+      data.marginRedeem = numeral(values[3]).value();
+      data.marginBalancePrev = numeral(values[0]).value();
+      data.marginBalance = numeral(values[4]).value();
+      data.marginQuota = numeral(values[7]).value();
+      data.shortBuy = numeral(values[10]).value();
+      data.shortSell = numeral(values[9]).value();
+      data.shortRedeem = numeral(values[11]).value();
+      data.shortBalancePrev = numeral(values[8]).value();
+      data.shortBalance = numeral(values[12]).value();
+      data.shortQuota = numeral(values[15]).value();
+      data.offset = numeral(values[16]).value();
+      data.note = values[17].trim();
+      return data;
+    });
+  }
+
   async fetchStocksValues(options: { date: string }) {
     const { date } = options;
     const [year, month, day] = date.split('-');

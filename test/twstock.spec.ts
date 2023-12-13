@@ -15,6 +15,10 @@ jest.mock('../src/scrapers', () => ({
       if (date === '2023-01-30') return require('./fixtures/fetched-tse-stocks-inst-trades.json');
       return null;
     }),
+    fetchStocksMarginTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-tse-stocks-margin-trades.json');
+      return null;
+    }),
     fetchStocksValues: jest.fn(({ date }) => {
       if (date === '2023-01-30') return require('./fixtures/fetched-tse-stocks-values.json');
       return null;
@@ -31,6 +35,10 @@ jest.mock('../src/scrapers', () => ({
     }),
     fetchStocksInstTrades: jest.fn(({ date }) => {
       if (date === '2023-01-30') return require('./fixtures/fetched-otc-stocks-inst-trades.json');
+      return null;
+    }),
+    fetchStocksMarginTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-otc-stocks-margin-trades.json');
       return null;
     }),
     fetchStocksValues: jest.fn(({ date }) => {
@@ -172,7 +180,39 @@ describe('TwStock', () => {
       it('should fetch stocks institutional investors\' trades for the stock', async () => {
         const stock = await twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' });
         expect(stock).toBeDefined();
-        expect(stock.symbol).toBe('2330')
+        expect(stock.symbol).toBe('2330');
+      });
+    });
+
+    describe('.margin()', () => {
+      it('should fetch stocks margin trades for the symbol', async () => {
+        const stock = await twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' });
+        expect(stock).toBeDefined();
+        expect(stock.symbol).toBe('2330');
+      });
+
+      it('should throw an error if the symbol is not found', async () => {
+        await expect(() => twstock.stocks.marginTrades({ date: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+
+      it('should fetch stocks margin trades for the TSE market', async () => {
+        const stocks = await twstock.stocks.marginTrades({ date: '2023-01-30', market: 'TSE' });
+        expect(stocks).toBeDefined();
+        expect(stocks.length).toBeGreaterThan(0);
+        expect(stocks.every((stock: any) => stock.market === 'TSE')).toBe(true);
+      });
+
+      it('should fetch stocks margin trades for the OTC market', async () => {
+        const stocks = await twstock.stocks.marginTrades({ date: '2023-01-30', market: 'OTC' });
+        expect(stocks).toBeDefined();
+        expect(stocks.length).toBeGreaterThan(0);
+        expect(stocks.every((stock: any) => stock.market === 'OTC')).toBe(true);
+      });
+
+      it('should fetch stocks margin trades for the stock', async () => {
+        const stock = await twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' });
+        expect(stock).toBeDefined();
+        expect(stock.symbol).toBe('2330');
       });
     });
 
