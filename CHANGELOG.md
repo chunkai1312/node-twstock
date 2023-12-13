@@ -1,5 +1,13 @@
 # Changelog
 
+# [0.4.0](https://github.com/chunkai1312/node-twstock/compare/v0.3.0...v0.4.0) (2023-12-13)
+
+
+### Features
+
+* support for fetching OTC stocks margin trades ([1e8795b](https://github.com/chunkai1312/node-twstock/commit/1e8795b346285b521e50890b85df949271be9055))
+* support for fetching TSE stocks margin trades ([441ac24](https://github.com/chunkai1312/node-twstock/commit/441ac2455634b378bc7d921f59b98cd688bc9617))
+
 # [0.3.0](https://github.com/chunkai1312/node-twstock/compare/v0.2.0...v0.3.0) (2023-12-12)
 
 
