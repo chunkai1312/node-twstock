@@ -151,14 +151,14 @@ describe('TwseScraper', () => {
     });
   });
 
-  describe('.fetchStocksValues()', () => {
-    it('should fetch stocks values for the given date', async () => {
-      const data = require('../fixtures/tse-stocks-values.json');
+  describe('.fetchStocksFiniHoldings()', () => {
+    it('should fetch stocks FINI holdings for the given date', async () => {
+      const data = require('../fixtures/tse-stocks-fini-holdings.json');
       mockAxios.get.mockResolvedValueOnce({ data });
 
-      const stocks = await scraper.fetchStocksValues({ date: '2023-01-30' });
+      const stocks = await scraper.fetchStocksFiniHoldings({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?date=20230130&selectType=ALL&response=json',
+        'https://www.twse.com.tw/rwd/zh/fund/MI_QFIIS?date=20230130&selectType=ALLBUT0999&response=json',
       );
       expect(stocks).toBeDefined();
       expect(stocks.length).toBeGreaterThan(0);
@@ -166,21 +166,23 @@ describe('TwseScraper', () => {
         date: '2023-01-30',
         exchange: 'TWSE',
         market: 'TSE',
-        symbol: '1101',
-        name: '台泥',
-        peRatio: 30.79,
-        pbRatio: 1.27,
-        dividendYield: 5.41,
-        dividendYear: 2021,
+        symbol: '0050',
+        name: '元大台灣50',
+        issuedShares: 2260500000,
+        availableShares: 2202206452,
+        sharesHeld: 58293548,
+        availablePercent: 97.42,
+        heldPercent: 2.57,
+        upperLimitPercent: 100,
       });
     });
 
     it('should return null when no data is available', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: {} });
 
-      const stocks = await scraper.fetchStocksValues({ date: '2023-01-01' });
+      const stocks = await scraper.fetchStocksFiniHoldings({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?date=20230101&selectType=ALL&response=json',
+        'https://www.twse.com.tw/rwd/zh/fund/MI_QFIIS?date=20230101&selectType=ALLBUT0999&response=json',
       );
       expect(stocks).toBe(null);
     });
@@ -226,6 +228,41 @@ describe('TwseScraper', () => {
       const stocks = await scraper.fetchStocksMarginTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20230101&selectType=ALL&response=json',
+      );
+      expect(stocks).toBe(null);
+    });
+  });
+
+  describe('.fetchStocksValues()', () => {
+    it('should fetch stocks values for the given date', async () => {
+      const data = require('../fixtures/tse-stocks-values.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const stocks = await scraper.fetchStocksValues({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?date=20230130&selectType=ALL&response=json',
+      );
+      expect(stocks).toBeDefined();
+      expect(stocks.length).toBeGreaterThan(0);
+      expect(stocks[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TWSE',
+        market: 'TSE',
+        symbol: '1101',
+        name: '台泥',
+        peRatio: 30.79,
+        pbRatio: 1.27,
+        dividendYield: 5.41,
+        dividendYear: 2021,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const stocks = await scraper.fetchStocksValues({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?date=20230101&selectType=ALL&response=json',
       );
       expect(stocks).toBe(null);
     });

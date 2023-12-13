@@ -113,6 +113,37 @@ export class TwseScraper extends Scraper {
     });
   }
 
+  async fetchStocksFiniHoldings(options: { date: string }) {
+    const { date } = options;
+    const query = new URLSearchParams({
+      date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      selectType: 'ALLBUT0999',
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/fund/MI_QFIIS?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = (response.data.stat === 'OK') && response.data;
+    if (!json) return null;
+
+    return json.data.map((row: string[]) => {
+      const [symbol, name, isin, ...values] = row;
+      const data: Record<string, any> = {};
+      data.date = date;
+      data.exchange = Exchange.TWSE;
+      data.market = Market.TSE;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.issuedShares = numeral(values[0]).value();
+      data.availableShares = numeral(values[1]).value();
+      data.sharesHeld = numeral(values[2]).value();
+      data.availablePercent = numeral(values[3]).value();
+      data.heldPercent = numeral(values[4]).value();
+      data.upperLimitPercent = numeral(values[5]).value();
+      return data;
+    });
+  }
+
   async fetchStocksMarginTrades(options: { date: string }) {
     const { date } = options;
     const query = new URLSearchParams({
