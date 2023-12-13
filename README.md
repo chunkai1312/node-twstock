@@ -160,6 +160,35 @@ console.log(stockInstTrades);
 // }
 ```
 
+### `stocks.finiHoldings(params)`
+
+Get FINI holdings for a specific stock on a given date.
+
+- `params`:
+  - `date`: Date in the format 'YYYY-MM-DD'
+  - `market` (optional): Filter stocks by market ('TSE' or 'OTC')
+  - `symbol` (optional): Stock symbol
+- Returns: Promise that resolves to the FINI holdings.
+
+```js
+const stockFiniHoldings = await twstock.stocks.finiHoldings({ date: '2023-01-30', symbol: '2330' });
+console.log(stockFiniHoldings);
+// Prints:
+// {
+//   date: '2023-01-30',
+//   exchange: 'TWSE',
+//   market: 'TSE',
+//   symbol: '2330',
+//   name: '台積電',
+//   issuedShares: 25930380458,
+//   availableShares: 7329280055,
+//   sharesHeld: 18601100403,
+//   availablePercent: 28.26,
+//   heldPercent: 71.73,
+//   upperLimitPercent: 100
+// }
+```
+
 ### `stocks.marginTrades(params)`
 
 Get margin trades for a specific stock on a given date.

@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import * as cheerio from 'cheerio';
+import * as iconv from 'iconv-lite';
 import * as numeral from 'numeral';
 import { Scraper } from './scraper';
 import { Exchange, Market } from '../enums';
@@ -90,6 +91,42 @@ export class TpexScraper extends Scraper {
       data.totalInstInvestorsNetBuySell = numeral(values[21]).value();
       return data;
     });
+  }
+
+  async fetchStocksFiniHoldings(options: { date: string }) {
+    const { date } = options;
+    const [year, month, day] = date.split('-');
+    const form = new URLSearchParams({
+      years: year,
+      months: month,
+      days: day,
+      bcode: '',
+      step: '2',
+    });
+    const url = `https://mops.twse.com.tw/server-java/t13sa150_otc`;
+    const response = await this.httpService.post(url, form, { responseType: 'arraybuffer' });
+    const page = iconv.decode(response.data, 'big5');
+    const $ = cheerio.load(page);
+
+    const message = $('h3').text().trim();
+    if (message === '查無所需資料') return null;
+
+    return $('table:eq(0) tr').slice(2).map((_, el) => {
+      const td = $(el).find('td');
+      return {
+        date,
+        exchange: Exchange.TPEx,
+        market: Market.OTC,
+        symbol: td.eq(0).text().trim(),
+        name: td.eq(1).text().trim().split('(')[0],
+        issuedShares: numeral(td.eq(2).text()).value(),
+        availableShares: numeral(td.eq(3).text()).value(),
+        sharesHeld: numeral(td.eq(4).text()).value(),
+        availablePercent: numeral(td.eq(5).text()).value(),
+        heldPercent: numeral(td.eq(6).text()).value(),
+        upperLimitPercent: numeral(td.eq(7).text()).value(),
+      };
+    }).toArray() as any;
   }
 
   async fetchStocksMarginTrades(options: { date: string }) {

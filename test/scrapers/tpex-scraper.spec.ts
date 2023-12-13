@@ -107,14 +107,16 @@ describe('TpexScraper', () => {
     });
   });
 
-  describe('.fetchStocksValues()', () => {
-    it('should fetch stocks values for the given date', async () => {
-      const data = require('../fixtures/otc-stocks-values.json');
-      mockAxios.get.mockResolvedValueOnce({ data });
+  describe('.fetchStocksFiniHoldings()', () => {
+    it('should fetch stocks FINI holdings for the given date', async () => {
+      const data = fs.readFileSync('./test/fixtures/otc-stocks-fini-holdings.html');
+      mockAxios.post.mockResolvedValueOnce({ data });
 
-      const stocks = await scraper.fetchStocksValues({ date: '2023-01-30' });
-      expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://www.tpex.org.tw/web/stock/aftertrading/peratio_analysis/pera_result.php?d=112%2F01%2F30&o=json',
+      const stocks = await scraper.fetchStocksFiniHoldings({ date: '2023-01-30' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://mops.twse.com.tw/server-java/t13sa150_otc',
+        new URLSearchParams({ years: '2023', months: '01', days: '30', bcode: '', step: '2' }),
+        { responseType: 'arraybuffer' },
       );
       expect(stocks).toBeDefined();
       expect(stocks.length).toBeGreaterThan(0);
@@ -122,21 +124,26 @@ describe('TpexScraper', () => {
         date: '2023-01-30',
         exchange: 'TPEx',
         market: 'OTC',
-        symbol: '1240',
-        name: '茂生農經',
-        peRatio: 46.32,
-        pbRatio: 1.42,
-        dividendYield: 5.68,
-        dividendYear: 2022,
+        symbol: '006201',
+        name: '元大富櫃50',
+        issuedShares: 21446000,
+        availableShares: 21350560,
+        sharesHeld: 95440,
+        availablePercent: 99.55,
+        heldPercent: 0.44,
+        upperLimitPercent: 100,
       });
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: {} });
+      const data = fs.readFileSync('./test/fixtures/otc-stocks-fini-holdings-empty.html');
+      mockAxios.post.mockResolvedValueOnce({ data });
 
-      const stocks = await scraper.fetchStocksValues({ date: '2023-01-01' });
-      expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://www.tpex.org.tw/web/stock/aftertrading/peratio_analysis/pera_result.php?d=112%2F01%2F01&o=json',
+      const stocks = await scraper.fetchStocksFiniHoldings({ date: '2023-01-01' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://mops.twse.com.tw/server-java/t13sa150_otc',
+        new URLSearchParams({ years: '2023', months: '01', days: '01', bcode: '', step: '2' }),
+        { responseType: 'arraybuffer' },
       );
       expect(stocks).toBe(null);
     });
@@ -182,6 +189,41 @@ describe('TpexScraper', () => {
       const stocks = await scraper.fetchStocksMarginTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?d=112%2F01%2F01&o=json',
+      );
+      expect(stocks).toBe(null);
+    });
+  });
+
+  describe('.fetchStocksValues()', () => {
+    it('should fetch stocks values for the given date', async () => {
+      const data = require('../fixtures/otc-stocks-values.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const stocks = await scraper.fetchStocksValues({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/aftertrading/peratio_analysis/pera_result.php?d=112%2F01%2F30&o=json',
+      );
+      expect(stocks).toBeDefined();
+      expect(stocks.length).toBeGreaterThan(0);
+      expect(stocks[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TPEx',
+        market: 'OTC',
+        symbol: '1240',
+        name: '茂生農經',
+        peRatio: 46.32,
+        pbRatio: 1.42,
+        dividendYield: 5.68,
+        dividendYear: 2022,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const stocks = await scraper.fetchStocksValues({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/aftertrading/peratio_analysis/pera_result.php?d=112%2F01%2F01&o=json',
       );
       expect(stocks).toBe(null);
     });
