@@ -142,6 +142,45 @@ export class TwseScraper extends Scraper {
     });
   }
 
+  async fetchStocksMarginTrades(options: { date: string }) {
+    const { date } = options;
+    const query = new URLSearchParams({
+      date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      selectType: 'ALL',
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = (response.data.stat === 'OK') && response.data;
+    if (!json) return null;
+
+    return json.tables[1].data.map((row: string[]) => {
+      const [symbol, name, ...values] = row;
+      const data: Record<string, any> = {};
+      data.date = date;
+      data.exchange = Exchange.TWSE;
+      data.market = Market.TSE;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.marginBuy = numeral(values[0]).value();
+      data.marginSell = numeral(values[1]).value();
+      data.marginRedeem = numeral(values[2]).value();
+      data.marginBalancePrev = numeral(values[3]).value();
+      data.marginBalance = numeral(values[4]).value();
+      data.marginQuota = numeral(values[5]).value();
+      data.shortBuy = numeral(values[6]).value();
+      data.shortSell = numeral(values[7]).value();
+      data.shortRedeem = numeral(values[8]).value();
+      data.shortBalancePrev = numeral(values[9]).value();
+      data.shortBalance = numeral(values[10]).value();
+      data.shortQuota = numeral(values[11]).value();
+      data.offset = numeral(values[12]).value();
+      data.note = values[13].trim();
+      return data;
+    });
+  }
+
   async fetchIndicesHistorical(options: { date: string }) {
     const { date } = options;
     const query = new URLSearchParams({

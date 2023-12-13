@@ -186,6 +186,51 @@ describe('TwseScraper', () => {
     });
   });
 
+  describe('.fetchStocksMarginTrades()', () => {
+    it('should fetch stocks values for the given date', async () => {
+      const data = require('../fixtures/tse-stocks-margin-trades.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const stocks = await scraper.fetchStocksMarginTrades({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20230130&selectType=ALL&response=json',
+      );
+      expect(stocks).toBeDefined();
+      expect(stocks.length).toBeGreaterThan(0);
+      expect(stocks[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TWSE',
+        market: 'TSE',
+        symbol: '0050',
+        name: '元大台灣50',
+        marginBuy: 118,
+        marginSell: 396,
+        marginRedeem: 2,
+        marginBalancePrev: 2127,
+        marginBalance: 1847,
+        marginQuota: 565125,
+        shortBuy: 0,
+        shortSell: 217,
+        shortRedeem: 0,
+        shortBalancePrev: 0,
+        shortBalance: 217,
+        shortQuota: 565125,
+        offset: 27,
+        note: '',
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const stocks = await scraper.fetchStocksMarginTrades({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20230101&selectType=ALL&response=json',
+      );
+      expect(stocks).toBe(null);
+    });
+  });
+
   describe('.fetchIndicesHistorical()', () => {
     it('should fetch indices historical data for the given date', async () => {
       const data = require('../fixtures/tse-indices-historical.json');
