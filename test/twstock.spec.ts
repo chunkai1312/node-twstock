@@ -56,7 +56,7 @@ jest.mock('../src/scrapers', () => ({
       }
       return null;
     }),
-    fetchIndicesQuote: jest.fn(({ ticker, odd }) => {
+    fetchIndicesQuote: jest.fn(({ ticker }) => {
       if (ticker.symbol === 'IX0001' && ticker.market === 'TSE' && ticker.alias === 't00') {
         return require('./fixtures/fetched-indices-quote.json');
       }
@@ -102,8 +102,13 @@ describe('TwStock', () => {
         expect(stock.symbol).toBe('2330');
       });
 
-      it('should throw an error if symbol is not found', async () => {
+      it('should throw an error if the symbol is not found', async () => {
         await expect(() => twstock.stocks.quote({ symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+
+      it('should return null if the quote for the symbol is not found', async () => {
+        const stock = await twstock.stocks.quote({ symbol: '0050' });
+        expect(stock).toBe(null);
       });
     });
 
@@ -114,7 +119,7 @@ describe('TwStock', () => {
         expect(stock.symbol).toBe('2330');
       });
 
-      it('should throw an error if symbol is not found', async () => {
+      it('should throw an error if the symbol is not found', async () => {
         await expect(() => twstock.stocks.historical({ date: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
       });
 
@@ -131,6 +136,12 @@ describe('TwStock', () => {
         expect(stocks.length).toBeGreaterThan(0);
         expect(stocks.every((stock: any) => stock.market === 'OTC')).toBe(true);
       });
+
+      it('should fetch stocks historical data for the stock', async () => {
+        const stock = await twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' });
+        expect(stock).toBeDefined();
+        expect(stock.symbol).toBe('2330')
+      });
     });
 
     describe('.instTrades()', () => {
@@ -138,10 +149,9 @@ describe('TwStock', () => {
         const stock = await twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' });
         expect(stock).toBeDefined();
         expect(stock.symbol).toBe('2330');
-        console.log(stock)
       });
 
-      it('should throw an error if symbol is not found', async () => {
+      it('should throw an error if the symbol is not found', async () => {
         await expect(() => twstock.stocks.instTrades({ date: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
       });
 
@@ -158,6 +168,12 @@ describe('TwStock', () => {
         expect(stocks.length).toBeGreaterThan(0);
         expect(stocks.every((stock: any) => stock.market === 'OTC')).toBe(true);
       });
+
+      it('should fetch stocks institutional investors\' trades for the stock', async () => {
+        const stock = await twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' });
+        expect(stock).toBeDefined();
+        expect(stock.symbol).toBe('2330')
+      });
     });
 
     describe('.values()', () => {
@@ -165,10 +181,9 @@ describe('TwStock', () => {
         const stock = await twstock.stocks.values({ date: '2023-01-30', symbol: '2330' });
         expect(stock).toBeDefined();
         expect(stock.symbol).toBe('2330');
-        console.log(stock)
       });
 
-      it('should throw an error if symbol is not found', async () => {
+      it('should throw an error if the symbol is not found', async () => {
         await expect(() => twstock.stocks.values({ date: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
       });
 
@@ -184,6 +199,12 @@ describe('TwStock', () => {
         expect(stocks).toBeDefined();
         expect(stocks.length).toBeGreaterThan(0);
         expect(stocks.every((stock: any) => stock.market === 'OTC')).toBe(true);
+      });
+
+      it('should fetch stocks values for the stock', async () => {
+        const stock = await twstock.stocks.values({ date: '2023-01-30', symbol: '2330' });
+        expect(stock).toBeDefined();
+        expect(stock.symbol).toBe('2330')
       });
     });
   });
@@ -218,8 +239,13 @@ describe('TwStock', () => {
         expect(index.symbol).toBe('IX0001');
       });
 
-      it('should throw an error if symbol is not found', async () => {
+      it('should throw an error if the symbol is not found', async () => {
         await expect(() => twstock.indices.quote({ symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+
+      it('should return null if the quote for the symbol is not found', async () => {
+        const index = await twstock.indices.quote({ symbol: 'TW50' });
+        expect(index).toBe(null);
       });
     });
 
@@ -244,7 +270,7 @@ describe('TwStock', () => {
         expect(indices.every((index: any) => index.market === 'OTC')).toBe(true);
       });
 
-      it('should throw an error if symbol is not found', async () => {
+      it('should throw an error if the symbol is not found', async () => {
         await expect(() => twstock.indices.historical({ date: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
       });
     });

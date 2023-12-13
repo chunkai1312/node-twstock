@@ -78,8 +78,7 @@ export class TwStock {
     const ticker = this._stocks.get(symbol) as Ticker;
     const data = await MisScraper.fetchStocksQuote({ ticker, odd });
 
-    /* istanbul ignore next */
-    return data ? data.find((row: any) => row.symbol === symbol) : data;
+    return data ? data.find((row: any) => row.symbol === symbol) : null;
   }
 
   private async getStocksHistorical(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
@@ -99,7 +98,6 @@ export class TwStock {
       ? await TpexScraper.fetchStocksHistorical({ date })
       : await TwseScraper.fetchStocksHistorical({ date });
 
-    /* istanbul ignore next */
     return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
   }
 
@@ -120,7 +118,6 @@ export class TwStock {
       ? await TpexScraper.fetchStocksInstTrades({ date })
       : await TwseScraper.fetchStocksInstTrades({ date });
 
-    /* istanbul ignore next */
     return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
   }
 
@@ -141,7 +138,6 @@ export class TwStock {
       ? await TpexScraper.fetchStocksValues({ date })
       : await TwseScraper.fetchStocksValues({ date });
 
-    /* istanbul ignore next */
     return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
   }
 
@@ -169,8 +165,7 @@ export class TwStock {
     const ticker = this._indices.get(symbol) as Ticker;
     const data = await MisScraper.fetchIndicesQuote({ ticker });
 
-    /* istanbul ignore next */
-    return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
+    return data ? data.find((row: any) => row.symbol === symbol) : null;
   }
 
   private async getIndicesHistorical(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
@@ -191,7 +186,6 @@ export class TwStock {
       ? await TpexScraper.fetchIndicesHistorical({ date })
       : await TwseScraper.fetchIndicesHistorical({ date });
 
-    /* istanbul ignore next */
     return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
   }
 }
