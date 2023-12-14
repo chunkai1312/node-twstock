@@ -1,12 +1,12 @@
 import * as fs from 'fs';
 import mockAxios from 'jest-mock-axios';
-import { IsinTwseScraper } from '../../src/scrapers/isin-twse-scraper';
+import { IsinScraper } from '../../src/scrapers/isin-scraper';
 
-describe('TwseScraper', () => {
-  let scraper: IsinTwseScraper;
+describe('IsinScraper', () => {
+  let scraper: IsinScraper;
 
   beforeEach(() => {
-    scraper = new IsinTwseScraper();
+    scraper = new IsinScraper();
   });
 
   afterEach(() => {

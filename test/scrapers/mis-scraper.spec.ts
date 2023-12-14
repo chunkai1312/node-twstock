@@ -1,12 +1,12 @@
 import mockAxios from 'jest-mock-axios';
-import { MisTwseScraper } from '../../src/scrapers/mis-twse-scraper';
+import { MisScraper } from '../../src/scrapers/mis-scraper';
 import { Ticker } from '../../src/interfaces';
 
-describe('TpexScraper', () => {
-  let scraper: MisTwseScraper;
+describe('MisScraper', () => {
+  let scraper: MisScraper;
 
   beforeEach(() => {
-    scraper = new MisTwseScraper();
+    scraper = new MisScraper();
   });
 
   afterEach(() => {

@@ -302,4 +302,48 @@ export class TpexScraper extends Scraper {
       unmatched: numeral(json.noTradeNum).value(),
     };
   }
+
+  async fetchMarketInstTrades(options: { date: string }) {
+    const { date } = options;
+    const [year, month, day] = date.split('-');
+    const query = new URLSearchParams({
+      d: `${+year - 1911}/${month}/${day}`,
+      t: 'D',
+      o: 'json',
+    });
+    const url = `https://www.tpex.org.tw/web/stock/3insti/3insti_summary/3itrdsum_result.php?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.iTotalRecords > 0 && response.data;
+    if (!json) return null;
+
+    const values = json.aaData.map((row: string []) => row.slice(1)).flat();
+    const data: Record<string, any> = {};
+    data.date = date;
+    data.finiWithoutDealersBuy = numeral(values[3]).value();
+    data.finiWithoutDealersSell = numeral(values[4]).value();
+    data.finiWithoutDealersNetBuySell = numeral(values[5]).value();
+    data.finiDealersBuy = numeral(values[6]).value();
+    data.finiDealersSell = numeral(values[7]).value();
+    data.finiDealersNetBuySell = numeral(values[8]).value();
+    data.finiBuy = numeral(values[0]).value();
+    data.finiSell = numeral(values[1]).value();
+    data.finiNetBuySell = numeral(values[2]).value();
+    data.sitcBuy = numeral(values[9]).value();
+    data.sitcSell = numeral(values[10]).value();
+    data.sitcNetBuySell = numeral(values[11]).value();
+    data.dealersForProprietaryBuy = numeral(values[15]).value();
+    data.dealersForProprietarySell = numeral(values[16]).value();
+    data.dealersForProprietaryNetBuySell = numeral(values[17]).value();
+    data.dealersForHedgingBuy = numeral(values[18]).value();
+    data.dealersForHedgingSell = numeral(values[19]).value();
+    data.dealersForHedgingNetBuySell = numeral(values[20]).value();
+    data.dealersBuy = numeral(values[12]).value();
+    data.dealersSell = numeral(values[13]).value();
+    data.dealersNetBuySell = numeral(values[14]).value();
+    data.totalInstInvestorsBuy = numeral(values[21]).value();
+    data.totalInstInvestorsSell = numeral(values[22]).value();
+    data.totalInstInvestorsNetBuySell = numeral(values[23]).value();
+    return data;
+  }
 }

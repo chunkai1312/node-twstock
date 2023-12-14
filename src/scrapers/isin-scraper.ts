@@ -5,7 +5,7 @@ import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
 import { asExchange, asMarket, asIndustry } from '../utils';
 
-export class IsinTwseScraper extends Scraper {
+export class IsinScraper extends Scraper {
   async fetchStocksInfo(options: { symbol: string }) {
     const { symbol } = options;
     const url = `https://isin.twse.com.tw/isin/single_main.jsp?owncode=${symbol}`;

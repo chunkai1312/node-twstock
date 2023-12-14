@@ -1,7 +1,7 @@
 import { TwStock } from '../src';
 
 jest.mock('../src/scrapers', () => ({
-  IsinTwseScraper: {
+  IsinScraper: {
     fetchStocksInfo: jest.fn(({ symbol }) => {
       if (symbol.split(',').includes('2330')) return require('./fixtures/fetched-stocks-info.json');
       if (symbol.split(',').includes('2303')) return require('./fixtures/fetched-stocks-info.json');
@@ -65,7 +65,7 @@ jest.mock('../src/scrapers', () => ({
       return null;
     }),
   },
-  MisTwseScraper: {
+  MisScraper: {
     fetchListedIndices: jest.fn(({ market }) => {
       if (market === 'TSE') return require('./fixtures/fetched-tse-indices-list.json');
       if (market === 'OTC') return require('./fixtures/fetched-otc-indices-list.json');

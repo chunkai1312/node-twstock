@@ -6,7 +6,7 @@ import { Ticker } from '../interfaces';
 import { asExchange, asIndex } from '../utils';
 import { Market } from '../enums';
 
-export class MisTwseScraper extends Scraper {
+export class MisScraper extends Scraper {
   async fetchListedIndices(options: { market: 'TSE' | 'OTC' }) {
     const { market } = options;
     const i = { 'TSE': 'TIDX', 'OTC': 'OIDX' };

@@ -1,4 +1,4 @@
-import { TwseScraper, TpexScraper, MisTwseScraper, IsinTwseScraper } from './scrapers';
+import { TwseScraper, TpexScraper, MisScraper, IsinScraper } from './scrapers';
 import { Market } from './enums';
 import { Ticker } from './interfaces';
 import { getMarketIndices } from './utils';
@@ -31,15 +31,15 @@ export class TwStock {
     const { symbol } = options ?? {};
 
     if (symbol) {
-      const results = await IsinTwseScraper.fetchStocksInfo({ symbol });
+      const results = await IsinScraper.fetchStocksInfo({ symbol });
       results.forEach((ticker) => {
         const { symbol } = ticker;
         this._stocks.set(symbol, ticker);
       });
     } else {
       const results = await Promise.all([
-        IsinTwseScraper.fetchListedStocks({ market: Market.TSE }),
-        IsinTwseScraper.fetchListedStocks({ market: Market.OTC }),
+        IsinScraper.fetchListedStocks({ market: Market.TSE }),
+        IsinScraper.fetchListedStocks({ market: Market.OTC }),
       ]);
       results.flat().forEach((ticker) => {
         const { symbol } = ticker;
@@ -55,8 +55,8 @@ export class TwStock {
       this._indices.set(symbol, ticker);
     });
     const results = await Promise.all([
-      MisTwseScraper.fetchListedIndices({ market: Market.TSE }),
-      MisTwseScraper.fetchListedIndices({ market: Market.OTC }),
+      MisScraper.fetchListedIndices({ market: Market.TSE }),
+      MisScraper.fetchListedIndices({ market: Market.OTC }),
     ]);
     results.flat().forEach(ticker => {
       const { symbol } = ticker;
@@ -84,7 +84,7 @@ export class TwStock {
     }
 
     const ticker = this._stocks.get(symbol) as Ticker;
-    const data = await MisTwseScraper.fetchStocksQuote({ ticker, odd });
+    const data = await MisScraper.fetchStocksQuote({ ticker, odd });
 
     return data ? data.find((row: any) => row.symbol === symbol) : null;
   }
@@ -207,7 +207,7 @@ export class TwStock {
     }
 
     const ticker = this._indices.get(symbol) as Ticker;
-    const data = await MisTwseScraper.fetchIndicesQuote({ ticker });
+    const data = await MisScraper.fetchIndicesQuote({ ticker });
 
     return data ? data.find((row: any) => row.symbol === symbol) : null;
   }

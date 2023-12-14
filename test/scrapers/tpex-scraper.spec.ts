@@ -328,4 +328,54 @@ describe('TpexScraper', () => {
       expect(market).toBe(null);
     });
   });
+
+  describe('.fetchMarketInstTrades()', () => {
+    it('should fetch market breadth for the given date', async () => {
+      const data = require('../fixtures/otc-market-inst-trades.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const market = await scraper.fetchMarketInstTrades({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/3insti/3insti_summary/3itrdsum_result.php?d=112%2F01%2F30&t=D&o=json',
+      );
+      expect(market).toBeDefined();
+      expect(market).toEqual({
+        date: '2023-01-30',
+        finiWithoutDealersBuy: 20112958447,
+        finiWithoutDealersSell: 16591758807,
+        finiWithoutDealersNetBuySell: 3521199640,
+        finiDealersBuy: 0,
+        finiDealersSell: 0,
+        finiDealersNetBuySell: 0,
+        finiBuy: 20112958447,
+        finiSell: 16591758807,
+        finiNetBuySell: 3521199640,
+        sitcBuy: 1543494365,
+        sitcSell: 579611355,
+        sitcNetBuySell: 963883010,
+        dealersForProprietaryBuy: 1180899990,
+        dealersForProprietarySell: 450809569,
+        dealersForProprietaryNetBuySell: 730090421,
+        dealersForHedgingBuy: 903027569,
+        dealersForHedgingSell: 312306870,
+        dealersForHedgingNetBuySell: 590720699,
+        dealersBuy: 2083927559,
+        dealersSell: 763116439,
+        dealersNetBuySell: 1320811120,
+        totalInstInvestorsBuy: 23740380371,
+        totalInstInvestorsSell: 17934486601,
+        totalInstInvestorsNetBuySell: 5805893770,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const market = await scraper.fetchMarketInstTrades({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/3insti/3insti_summary/3itrdsum_result.php?d=112%2F01%2F01&t=D&o=json',
+      );
+      expect(market).toBe(null);
+    });
+  });
 });
