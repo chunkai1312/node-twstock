@@ -1,12 +1,19 @@
 import { TwStock } from '../src';
 
 jest.mock('../src/scrapers', () => ({
-  TwseScraper: {
+  IsinTwseScraper: {
+    fetchStocksInfo: jest.fn(({ symbol }) => {
+      if (symbol.split(',').includes('2330')) return require('./fixtures/fetched-stocks-info.json');
+      if (symbol.split(',').includes('2303')) return require('./fixtures/fetched-stocks-info.json');
+      return [];
+    }),
     fetchListedStocks: jest.fn(({ market }) => {
       if (market === 'TSE') return require('./fixtures/fetched-tse-stocks-list.json');
       if (market === 'OTC') return require('./fixtures/fetched-otc-stocks-list.json');
       return [];
     }),
+  },
+  TwseScraper: {
     fetchStocksHistorical: jest.fn(({ date }) => {
       if (date === '2023-01-30') return require('./fixtures/fetched-tse-stocks-historical.json');
       return null;
@@ -58,7 +65,7 @@ jest.mock('../src/scrapers', () => ({
       return null;
     }),
   },
-  MisScraper: {
+  MisTwseScraper: {
     fetchListedIndices: jest.fn(({ market }) => {
       if (market === 'TSE') return require('./fixtures/fetched-tse-indices-list.json');
       if (market === 'OTC') return require('./fixtures/fetched-otc-indices-list.json');
@@ -123,7 +130,7 @@ describe('TwStock', () => {
       });
 
       it('should return null if the quote for the symbol is not found', async () => {
-        const stock = await twstock.stocks.quote({ symbol: '0050' });
+        const stock = await twstock.stocks.quote({ symbol: '2303' });
         expect(stock).toBe(null);
       });
     });

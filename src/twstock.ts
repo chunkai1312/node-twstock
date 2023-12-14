@@ -1,4 +1,4 @@
-import { TwseScraper, TpexScraper, MisScraper } from './scrapers';
+import { TwseScraper, TpexScraper, MisTwseScraper, IsinTwseScraper } from './scrapers';
 import { Market } from './enums';
 import { Ticker } from './interfaces';
 import { getMarketIndices } from './utils';
@@ -27,15 +27,25 @@ export class TwStock {
     };
   }
 
-  private async loadStocks() {
-    const results = await Promise.all([
-      TwseScraper.fetchListedStocks({ market: Market.TSE }),
-      TwseScraper.fetchListedStocks({ market: Market.OTC }),
-    ]);
-    results.flat().forEach((ticker) => {
-      const { symbol } = ticker;
-      this._stocks.set(symbol, ticker);
-    });
+  private async loadStocks(options?: { symbol?: string }) {
+    const { symbol } = options ?? {};
+
+    if (symbol) {
+      const results = await IsinTwseScraper.fetchStocksInfo({ symbol });
+      results.forEach((ticker) => {
+        const { symbol } = ticker;
+        this._stocks.set(symbol, ticker);
+      });
+    } else {
+      const results = await Promise.all([
+        IsinTwseScraper.fetchListedStocks({ market: Market.TSE }),
+        IsinTwseScraper.fetchListedStocks({ market: Market.OTC }),
+      ]);
+      results.flat().forEach((ticker) => {
+        const { symbol } = ticker;
+        this._stocks.set(symbol, ticker);
+      });
+    }
   }
 
   private async loadIndices() {
@@ -45,8 +55,8 @@ export class TwStock {
       this._indices.set(symbol, ticker);
     });
     const results = await Promise.all([
-      MisScraper.fetchListedIndices({ market: Market.TSE }),
-      MisScraper.fetchListedIndices({ market: Market.OTC }),
+      MisTwseScraper.fetchListedIndices({ market: Market.TSE }),
+      MisTwseScraper.fetchListedIndices({ market: Market.OTC }),
     ]);
     results.flat().forEach(ticker => {
       const { symbol } = ticker;
@@ -58,11 +68,7 @@ export class TwStock {
 
   private async getStocksList(params?: { market: 'TSE' | 'OTC' }) {
     const { market } = params ?? {};
-
-    if (!this._stocks.size) {
-      await this.loadStocks();
-    }
-
+    await this.loadStocks();
     const data = Array.from(this._stocks.values());
     return market ? data.filter(ticker => ticker.market === market) : data;
   }
@@ -70,15 +76,15 @@ export class TwStock {
   private async getStocksQuote(params: { symbol: string, odd?: boolean }) {
     const { symbol, odd } = params;
 
-    if (!this._stocks.size) {
-      await this.loadStocks();
+    if (!this._stocks.has(symbol)) {
+      await this.loadStocks({ symbol });
     }
     if (!this._stocks.has(symbol)) {
       throw new Error('symbol not found');
     }
 
     const ticker = this._stocks.get(symbol) as Ticker;
-    const data = await MisScraper.fetchStocksQuote({ ticker, odd });
+    const data = await MisTwseScraper.fetchStocksQuote({ ticker, odd });
 
     return data ? data.find((row: any) => row.symbol === symbol) : null;
   }
@@ -86,8 +92,8 @@ export class TwStock {
   private async getStocksHistorical(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
     const { date, symbol } = params;
 
-    if (!this._stocks.size) {
-      await this.loadStocks();
+    if (symbol && !this._stocks.has(symbol)) {
+      await this.loadStocks({ symbol });
     }
     if (symbol && !this._stocks.has(symbol)) {
       throw new Error('symbol not found');
@@ -106,8 +112,8 @@ export class TwStock {
   private async getStocksInstTrades(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
     const { date, symbol } = params;
 
-    if (!this._stocks.size) {
-      await this.loadStocks();
+    if (symbol && !this._stocks.has(symbol)) {
+      await this.loadStocks({ symbol });
     }
     if (symbol && !this._stocks.has(symbol)) {
       throw new Error('symbol not found');
@@ -126,8 +132,8 @@ export class TwStock {
   private async getStocksFiniHoldings(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
     const { date, symbol } = params;
 
-    if (!this._stocks.size) {
-      await this.loadStocks();
+    if (symbol && !this._stocks.has(symbol)) {
+      await this.loadStocks({ symbol });
     }
     if (symbol && !this._stocks.has(symbol)) {
       throw new Error('symbol not found');
@@ -146,8 +152,8 @@ export class TwStock {
   private async getStocksMarginTrades(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
     const { date, symbol } = params;
 
-    if (!this._stocks.size) {
-      await this.loadStocks();
+    if (symbol && !this._stocks.has(symbol)) {
+      await this.loadStocks({ symbol });
     }
     if (symbol && !this._stocks.has(symbol)) {
       throw new Error('symbol not found');
@@ -166,8 +172,8 @@ export class TwStock {
   private async getStocksValues(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
     const { date, symbol } = params;
 
-    if (!this._stocks.size) {
-      await this.loadStocks();
+    if (symbol && !this._stocks.has(symbol)) {
+      await this.loadStocks({ symbol });
     }
     if (symbol && !this._stocks.has(symbol)) {
       throw new Error('symbol not found');
@@ -185,11 +191,7 @@ export class TwStock {
 
   private async getIndicesList(params?: { market: 'TSE' | 'OTC' }) {
     const { market } = params ?? {};
-
-    if (!this._indices.size) {
-      await this.loadIndices();
-    }
-
+    await this.loadIndices();
     const data = Array.from(this._indices.values());
     return market ? data.filter(ticker => ticker.market === market) : data;
   }
@@ -197,7 +199,7 @@ export class TwStock {
   private async getIndicesQuote(params: { symbol: string }) {
     const { symbol } = params;
 
-    if (!this._indices.size) {
+    if (!this._indices.has(symbol)) {
       await this.loadIndices();
     }
     if (!this._indices.has(symbol)) {
@@ -205,7 +207,7 @@ export class TwStock {
     }
 
     const ticker = this._indices.get(symbol) as Ticker;
-    const data = await MisScraper.fetchIndicesQuote({ ticker });
+    const data = await MisTwseScraper.fetchIndicesQuote({ ticker });
 
     return data ? data.find((row: any) => row.symbol === symbol) : null;
   }
@@ -213,10 +215,9 @@ export class TwStock {
   private async getIndicesHistorical(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
     const { date, symbol } = params;
 
-    if (!this._indices.size) {
+    if (symbol && !this._indices.has(symbol)) {
       await this.loadIndices();
     }
-
     if (symbol && !this._indices.has(symbol)) {
       throw new Error('symbol not found');
     }

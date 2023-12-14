@@ -3,10 +3,10 @@ import * as numeral from 'numeral';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
 import { Ticker } from '../interfaces';
-import { asIndex, getExchangeByMarket } from '../utils';
+import { asExchange, asIndex } from '../utils';
 import { Market } from '../enums';
 
-export class MisScraper extends Scraper {
+export class MisTwseScraper extends Scraper {
   async fetchListedIndices(options: { market: 'TSE' | 'OTC' }) {
     const { market } = options;
     const i = { 'TSE': 'TIDX', 'OTC': 'OIDX' };
@@ -22,7 +22,7 @@ export class MisScraper extends Scraper {
 
     return json.msgArray.map((row: any) => ({
       symbol: asIndex(row.n) ?? (row.ch).replace('.tw', ''),
-      exchange: getExchangeByMarket(row.ex.toUpperCase() as Market),
+      exchange: asExchange(row.ex.toUpperCase() as Market),
       market: row.ex.toUpperCase(),
       name: row.n,
       ex_ch: `${row.ex}_${row.ch}`,
