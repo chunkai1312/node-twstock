@@ -278,4 +278,28 @@ export class TpexScraper extends Scraper {
       };
     }).find((data: Record<string, any>) => data.date === date);
   }
+
+  async fetchMarketBreadth(options: { date: string }) {
+    const { date } = options;
+    const [year, month, day] = date.split('-');
+    const query = new URLSearchParams({
+      d: `${+year - 1911}/${month}/${day}`,
+      o: 'json',
+    });
+    const url = `https://www.tpex.org.tw/web/stock/aftertrading/market_highlight/highlight_result.php?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.iTotalRecords > 0 && response.data;
+    if (!json) return null;
+
+    return {
+      date,
+      up: numeral(json.upNum).value(),
+      limitUp: numeral(json.upStopNum).value(),
+      down: numeral(json.downNum).value(),
+      limitDown: numeral(json.downStopNum).value(),
+      unchanged: numeral(json.noChangeNum).value(),
+      unmatched: numeral(json.noTradeNum).value(),
+    };
+  }
 }

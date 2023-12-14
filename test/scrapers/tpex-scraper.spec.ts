@@ -296,4 +296,36 @@ describe('TpexScraper', () => {
       expect(market).toBe(null);
     });
   });
+
+  describe('.fetchMarketBreadth()', () => {
+    it('should fetch market breadth for the given date', async () => {
+      const data = require('../fixtures/otc-market-breadth.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const market = await scraper.fetchMarketBreadth({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/aftertrading/market_highlight/highlight_result.php?d=112%2F01%2F30&o=json',
+      );
+      expect(market).toBeDefined();
+      expect(market).toEqual({
+        date: '2023-01-30',
+        up: 591,
+        limitUp: 10,
+        down: 135,
+        limitDown: 0,
+        unchanged: 69,
+        unmatched: 14,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const market = await scraper.fetchMarketBreadth({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/aftertrading/market_highlight/highlight_result.php?d=112%2F01%2F01&o=json',
+      );
+      expect(market).toBe(null);
+    });
+  });
 });
