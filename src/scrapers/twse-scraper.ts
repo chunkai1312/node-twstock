@@ -233,4 +233,29 @@ export class TwseScraper extends Scraper {
         return data;
       }).value() as any;
   }
+
+  async fetchMarketTrades(options: { date: string }) {
+    const { date } = options;
+    const query = new URLSearchParams({
+      date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = (response.data.stat === 'OK') && response.data;
+    if (!json) return null;
+
+    return json.data.map((row: string[]) => {
+      const [year, month, day] = row[0].split('/');
+      return {
+        date: `${+year + 1911}-${month}-${day}`,
+        tradeVolume: numeral(row[1]).value(),
+        tradeValue: numeral(row[2]).value(),
+        transaction: numeral(row[3]).value(),
+        index: numeral(row[4]).value(),
+        change: numeral(row[5]).value(),
+      };
+    }).find((data: Record<string, any>) => data.date === date);
+  }
 }

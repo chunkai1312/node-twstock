@@ -258,4 +258,35 @@ describe('TwseScraper', () => {
       expect(indices).toBe(null);
     });
   });
+
+  describe('.fetchMarketTrades()', () => {
+    it('should fetch market trades for the given date', async () => {
+      const data = require('../fixtures/tse-market-trades.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const market = await scraper.fetchMarketTrades({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20230130&response=json',
+      );
+      expect(market).toBeDefined();
+      expect(market).toEqual({
+        date: '2023-01-30',
+        tradeVolume: 6919326963,
+        tradeValue: 354872347181,
+        transaction: 2330770,
+        index: 15493.82,
+        change: 560.89,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const market = await scraper.fetchMarketTrades({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20230101&response=json',
+      );
+      expect(market).toBe(null);
+    });
+  });
 });
