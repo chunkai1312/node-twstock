@@ -1,5 +1,14 @@
 # Changelog
 
+# [0.5.0](https://github.com/chunkai1312/node-twstock/compare/v0.4.0...v0.5.0) (2023-12-14)
+
+
+### Features
+
+* support for fetching OTC stocks FINI holdings ([6182f2f](https://github.com/chunkai1312/node-twstock/commit/6182f2fe71d1d121961f782298bf65dba24ee9d7))
+* support for fetching stocks info ([1e3affd](https://github.com/chunkai1312/node-twstock/commit/1e3affdfb38df57fcb75fd5354630a101ddf12ea))
+* support for fetching TSE stocks FINI holdings ([e090c19](https://github.com/chunkai1312/node-twstock/commit/e090c19efa5f0ee70dae176fab649fe0a9d9082c))
+
 # [0.4.0](https://github.com/chunkai1312/node-twstock/compare/v0.3.0...v0.4.0) (2023-12-13)
 
 
