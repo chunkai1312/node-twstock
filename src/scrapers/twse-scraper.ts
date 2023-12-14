@@ -258,4 +258,33 @@ export class TwseScraper extends Scraper {
       };
     }).find((data: Record<string, any>) => data.date === date);
   }
+
+  async fetchMarketBreadth(options: { date: string }) {
+    const { date } = options;
+    const query = new URLSearchParams({
+      date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = (response.data.stat === 'OK') && response.data;
+    if (!json) return null;
+
+    const raw = json.tables[7].data.map((row: string[]) => row[2]);
+    const [up, limitUp] = raw[0].replace(')', '').split('(');
+    const [down, limitDown] = raw[1].replace(')', '').split('(');
+    const [unchanged, unmatched, notApplicable] = raw.slice(2)
+      .map((value: string) => numeral(value).value());
+
+    return {
+      date,
+      up: numeral(up).value(),
+      limitUp: numeral(limitUp).value(),
+      down: numeral(down).value(),
+      limitDown: numeral(limitDown).value(),
+      unchanged: numeral(unchanged).value(),
+      unmatched: unmatched + notApplicable,
+    };
+  }
 }

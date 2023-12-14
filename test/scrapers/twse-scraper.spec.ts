@@ -289,4 +289,36 @@ describe('TwseScraper', () => {
       expect(market).toBe(null);
     });
   });
+
+  describe('.fetchMarketBreadth()', () => {
+    it('should fetch market breadth for the given date', async () => {
+      const data = require('../fixtures/tse-market-breadth.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const market = await scraper.fetchMarketBreadth({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230130&response=json',
+      );
+      expect(market).toBeDefined();
+      expect(market).toEqual({
+        date: '2023-01-30',
+        up: 764,
+        limitUp: 14,
+        down: 132,
+        limitDown: 0,
+        unchanged: 67,
+        unmatched: 5,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const market = await scraper.fetchMarketBreadth({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230101&response=json',
+      );
+      expect(market).toBe(null);
+    });
+  });
 });
