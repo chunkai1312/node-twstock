@@ -321,4 +321,54 @@ describe('TwseScraper', () => {
       expect(market).toBe(null);
     });
   });
+
+  describe('.fetchMarketInstTrades()', () => {
+    it('should fetch market breadth for the given date', async () => {
+      const data = require('../fixtures/tse-market-inst-trades.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const market = await scraper.fetchMarketInstTrades({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/fund/BFI82U?dayDate=20230130&type=day&response=json',
+      );
+      expect(market).toBeDefined();
+      expect(market).toEqual({
+        date: '2023-01-30',
+        finiWithoutDealersBuy: 203744063563,
+        finiWithoutDealersSell: 131488377272,
+        finiWithoutDealersNetBuySell: 72255686291,
+        finiDealersBuy: 24864200,
+        finiDealersSell: 61653250,
+        finiDealersNetBuySell: -36789050,
+        finiBuy: 203768927763,
+        finiSell: 131550030522,
+        finiNetBuySell: 72218897241,
+        sitcBuy: 6269087553,
+        sitcSell: 3179424632,
+        sitcNetBuySell: 3089662921,
+        dealersForProprietaryBuy: 4736295878,
+        dealersForProprietarySell: 1917624556,
+        dealersForProprietaryNetBuySell: 2818671322,
+        dealersForHedgingBuy: 11451095424,
+        dealersForHedgingSell: 6481456459,
+        dealersForHedgingNetBuySell: 4969638965,
+        dealersBuy: 16187391302,
+        dealersSell: 8399081015,
+        dealersNetBuySell: 7788310287,
+        totalInstInvestorsBuy: 226200542418,
+        totalInstInvestorsSell: 143066882919,
+        totalInstInvestorsNetBuySell: 83133659499,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const market = await scraper.fetchMarketInstTrades({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/fund/BFI82U?dayDate=20230101&type=day&response=json',
+      );
+      expect(market).toBe(null);
+    });
+  });
 });
