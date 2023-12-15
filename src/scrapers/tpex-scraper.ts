@@ -270,6 +270,8 @@ export class TpexScraper extends Scraper {
       const [year, month, day] = row[0].split('/');
       return {
         date: `${+year + 1911}-${month}-${day}`,
+        exchange: Exchange.TPEx,
+        market: Market.OTC,
         tradeVolume: numeral(row[1]).value(),
         tradeValue: numeral(row[2]).value(),
         transaction: numeral(row[3]).value(),
@@ -294,6 +296,8 @@ export class TpexScraper extends Scraper {
 
     return {
       date,
+      exchange: Exchange.TPEx,
+      market: Market.OTC,
       up: numeral(json.upNum).value(),
       limitUp: numeral(json.upStopNum).value(),
       down: numeral(json.downNum).value(),
@@ -320,6 +324,8 @@ export class TpexScraper extends Scraper {
     const values = json.aaData.map((row: string []) => row.slice(1)).flat();
     const data: Record<string, any> = {};
     data.date = date;
+    data.exchange = Exchange.TPEx;
+    data.market = Market.OTC;
     data.finiWithoutDealersBuy = numeral(values[3]).value();
     data.finiWithoutDealersSell = numeral(values[4]).value();
     data.finiWithoutDealersNetBuySell = numeral(values[5]).value();
@@ -344,6 +350,42 @@ export class TpexScraper extends Scraper {
     data.totalInstInvestorsBuy = numeral(values[21]).value();
     data.totalInstInvestorsSell = numeral(values[22]).value();
     data.totalInstInvestorsNetBuySell = numeral(values[23]).value();
+    return data;
+  }
+
+  async fetchMarketMarginTrades(options: { date: string }) {
+    const { date } = options;
+    const [year, month, day] = date.split('-');
+    const query = new URLSearchParams({
+      d: `${+year - 1911}/${month}/${day}`,
+      o: 'json',
+    });
+    const url = `https://www.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.iTotalRecords > 0 && response.data;
+    if (!json) return null;
+
+    const values = [...json.tfootData_one, ...json.tfootData_two];
+    const data: Record<string, any> = {};
+    data.date = date;
+    data.exchange = Exchange.TPEx;
+    data.market = Market.OTC;
+    data.marginBuy = numeral(values[1]).value();
+    data.marginSell = numeral(values[2]).value();
+    data.marginRedeem = numeral(values[3]).value();
+    data.marginBalancePrev = numeral(values[0]).value();
+    data.marginBalance = numeral(values[4]).value();
+    data.shortBuy = numeral(values[10]).value();
+    data.shortSell = numeral(values[9]).value();
+    data.shortRedeem = numeral(values[11]).value();
+    data.shortBalancePrev = numeral(values[8]).value();
+    data.shortBalance = numeral(values[12]).value();
+    data.marginBuyValue = numeral(values[14]).value();
+    data.marginSellValue = numeral(values[15]).value();
+    data.marginRedeemValue = numeral(values[16]).value();
+    data.marginBalancePrevValue = numeral(values[13]).value();
+    data.marginBalanceValue = numeral(values[17]).value();
     return data;
   }
 }

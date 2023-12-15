@@ -278,6 +278,8 @@ describe('TpexScraper', () => {
       expect(market).toBeDefined();
       expect(market).toEqual({
         date: '2023-01-30',
+        exchange: 'TPEx',
+        market: 'OTC',
         tradeVolume: 630687778,
         tradeValue: 62678685445,
         transaction: 471626,
@@ -309,6 +311,8 @@ describe('TpexScraper', () => {
       expect(market).toBeDefined();
       expect(market).toEqual({
         date: '2023-01-30',
+        exchange: 'TPEx',
+        market: 'OTC',
         up: 591,
         limitUp: 10,
         down: 135,
@@ -341,6 +345,8 @@ describe('TpexScraper', () => {
       expect(market).toBeDefined();
       expect(market).toEqual({
         date: '2023-01-30',
+        exchange: 'TPEx',
+        market: 'OTC',
         finiWithoutDealersBuy: 20112958447,
         finiWithoutDealersSell: 16591758807,
         finiWithoutDealersNetBuySell: 3521199640,
@@ -374,6 +380,49 @@ describe('TpexScraper', () => {
       const market = await scraper.fetchMarketInstTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/web/stock/3insti/3insti_summary/3itrdsum_result.php?d=112%2F01%2F01&t=D&o=json',
+      );
+      expect(market).toBe(null);
+    });
+  });
+
+  describe('.fetchMarketMarginTrades()', () => {
+    it('should fetch market margin trades for the given date', async () => {
+      const data = require('../fixtures/otc-market-margin-trades.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const market = await scraper.fetchMarketMarginTrades({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?d=112%2F01%2F30&o=json',
+      );
+      expect(market).toBeDefined();
+      expect(market).toEqual({
+        date: '2023-01-30',
+        exchange: 'TPEx',
+        market: 'OTC',
+        marginBuy: 71250,
+        marginSell: 59859,
+        marginRedeem: 2750,
+        marginBalancePrev: 1609204,
+        marginBalance: 1617845,
+        shortBuy: 4183,
+        shortSell: 4455,
+        shortRedeem: 445,
+        shortBalancePrev: 112717,
+        shortBalance: 112544,
+        marginBuyValue: 3388490,
+        marginSellValue: 2866469,
+        marginRedeemValue: 92804,
+        marginBalancePrevValue: 55747157,
+        marginBalanceValue: 56176374,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const market = await scraper.fetchMarketMarginTrades({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?d=112%2F01%2F01&o=json',
       );
       expect(market).toBe(null);
     });
