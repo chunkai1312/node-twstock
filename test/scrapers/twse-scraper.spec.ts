@@ -259,6 +259,72 @@ describe('TwseScraper', () => {
     });
   });
 
+  describe('.fetchIndicesTrades()', () => {
+    it('should fetch indices trades for the given date', async () => {
+      // @ts-ignore
+      mockAxios.get.mockImplementation((url: string) => {
+        return new Promise((resolve, reject) => {
+          switch (url) {
+            case 'https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?date=20230130&response=json':
+              return resolve({ data: require('../fixtures/tse-indices-trades.json') });
+            case 'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20230130&response=json':
+              return resolve({ data: require('../fixtures/tse-market-trades.json') });
+            default: return reject();
+          }
+        });
+      });
+
+      const indices = await scraper.fetchIndicesTrades({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?date=20230130&response=json',
+      );
+      expect(indices).toBeDefined();
+      expect(indices.length).toBeGreaterThan(0);
+      expect(indices.every((index: any) => index.symbol)).toBe(true);
+      expect(indices[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TWSE',
+        market: 'TSE',
+        symbol: 'IX0010',
+        name: '水泥類指數',
+        tradeVolume: 53094031,
+        tradeValue: 1997173939,
+        tradeWeight: 0.56,
+      });
+    });
+
+    it('should return null when no market trades is available', async () => {
+      // @ts-ignore
+      mockAxios.get.mockImplementation((url: string) => {
+        return new Promise((resolve, reject) => {
+          switch (url) {
+            case 'https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?date=20230130&response=json':
+              return resolve({ data: require('../fixtures/tse-indices-trades.json') });
+            case 'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20230130&response=json':
+              return resolve({ data: {} });
+            default: return reject();
+          }
+        });
+      });
+
+      const indices = await scraper.fetchIndicesTrades({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?date=20230130&response=json',
+      );
+      expect(indices).toBe(null);
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const indices = await scraper.fetchIndicesTrades({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?date=20230101&response=json',
+      );
+      expect(indices).toBe(null);
+    });
+  });
+
   describe('.fetchMarketTrades()', () => {
     it('should fetch market trades for the given date', async () => {
       const data = require('../fixtures/tse-market-trades.json');

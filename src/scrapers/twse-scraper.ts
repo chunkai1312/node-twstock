@@ -234,6 +234,34 @@ export class TwseScraper extends Scraper {
       }).value() as any;
   }
 
+  async fetchIndicesTrades(options: { date: string }) {
+    const { date } = options;
+    const query = new URLSearchParams({
+      date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?${query}`;
+    const response = await this.httpService.get(url);
+    const json = (response.data.stat === 'OK') && response.data;
+    if (!json) return null;
+
+    const market = await this.fetchMarketTrades({ date });
+    if (!market) return null;
+
+    return json.data.map((row: string[]) => {
+      const data: Record<string, any> = {};
+      data.date = date,
+      data.exchange = Exchange.TWSE;
+      data.market = Market.TSE;
+      data.symbol = asIndex(row[0].trim());
+      data.name = row[0].trim();
+      data.tradeVolume = numeral(row[1]).value();
+      data.tradeValue = numeral(row[2]).value();
+      data.tradeWeight = +numeral(data.tradeValue).divide(market.tradeValue).multiply(100).format('0.00');
+      return data;
+    });
+  }
+
   async fetchMarketTrades(options: { date: string }) {
     const { date } = options;
     const query = new URLSearchParams({

@@ -73,13 +73,15 @@ export function asIndex(index: string): Index {
     '未含金融電子股指數': Index.NonFinanceNonElectronics,
     '電子類指數': Index.Electronics,
     '觀光類指數': Index.TourismAndHospitality,
+    '航運業類指數': Index.ShippingAndTransportation,
+    '觀光事業類指數': Index.TourismAndHospitality,
     '櫃買觀光類指數': Index.TPExTourismAndHospitality,
     '櫃買生技類指數': Index.TPExBiotechnologyAndMedicalCare,
     '櫃買電腦週邊類指數': Index.TPExComputerAndPeripheralEquipment,
     '櫃買光電類指數': Index.TPExOptoelectronic,
     '櫃買電子零件類指數': Index.TPExElectronicPartsComponents,
     '櫃買文化創意類指數': Index.TPExCulturalAndCreative,
-    '櫃買紡纖纖維類指數': Index.TPExTextiles,
+    '櫃買紡織纖維類指數': Index.TPExTextiles,
     '櫃買電機機械類指數': Index.TPExElectricMachinery,
     '櫃買鋼鐵工業類指數': Index.TPExIronAndSteel,
     '櫃買建材營造類指數': Index.TPExBuildingMaterialsAndConstruction,
@@ -93,6 +95,8 @@ export function asIndex(index: string): Index {
     '櫃買資訊服務業類指數': Index.TPExInformationService,
     '櫃買其他電子業類指數': Index.TPExOtherElectronic,
     '櫃買電子工業類指數': Index.TPExElectronic,
+    '櫃買電腦及週邊設備業類指數': Index.TPExComputerAndPeripheralEquipment,
+    '櫃買觀光事業類指數': Index.TPExTourismAndHospitality,
   };
   return indices[index];
 }
