@@ -253,6 +253,56 @@ export class TpexScraper extends Scraper {
       }).value() as any;
   }
 
+  async fetchIndicesTrades(options: { date: string }) {
+    const { date } = options;
+    const [year, month, day] = date.split('-');
+    const query = new URLSearchParams({
+      d: `${+year - 1911}/${month}/${day}`,
+      o: 'json',
+    });
+    const url = `https://www.tpex.org.tw/web/stock/historical/trading_vol_ratio/sectr_result.php?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.iTotalRecords > 0 && response.data;
+    if (!json) return null;
+
+    const data = json.aaData.map((values: string[]) => {
+      const index = `櫃買${values[0]}類指數`
+      const data: Record<string, any> = {};
+      data.date = date,
+      data.exchange = Exchange.TPEx;
+      data.market = Market.OTC;
+      data.symbol = asIndex(index);
+      data.name = index;
+      data.tradeVolume = numeral(values[3]).value();
+      data.tradeValue = numeral(values[1]).value();
+      data.tradeWeight = numeral(values[2]).value();
+      return data;
+    });
+
+    const electronics = [
+      'IX0053', 'IX0054', 'IX0055', 'IX0056',
+      'IX0057', 'IX0058', 'IX0059', 'IX0099',
+    ];
+
+    const [electronic] = _(data)
+      .filter(data => electronics.includes(data.symbol))
+      .groupBy(_ => 'IX0047')
+      .map((data, symbol) => ({
+        date,
+        exchange: Exchange.TPEx,
+        market: Market.OTC,
+        symbol,
+        name: '櫃買電子類指數',
+        tradeVolume: _.sumBy(data, 'tradeVolume'),
+        tradeValue: _.sumBy(data, 'tradeValue'),
+        tradeWeight: +numeral(_.sumBy(data, 'tradeWeight')).format('0.00'),
+      }))
+      .value();
+
+    return [...data, electronic].filter(index => index.symbol) as any;
+  }
+
   async fetchMarketTrades(options: { date: string }) {
     const { date } = options;
     const [year, month, day] = date.split('-');

@@ -266,6 +266,44 @@ describe('TpexScraper', () => {
     });
   });
 
+  describe('.fetchIndicesTrades()', () => {
+    it('should fetch indices trades for the given date', async () => {
+      const data = require('../fixtures/otc-indices-trades.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const indices = await scraper.fetchIndicesTrades({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/historical/trading_vol_ratio/sectr_result.php?d=112%2F01%2F30&o=json',
+      );
+      expect(indices).toBeDefined();
+      expect(indices.length).toBeGreaterThan(0);
+      expect(indices.every((index: any) => index.symbol)).toBe(true);
+      expect(indices[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TPEx',
+        market: 'OTC',
+        symbol: 'IX0055',
+        name: '櫃買光電業類指數',
+        tradeVolume: 52122583,
+        tradeValue: 6414358379,
+        tradeWeight: 10.11,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const market = await scraper.fetchIndicesTrades({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/historical/trading_vol_ratio/sectr_result.php?d=112%2F01%2F01&o=json',
+      );
+      expect(market).toBe(null);
+    });
+  });
+
+
+
+
   describe('.fetchMarketTrades()', () => {
     it('should fetch market trades for the given date', async () => {
       const data = require('../fixtures/otc-market-trades.json');
