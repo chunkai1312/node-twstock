@@ -271,6 +271,8 @@ describe('TwseScraper', () => {
       expect(market).toBeDefined();
       expect(market).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
+        market: 'TSE',
         tradeVolume: 6919326963,
         tradeValue: 354872347181,
         transaction: 2330770,
@@ -302,6 +304,8 @@ describe('TwseScraper', () => {
       expect(market).toBeDefined();
       expect(market).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
+        market: 'TSE',
         up: 764,
         limitUp: 14,
         down: 132,
@@ -334,6 +338,8 @@ describe('TwseScraper', () => {
       expect(market).toBeDefined();
       expect(market).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
+        market: 'TSE',
         finiWithoutDealersBuy: 203744063563,
         finiWithoutDealersSell: 131488377272,
         finiWithoutDealersNetBuySell: 72255686291,
@@ -367,6 +373,49 @@ describe('TwseScraper', () => {
       const market = await scraper.fetchMarketInstTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/fund/BFI82U?dayDate=20230101&type=day&response=json',
+      );
+      expect(market).toBe(null);
+    });
+  });
+
+  describe('.fetchMarketMarginTrades()', () => {
+    it('should fetch market margin trades for the given date', async () => {
+      const data = require('../fixtures/tse-market-margin-trades.json');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const market = await scraper.fetchMarketMarginTrades({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20230130&selectType=MS&response=json',
+      );
+      expect(market).toBeDefined();
+      expect(market).toEqual({
+        date: '2023-01-30',
+        exchange: 'TWSE',
+        market: 'TSE',
+        marginBuy: 264023,
+        marginSell: 282873,
+        marginRedeem: 10127,
+        marginBalancePrev: 6310599,
+        marginBalance: 6281622,
+        shortBuy: 17280,
+        shortSell: 20392,
+        shortRedeem: 2075,
+        shortBalancePrev: 542895,
+        shortBalance: 543932,
+        marginBuyValue: 8514925,
+        marginSellValue: 8830493,
+        marginRedeemValue: 300879,
+        marginBalancePrevValue: 151760467,
+        marginBalanceValue: 151144020,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const market = await scraper.fetchMarketMarginTrades({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20230101&selectType=MS&response=json',
       );
       expect(market).toBe(null);
     });

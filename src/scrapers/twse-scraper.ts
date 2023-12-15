@@ -250,6 +250,8 @@ export class TwseScraper extends Scraper {
       const [year, month, day] = row[0].split('/');
       return {
         date: `${+year + 1911}-${month}-${day}`,
+        exchange: Exchange.TWSE,
+        market: Market.TSE,
         tradeVolume: numeral(row[1]).value(),
         tradeValue: numeral(row[2]).value(),
         transaction: numeral(row[3]).value(),
@@ -279,6 +281,8 @@ export class TwseScraper extends Scraper {
 
     return {
       date,
+      exchange: Exchange.TWSE,
+      market: Market.TSE,
       up: numeral(up).value(),
       limitUp: numeral(limitUp).value(),
       down: numeral(down).value(),
@@ -304,6 +308,8 @@ export class TwseScraper extends Scraper {
     const values = json.data.map((row: string []) => row.slice(1)).flat();
     const data: Record<string, any> = {};
     data.date = date;
+    data.exchange = Exchange.TWSE;
+    data.market = Market.TSE;
     data.finiWithoutDealersBuy = numeral(values[9]).value();
     data.finiWithoutDealersSell = numeral(values[10]).value();
     data.finiWithoutDealersNetBuySell = numeral(values[11]).value();
@@ -328,6 +334,42 @@ export class TwseScraper extends Scraper {
     data.totalInstInvestorsBuy = numeral(values[15]).value();
     data.totalInstInvestorsSell = numeral(values[16]).value();
     data.totalInstInvestorsNetBuySell = numeral(values[17]).value();
+    return data;
+  }
+
+  async fetchMarketMarginTrades(options: { date: string }) {
+    const { date } = options;
+    const query = new URLSearchParams({
+      date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      selectType: 'MS',
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = (response.data.stat === 'OK') && response.data;
+    if (!json) return null;
+
+    const values = json.tables[0].data.map((row: string []) => row.slice(1)).flat();
+    const data: Record<string, any> = {};
+    data.date = date;
+    data.exchange = Exchange.TWSE;
+    data.market = Market.TSE;
+    data.marginBuy = numeral(values[0]).value();
+    data.marginSell = numeral(values[1]).value();
+    data.marginRedeem = numeral(values[2]).value();
+    data.marginBalancePrev = numeral(values[3]).value();
+    data.marginBalance = numeral(values[4]).value();
+    data.shortBuy = numeral(values[5]).value();
+    data.shortSell = numeral(values[6]).value();
+    data.shortRedeem = numeral(values[7]).value();
+    data.shortBalancePrev = numeral(values[8]).value();
+    data.shortBalance = numeral(values[9]).value();
+    data.marginBuyValue = numeral(values[10]).value();
+    data.marginSellValue = numeral(values[11]).value();
+    data.marginRedeemValue = numeral(values[12]).value();
+    data.marginBalancePrevValue = numeral(values[13]).value();
+    data.marginBalanceValue = numeral(values[14]).value();
     return data;
   }
 }
