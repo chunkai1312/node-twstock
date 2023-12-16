@@ -1,5 +1,22 @@
 # Changelog
 
+# [0.6.0](https://github.com/chunkai1312/node-twstock/compare/v0.5.0...v0.6.0) (2023-12-16)
+
+
+### Features
+
+* add support to retrieve market-level stats ([3fdaacf](https://github.com/chunkai1312/node-twstock/commit/3fdaacfe1fbd4023cd1af9db3c4a82905e875fa4))
+* support for fetching OTC indices trades ([f40b13c](https://github.com/chunkai1312/node-twstock/commit/f40b13c1697579b3e23964637ff2eb4d7e936d1c))
+* support for fetching OTC market breadth ([67a5b9c](https://github.com/chunkai1312/node-twstock/commit/67a5b9cede92a8ced278220ae3d43f6502b49b72))
+* support for fetching OTC market institutional investors' trades ([94174b5](https://github.com/chunkai1312/node-twstock/commit/94174b53646670b6ba222c12cd9f02bb1db9e984))
+* support for fetching OTC market margin trades ([f809e64](https://github.com/chunkai1312/node-twstock/commit/f809e64893f74180f8029208a3b6e9f9310dbee0))
+* support for fetching OTC market trades ([e765beb](https://github.com/chunkai1312/node-twstock/commit/e765beb0950b324841565e3e46b57741f1e3f9aa))
+* support for fetching TSE indices trades ([e9a6db9](https://github.com/chunkai1312/node-twstock/commit/e9a6db9994d5e51937205f91109b2f530cdce7ba))
+* support for fetching TSE market breadth ([b955c35](https://github.com/chunkai1312/node-twstock/commit/b955c35a4edc432406bc327da20e6fd59e5f0d32))
+* support for fetching TSE market institutional investors' trades ([f429c7d](https://github.com/chunkai1312/node-twstock/commit/f429c7d7dedbcdbde543bfc9b995600da9d992ae))
+* support for fetching TSE market margin trades ([3ec4673](https://github.com/chunkai1312/node-twstock/commit/3ec4673a65a295e3f3da0183da1ee03a1a673ecc))
+* support for fetching TSE market trades ([7305f50](https://github.com/chunkai1312/node-twstock/commit/7305f507b808f759b54a69c801923f8b4d4b6efa))
+
 # [0.5.0](https://github.com/chunkai1312/node-twstock/compare/v0.4.0...v0.5.0) (2023-12-14)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "node-twstock",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "A client library for scraping Taiwan stock market data",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
