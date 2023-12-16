@@ -4,7 +4,7 @@
 [![Build Status][action-image]][action-url]
 [![Coverage Status][codecov-image]][codecov-url]
 
-> A client library for scraping real-time quotes and historical data from the Taiwan stock market, provided by [Taiwan Stock Exchange](https://www.twse.com.tw) and [Taipei Exchange](https://www.tpex.org.tw).
+> A client library for scraping Taiwan stock market data, provided by [Taiwan Stock Exchange](https://www.twse.com.tw) and [Taipei Exchange](https://www.tpex.org.tw).
 
 ## Installation
 
@@ -31,8 +31,8 @@ Get a list of listed stocks.
 - Returns: Promise that resolves to an array of `Ticker` objects.
 
 ```js
-const stocksList = await twstock.stocks.list({ market: 'TSE' });
-console.log(stocksList);
+const data = await twstock.stocks.list({ market: 'TSE' });
+console.log(data);
 // Prints:
 // [
 //   {
@@ -56,8 +56,8 @@ Get real-time quote for a specific stock.
   - `odd` (optional): Intraday odd lot trading
 
 ```js
-const stockQuote = await twstock.stocks.quote({ symbol: '2330' });
-console.log(stockQuote);
+const data = await twstock.stocks.quote({ symbol: '2330' });
+console.log(data);
 // Prints:
 // {
 //   date: '2023-12-08',
@@ -93,8 +93,8 @@ Get historical data for a specific stock on a given date.
 - Returns: Promise that resolves to the historical data.
 
 ```js
-const stockHistorical = await twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' });
-console.log(stockHistorical);
+const data = await twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' });
+console.log(data);
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -124,8 +124,8 @@ Get institutional investors' trades for a specific stock on a given date.
 - Returns: Promise that resolves to the institutional investors' trades.
 
 ```js
-const stockInstTrades = await twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' });
-console.log(stockInstTrades);
+const data = await twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' });
+console.log(data);
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -171,8 +171,8 @@ Get FINI holdings for a specific stock on a given date.
 - Returns: Promise that resolves to the FINI holdings.
 
 ```js
-const stockFiniHoldings = await twstock.stocks.finiHoldings({ date: '2023-01-30', symbol: '2330' });
-console.log(stockFiniHoldings);
+const data = await twstock.stocks.finiHoldings({ date: '2023-01-30', symbol: '2330' });
+console.log(data);
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -200,8 +200,8 @@ Get margin trades for a specific stock on a given date.
 - Returns: Promise that resolves to the margin trades.
 
 ```js
-const stockMarginTrades = await twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' });
-console.log(stockMarginTrades);
+const data = await twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' });
+console.log(data);
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -237,8 +237,8 @@ Get values for a specific stock on a given date.
 - Returns: Promise that resolves to the values.
 
 ```js
-const stockValues = await twstock.stocks.values({ date: '2023-01-30', symbol: '2330' });
-console.log(stockValues);
+const data = await twstock.stocks.values({ date: '2023-01-30', symbol: '2330' });
+console.log(data);
 // Prints:
 // {
   // date: '2023-01-30',
@@ -264,8 +264,8 @@ Get a list of listed indices.
 - Returns: Promise that resolves to an array of `Ticker` objects.
 
 ```js
-const indicesList = await twstock.indices.list({ market: 'TSE' });
-console.log(indicesList);
+const data = await twstock.indices.list({ market: 'TSE' });
+console.log(data);
 // Prints:
 // [
 //   {
@@ -288,8 +288,8 @@ Get real-time quote for a specific index.
 - Returns: Promise that resolves to the real-time quote.
 
 ```js
-const indexQuote = await twstock.indices.quote({ symbol: 'IX0001' });
-console.log(indexQuote);
+const data = await twstock.indices.quote({ symbol: 'IX0001' });
+console.log(data);
 // Prints:
 // {
 //   date: '2023-12-08',
@@ -316,8 +316,8 @@ Get historical data for a specific index on a given date.
 - Returns: Promise that resolves to the historical data.
 
 ```js
-const indexHistorical = await twstock.indices.historical({ date: '2023-01-30', symbol: 'IX0001' });
-console.log(indexHistorical);
+const data = await twstock.indices.historical({ date: '2023-01-30', symbol: 'IX0001' });
+console.log(data);
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -330,6 +330,164 @@ console.log(indexHistorical);
 //   low: 15291.53,
 //   close: 15493.82,
 //   change: 560.89
+// }
+```
+
+### `indices.trades(params)`
+
+Get trades for a specific index on a given date.
+
+- `params`:
+  - `date`: Date in the format 'YYYY-MM-DD'
+  - `market` (optional): Filter indices by market ('TSE' or 'OTC')
+  - `symbol` (optional): Index symbol
+- Returns: Promise that resolves to the trades.
+
+```js
+const data = await twstock.indices.trades({ date: '2023-01-30', symbol: 'IX0028' });
+console.log(data);
+// Prints:
+// {
+//   date: '2023-01-30',
+//   exchange: 'TWSE',
+//   market: 'TSE',
+//   symbol: 'IX0028',
+//   name: '半導體類指數',
+//   tradeVolume: 770856550,
+//   tradeValue: 150024105617,
+//   tradeWeight: 42.28
+// }
+```
+
+## Market
+
+### `market.trades(params)`
+
+Get trades for the market on a given date.
+
+- `params`:
+  - `date`: Date in the format 'YYYY-MM-DD'
+  - `market`: 'TSE' or 'OTC'
+- Returns: Promise that resolves to the trades.
+
+```js
+const data = await twstock.market.trades({ date: '2023-01-30', market: 'TSE' });
+console.log(data);
+// Prints:
+// {
+//   date: '2023-01-30',
+//   exchange: 'TWSE',
+//   market: 'TSE',
+//   tradeVolume: 6919326963,
+//   tradeValue: 354872347181,
+//   transaction: 2330770,
+//   index: 15493.82,
+//   change: 560.89
+// }
+```
+
+### `market.breadth(params)`
+
+Get breadth for the market on a given date.
+
+- `params`:
+  - `date`: Date in the format 'YYYY-MM-DD'
+  - `market`: 'TSE' or 'OTC'
+- Returns: Promise that resolves to the breadth.
+
+```js
+const data = await twstock.market.breadth({ date: '2023-01-30', market: 'TSE' });
+console.log(data);
+// Prints:
+// {
+//   date: '2023-01-30',
+//   exchange: 'TWSE',
+//   market: 'TSE',
+//   up: 764,
+//   limitUp: 14,
+//   down: 132,
+//   limitDown: 0,
+//   unchanged: 67,
+//   unmatched: 5
+// }
+```
+
+### `market.instTrades(params)`
+
+Get institutional investors' trades for the market on a given date.
+
+- `params`:
+  - `date`: Date in the format 'YYYY-MM-DD'
+  - `market`: 'TSE' or 'OTC'
+- Returns: Promise that resolves to the institutional investors' trades.
+
+```js
+const data = await twstock.market.instTrades({ date: '2023-01-30', market: 'TSE' });
+console.log(data);
+// Prints:
+// {
+//   date: '2023-01-30',
+//   exchange: 'TWSE',
+//   market: 'TSE',
+//   finiWithoutDealersBuy: 203744063563,
+//   finiWithoutDealersSell: 131488377272,
+//   finiWithoutDealersNetBuySell: 72255686291,
+//   finiDealersBuy: 24864200,
+//   finiDealersSell: 61653250,
+//   finiDealersNetBuySell: -36789050,
+//   finiBuy: 203768927763,
+//   finiSell: 131550030522,
+//   finiNetBuySell: 72218897241,
+//   sitcBuy: 6269087553,
+//   sitcSell: 3179424632,
+//   sitcNetBuySell: 3089662921,
+//   dealersForProprietaryBuy: 4736295878,
+//   dealersForProprietarySell: 1917624556,
+//   dealersForProprietaryNetBuySell: 2818671322,
+//   dealersForHedgingBuy: 11451095424,
+//   dealersForHedgingSell: 6481456459,
+//   dealersForHedgingNetBuySell: 4969638965,
+//   dealersBuy: 16187391302,
+//   dealersSell: 8399081015,
+//   dealersNetBuySell: 7788310287,
+//   totalInstInvestorsBuy: 226200542418,
+//   totalInstInvestorsSell: 143066882919,
+//   totalInstInvestorsNetBuySell: 83133659499
+// }
+```
+
+### `market.marginTrades(params)`
+
+Get margin trades for the market on a given date.
+
+- `params`:
+  - `date`: Date in the format 'YYYY-MM-DD'
+  - `market`: 'TSE' or 'OTC'
+- Returns: Promise that resolves to the margin trades.
+
+```js
+const data = await twstock.market.marginTrades({ date: '2023-01-30', market: 'TSE' });
+console.log(data);
+// Prints:
+// {
+//   date: '2023-01-30',
+//   exchange: 'TWSE',
+//   market: 'TSE',
+//   marginBuy: 264023,
+//   marginSell: 282873,
+//   marginRedeem: 10127,
+//   marginBalancePrev: 6310599,
+//   marginBalance: 6281622,
+//   shortBuy: 17280,
+//   shortSell: 20392,
+//   shortRedeem: 2075,
+//   shortBalancePrev: 542895,
+//   shortBalance: 543932,
+//   marginBuyValue: 8514925,
+//   marginSellValue: 8830493,
+//   marginRedeemValue: 300879,
+//   marginBalancePrevValue: 151760467,
+//   marginBalanceValue: 151144020
 // }
 ```
 

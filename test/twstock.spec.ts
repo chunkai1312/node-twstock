@@ -38,6 +38,26 @@ jest.mock('../src/scrapers', () => ({
       if (date === '2023-01-30') return require('./fixtures/fetched-tse-indices-historical.json');
       return null;
     }),
+    fetchIndicesTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-tse-indices-trades.json');
+      return null;
+    }),
+    fetchMarketTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-tse-market-trades.json');
+      return null;
+    }),
+    fetchMarketBreadth: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-tse-market-breadth.json');
+      return null;
+    }),
+    fetchMarketInstTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-tse-market-inst-trades.json');
+      return null;
+    }),
+    fetchMarketMarginTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-tse-market-margin-trades.json');
+      return null;
+    }),
   },
   TpexScraper: {
     fetchStocksHistorical: jest.fn(({ date }) => {
@@ -62,6 +82,26 @@ jest.mock('../src/scrapers', () => ({
     }),
     fetchIndicesHistorical: jest.fn(({ date }) => {
       if (date === '2023-01-30') return require('./fixtures/fetched-otc-indices-historical.json');
+      return null;
+    }),
+    fetchIndicesTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-otc-indices-trades.json');
+      return null;
+    }),
+    fetchMarketTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-otc-market-trades.json');
+      return null;
+    }),
+    fetchMarketBreadth: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-otc-market-breadth.json');
+      return null;
+    }),
+    fetchMarketInstTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-otc-market-inst-trades.json');
+      return null;
+    }),
+    fetchMarketMarginTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') return require('./fixtures/fetched-otc-market-margin-trades.json');
       return null;
     }),
   },
@@ -350,7 +390,7 @@ describe('TwStock', () => {
         expect(indices.every((index: any) => index.market === 'TSE')).toBe(true);
       });
 
-      it('should fetch indices historical data for the TSE market', async () => {
+      it('should fetch indices historical data for the OTC market', async () => {
         const indices = await twstock.indices.historical({ date: '2023-01-30', market: 'OTC' });
         expect(indices).toBeDefined();
         expect(indices.length).toBeGreaterThan(0);
@@ -359,6 +399,90 @@ describe('TwStock', () => {
 
       it('should throw an error if the symbol is not found', async () => {
         await expect(() => twstock.indices.historical({ date: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+    });
+
+    describe('.trades()', () => {
+      it('should fetch indices trades for the symbol', async () => {
+        const index = await twstock.indices.trades({ date: '2023-01-30', symbol: 'IX0028' });
+        expect(index).toBeDefined();
+        expect(index.symbol).toBe('IX0028');
+      });
+
+      it('should fetch indices trades for the TSE market', async () => {
+        const indices = await twstock.indices.trades({ date: '2023-01-30', market: 'TSE' });
+        expect(indices).toBeDefined();
+        expect(indices.length).toBeGreaterThan(0);
+        expect(indices.every((index: any) => index.market === 'TSE')).toBe(true);
+      });
+
+      it('should fetch indices trades for the OTC market', async () => {
+        const indices = await twstock.indices.trades({ date: '2023-01-30', market: 'OTC' });
+        expect(indices).toBeDefined();
+        expect(indices.length).toBeGreaterThan(0);
+        expect(indices.every((index: any) => index.market === 'OTC')).toBe(true);
+      });
+
+      it('should throw an error if the symbol is not found', async () => {
+        await expect(() => twstock.indices.trades({ date: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+    });
+  });
+
+  describe('.market', () => {
+    describe('.trades()', () => {
+      it('should fetch market trades for the TSE market', async () => {
+        const market = await twstock.market.trades({ date: '2023-01-30', market: 'TSE' });
+        expect(market).toBeDefined();
+        expect(market?.market).toBe('TSE');
+      });
+
+      it('should fetch market trades for the TSE market', async () => {
+        const market = await twstock.market.trades({ date: '2023-01-30', market: 'OTC' });
+        expect(market).toBeDefined();
+        expect(market?.market).toBe('OTC');
+      });
+    });
+
+    describe('.breadth()', () => {
+      it('should fetch market breadth for the TSE market', async () => {
+        const market = await twstock.market.breadth({ date: '2023-01-30', market: 'TSE' });
+        expect(market).toBeDefined();
+        expect(market?.market).toBe('TSE');
+      });
+
+      it('should fetch market breadth for the TSE market', async () => {
+        const market = await twstock.market.breadth({ date: '2023-01-30', market: 'OTC' });
+        expect(market).toBeDefined();
+        expect(market?.market).toBe('OTC');
+      });
+    });
+
+    describe('.instTrades()', () => {
+      it('should fetch market institutional investors\' trades for the TSE market', async () => {
+        const market = await twstock.market.instTrades({ date: '2023-01-30', market: 'TSE' });
+        expect(market).toBeDefined();
+        expect(market?.market).toBe('TSE');
+      });
+
+      it('should fetch market institutional investors\' trades for the OTC market', async () => {
+        const market = await twstock.market.instTrades({ date: '2023-01-30', market: 'OTC' });
+        expect(market).toBeDefined();
+        expect(market?.market).toBe('OTC');
+      });
+    });
+
+    describe('.marginTrades()', () => {
+      it('should fetch market margin trades for the TSE market', async () => {
+        const market = await twstock.market.marginTrades({ date: '2023-01-30', market: 'TSE' });
+        expect(market).toBeDefined();
+        expect(market?.market).toBe('TSE');
+      });
+
+      it('should fetch market margin trades for the OTC market', async () => {
+        const market = await twstock.market.marginTrades({ date: '2023-01-30', market: 'OTC' });
+        expect(market).toBeDefined();
+        expect(market?.market).toBe('OTC');
       });
     });
   });

@@ -24,6 +24,16 @@ export class TwStock {
       list: this.getIndicesList.bind(this),
       quote: this.getIndicesQuote.bind(this),
       historical: this.getIndicesHistorical.bind(this),
+      trades: this.getIndicesTrades.bind(this),
+    };
+  }
+
+  get market() {
+    return {
+      trades: this.getMarketTrades.bind(this),
+      breadth: this.getMarketBreadth.bind(this),
+      instTrades: this.getMarketInstTrades.bind(this),
+      marginTrades: this.getMarketMarginTrades.bind(this),
     };
   }
 
@@ -230,5 +240,66 @@ export class TwStock {
       : await TwseScraper.fetchIndicesHistorical({ date });
 
     return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
+  }
+
+  private async getIndicesTrades(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+    const { date, symbol } = params;
+
+    if (symbol && !this._indices.has(symbol)) {
+      await this.loadIndices();
+    }
+    if (symbol && !this._indices.has(symbol)) {
+      throw new Error('symbol not found');
+    }
+
+    const ticker = this._indices.get(symbol as string) as Ticker;
+    const market = symbol ? ticker.market : params.market;
+
+    const data = (market === Market.OTC)
+      ? await TpexScraper.fetchIndicesTrades({ date })
+      : await TwseScraper.fetchIndicesTrades({ date });
+
+    return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
+  }
+
+
+  private async getMarketTrades(params: { date: string, market?: 'TSE' | 'OTC' }) {
+    const { date, market } = params;
+
+    const data = (market === Market.OTC)
+      ? await TpexScraper.fetchMarketTrades({ date })
+      : await TwseScraper.fetchMarketTrades({ date });
+
+    return data;
+  }
+
+  private async getMarketBreadth(params: { date: string, market?: 'TSE' | 'OTC' }) {
+    const { date, market } = params;
+
+    const data = (market === Market.OTC)
+      ? await TpexScraper.fetchMarketBreadth({ date })
+      : await TwseScraper.fetchMarketBreadth({ date });
+
+    return data;
+  }
+
+  private async getMarketInstTrades(params: { date: string, market?: 'TSE' | 'OTC' }) {
+    const { date, market } = params;
+
+    const data = (market === Market.OTC)
+      ? await TpexScraper.fetchMarketInstTrades({ date })
+      : await TwseScraper.fetchMarketInstTrades({ date });
+
+    return data;
+  }
+
+  private async getMarketMarginTrades(params: { date: string, market?: 'TSE' | 'OTC' }) {
+    const { date, market } = params;
+
+    const data = (market === Market.OTC)
+      ? await TpexScraper.fetchMarketMarginTrades({ date })
+      : await TwseScraper.fetchMarketMarginTrades({ date });
+
+    return data;
   }
 }

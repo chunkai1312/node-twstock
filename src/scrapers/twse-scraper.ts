@@ -307,17 +307,17 @@ export class TwseScraper extends Scraper {
     const [unchanged, unmatched, notApplicable] = raw.slice(2)
       .map((value: string) => numeral(value).value());
 
-    return {
-      date,
-      exchange: Exchange.TWSE,
-      market: Market.TSE,
-      up: numeral(up).value(),
-      limitUp: numeral(limitUp).value(),
-      down: numeral(down).value(),
-      limitDown: numeral(limitDown).value(),
-      unchanged: numeral(unchanged).value(),
-      unmatched: unmatched + notApplicable,
-    };
+    const data: Record<string, any> = {};
+    data.date = date;
+    data.exchange = Exchange.TWSE;
+    data.market = Market.TSE;
+    data.up = numeral(up).value();
+    data.limitUp = numeral(limitUp).value();
+    data.down = numeral(down).value();
+    data.limitDown = numeral(limitDown).value();
+    data.unchanged = numeral(unchanged).value();
+    data.unmatched = unmatched + notApplicable;
+    return data;
   }
 
   async fetchMarketInstTrades(options: { date: string }) {

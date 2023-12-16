@@ -344,17 +344,17 @@ export class TpexScraper extends Scraper {
     const json = response.data.iTotalRecords > 0 && response.data;
     if (!json) return null;
 
-    return {
-      date,
-      exchange: Exchange.TPEx,
-      market: Market.OTC,
-      up: numeral(json.upNum).value(),
-      limitUp: numeral(json.upStopNum).value(),
-      down: numeral(json.downNum).value(),
-      limitDown: numeral(json.downStopNum).value(),
-      unchanged: numeral(json.noChangeNum).value(),
-      unmatched: numeral(json.noTradeNum).value(),
-    };
+    const data: Record<string, any> = {};
+    data.date = date;
+    data.exchange = Exchange.TPEx;
+    data.market = Market.OTC;
+    data.up = numeral(json.upNum).value();
+    data.limitUp = numeral(json.upStopNum).value();
+    data.down = numeral(json.downNum).value();
+    data.limitDown = numeral(json.downStopNum).value();
+    data.unchanged = numeral(json.noChangeNum).value();
+    data.unmatched= numeral(json.noTradeNum).value();
+    return data;
   }
 
   async fetchMarketInstTrades(options: { date: string }) {
