@@ -304,8 +304,7 @@ export class TwseScraper extends Scraper {
     const raw = json.tables[7].data.map((row: string[]) => row[2]);
     const [up, limitUp] = raw[0].replace(')', '').split('(');
     const [down, limitDown] = raw[1].replace(')', '').split('(');
-    const [unchanged, unmatched, notApplicable] = raw.slice(2)
-      .map((value: string) => numeral(value).value());
+    const [unchanged, unmatched, notApplicable] = raw.slice(2);
 
     const data: Record<string, any> = {};
     data.date = date;
@@ -316,7 +315,8 @@ export class TwseScraper extends Scraper {
     data.down = numeral(down).value();
     data.limitDown = numeral(limitDown).value();
     data.unchanged = numeral(unchanged).value();
-    data.unmatched = unmatched + notApplicable;
+    data.unmatched = numeral(unmatched).value();
+    data.notApplicable = numeral(notApplicable).value();
     return data;
   }
 

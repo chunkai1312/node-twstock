@@ -6,6 +6,30 @@
 
 > A client library for scraping Taiwan stock market data, provided by [Taiwan Stock Exchange](https://www.twse.com.tw) and [Taipei Exchange](https://www.tpex.org.tw).
 
+## Table of Contents
+
+* [Installation](#installation)
+* [Usage](#usage)
+* [API](#api)
+  * [stocks.list(params)](#stockslistparams)
+  * [stocks.quote(params)](#stocksquoteparams)
+  * [stocks.historical(params)](#stockshistoricalparams)
+  * [stocks.instTrades(params)](#stocksinsttradesparams)
+  * [stocks.finiHoldings(params)](#stocksfiniholdingsparams)
+  * [stocks.marginTrades(params)](#stocksmargintradesparams)
+  * [stocks.values(params)](#stocksvaluesparams)
+  * [stocks.holders(params)](#stocksholdersparams)
+  * [indices.list(params)](#indiceslistparams)
+  * [indices.quote(params)](#indicesquoteparams)
+  * [indices.historical(params)](#indiceshistoricalparams)
+  * [indices.trades(params)](#indicestradesparams)
+  * [market.trades(params)](#markettradesparams)
+  * [market.breadth(params)](#marketbreadthparams)
+  * [market.instTrades(params)](#marketinsttradesparams)
+  * [market.marginTrades(params)](#marketmargintradesparams)
+* [Changelog](#changelog)
+* [License](#license)
+
 ## Installation
 
 ```sh
@@ -18,21 +42,36 @@ $ npm install --save node-twstock
 const { TwStock } = require('node-twstock');
 
 const twstock = new TwStock();
+
+// To retrieve stocks data
+const stocks = twstock.stocks;
+
+// To retrieve indices data
+const indices = twstock.indices;
+
+// To retrieve market data
+const market = twstock.market;
 ```
 
-## Stocks
+## API
 
 ### `stocks.list(params)`
 
-Get a list of listed stocks.
+取得上市櫃股票列表
 
-- `params`: Optional parameters
-  - `market`: Filter stocks by market ('TSE' or 'OTC')
-- Returns: Promise that resolves to an array of `Ticker` objects.
+* `params`: {Object}
+  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `exchange`: {string} 股票名稱
+  * `market`: {string} 市場別
+  * `industry`: {string} 產業別
+  * `listedDate`: {string} 上市日期
 
 ```js
-const data = await twstock.stocks.list({ market: 'TSE' });
-console.log(data);
+twstock.stocks.list({ market: 'TSE' })
+  .then(data => console.log(data));
 // Prints:
 // [
 //   {
@@ -49,15 +88,33 @@ console.log(data);
 
 ### `stocks.quote(params)`
 
-Get real-time quote for a specific stock.
+取得股票即時行情
 
-- `params`:
-  - `symbol`: Stock symbol
-  - `odd` (optional): Intraday odd lot trading
+* `params`: {Object}
+  * `symbol`: {string} 股票代號
+  * `odd` (optional): {boolean} 盤中零股交易
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `referencePrice`: {number} 參考價
+  * `limitUpPrice`: {number} 漲停價
+  * `limitDownPrice`: {number} 跌停價
+  * `openPrice`: {number} 開盤價
+  * `highPrice`: {number} 最高價
+  * `lowPrice`: {number} 最低價
+  * `lastPrice`: {number} 最後成交價格
+  * `lastSize`: {number} 最後成交數量
+  * `totalVoluem`: {number} 總成交量
+  * `bidPrice`: {number[]} 最佳委託買進價格
+  * `askPrice`: {number[]} 最佳委託賣出價格
+  * `bidSize`: {number[]} 最佳委託買進數量
+  * `askSize`: {number[]} 最佳委託賣出數量
+  * `lastUpdated`: {number} 最後更新時間
 
 ```js
-const data = await twstock.stocks.quote({ symbol: '2330' });
-console.log(data);
+twstock.stocks.quote({ symbol: '2330' })
+  .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-12-08',
@@ -80,21 +137,32 @@ console.log(data);
 // }
 ```
 
-- Returns: Promise that resolves to the real-time quote.
-
 ### `stocks.historical(params)`
 
-Get historical data for a specific stock on a given date.
+取得股票在特定日期的收盤行情
 
-- `params`:
-  - `date`: Date in the format 'YYYY-MM-DD'
-  - `market` (optional): Filter stocks by market ('TSE' or 'OTC')
-  - `symbol` (optional): Stock symbol
-- Returns: Promise that resolves to the historical data.
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `symbol` (optional): {string} 股票代號
+* Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `exchange`: {string} 交易所
+  * `market`: {string} 市場別
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `open`: {number} 開盤價
+  * `high`: {number} 最高價
+  * `low`: {number} 最低價
+  * `close`: {number} 收盤價
+  * `volume`: {number} 成交股數
+  * `turnover`: {number} 成交金額
+  * `transaction`: {number} 成交筆數
+  * `change`: {number} 漲跌
 
 ```js
-const data = await twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' });
-console.log(data);
+twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' })
+  .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -115,17 +183,46 @@ console.log(data);
 
 ### `stocks.instTrades(params)`
 
-Get institutional investors' trades for a specific stock on a given date.
+取得股票在特定日期的三大法人買賣超
 
-- `params`:
-  - `date`: Date in the format 'YYYY-MM-DD'
-  - `market` (optional): Filter stocks by market ('TSE' or 'OTC')
-  - `symbol` (optional): Stock symbol
-- Returns: Promise that resolves to the institutional investors' trades.
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `symbol` (optional): {string} 股票代號
+* Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `exchange`: {string} 交易所
+  * `market`: {string} 市場別
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `finiWithoutDealersBuy`: {number} 外資及陸資(不含外資自營商)買進金額
+  * `finiWithoutDealersSell`: {number} 外資及陸資(不含外資自營商)賣出金額
+  * `finiWithoutDealersNetBuySell`: {number} 外資及陸資(不含外資自營商)買賣差額
+  * `finiDealersBuy`: {number} 外資自營商買進金額
+  * `finiDealersSell`: {number} 外資自營商賣出金額
+  * `finiDealersNetBuySell`: {number} 外資自營商買賣差額
+  * `finiBuy`: {number} 外資買進金額
+  * `finiSell`: {number} 外資賣出金額
+  * `finiNetBuySell`: {number} 外資買賣差額
+  * `sitcBuy`: {number} 投信買進金額
+  * `sitcSell`: {number} 投信賣出金額
+  * `sitcNetBuySell`: {number} 投信買賣差額
+  * `dealersForProprietaryBuy`: {number} 自營商(自行買賣)買進金額
+  * `dealersForProprietarySell`: {number} 自營商(自行買賣)賣出金額
+  * `dealersForProprietaryNetBuySell`: {number} 自營商(自行買賣)買賣差額
+  * `dealersForHedgingBuy`: {number} 自營商(避險)買進金額
+  * `dealersForHedgingSell`: {number} 自營商(避險)賣出金額
+  * `dealersForHedgingNetBuySell`: {number} 自營商(避險)買賣差額
+  * `dealersBuy`: {number} 自營商買進金額
+  * `dealersSell`: {number} 自營商賣出金額
+  * `dealersNetBuySell`: {number} 自營商買賣差額
+  * `totalInstInvestorsBuy`: {number} 三大法人合計買進金額
+  * `totalInstInvestorsSell`: {number} 三大法人合計賣出金額
+  * `totalInstInvestorsNetBuySell`: {number} 三大法人合計買賣差額
 
 ```js
-const data = await twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' });
-console.log(data);
+twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' })
+  .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -162,17 +259,28 @@ console.log(data);
 
 ### `stocks.finiHoldings(params)`
 
-Get FINI holdings for a specific stock on a given date.
+取得股票在特定日期的外資持股比例
 
-- `params`:
-  - `date`: Date in the format 'YYYY-MM-DD'
-  - `market` (optional): Filter stocks by market ('TSE' or 'OTC')
-  - `symbol` (optional): Stock symbol
-- Returns: Promise that resolves to the FINI holdings.
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `symbol` (optional): {string} 股票代號
+* Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `exchange`: {string} 交易所
+  * `market`: {string} 市場別
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `issuedShares`: {number} 發行股數
+  * `availableShares`: {number} 外資及陸資尚可投資股數
+  * `sharesHeld`: {number} 全體外資及陸資持有股數
+  * `availablePercent`: {number} 外資及陸資尚可投資比率
+  * `heldPercent`: {number} 全體外資及陸資持股比率
+  * `upperLimitPercent`: {number} 外資及陸資共用法令投資上限比率
 
 ```js
-const data = await twstock.stocks.finiHoldings({ date: '2023-01-30', symbol: '2330' });
-console.log(data);
+twstock.stocks.finiHoldings({ date: '2023-01-30', symbol: '2330' })
+  .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -191,17 +299,36 @@ console.log(data);
 
 ### `stocks.marginTrades(params)`
 
-Get margin trades for a specific stock on a given date.
+取得股票在特定日期的融資融券餘額
 
-- `params`:
-  - `date`: Date in the format 'YYYY-MM-DD'
-  - `market` (optional): Filter stocks by market ('TSE' or 'OTC')
-  - `symbol` (optional): Stock symbol
-- Returns: Promise that resolves to the margin trades.
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `symbol` (optional): {string} 股票代號
+* Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `exchange`: {string} 交易所
+  * `market`: {string} 市場別
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `marginBuy`: {number} 融資買進
+  * `marginSell`: {number} 融資賣出
+  * `marginRedeem`: {number} 現金償還
+  * `marginBalancePrev`: {number} 前日融資餘額
+  * `marginBalance`: {number} 今日融資餘額
+  * `marginQuota`: {number} 融資限額
+  * `shortBuy`: {number} 融券買進
+  * `shortSell`: {number} 融券賣出
+  * `shortRedeem`: {number} 現券償還
+  * `shortBalancePrev`: {number} 前日融券餘額
+  * `shortBalance`: {number} 今日融券餘額
+  * `shortQuota`: {number} 融券限額
+  * `offset`: {number} 資券互抵
+  * `note`: {string} 註記
 
 ```js
-const data = await twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' });
-console.log(data);
+twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' })
+  .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -228,17 +355,26 @@ console.log(data);
 
 ### `stocks.values(params)`
 
-Get values for a specific stock on a given date.
+取得股票在特定日期的本益比、殖利率及股價淨值比
 
-- `params`:
-  - `date`: Date in the format 'YYYY-MM-DD'
-  - `market` (optional): Filter stocks by market ('TSE' or 'OTC')
-  - `symbol` (optional): Stock symbol
-- Returns: Promise that resolves to the values.
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `symbol` (optional): {string} 股票代號
+* Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `exchange`: {string} 交易所
+  * `market`: {string} 市場別
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `peRatio`: {number} 本益比
+  * `pbRatio`: {number} 股價淨值比
+  * `dividendYield`: {number} 殖利率
+  * `dividendYear`: {number} 股利年度
 
 ```js
-const data = await twstock.stocks.values({ date: '2023-01-30', symbol: '2330' });
-console.log(data);
+twstock.stocks.values({ date: '2023-01-30', symbol: '2330' })
+  .then(data => console.log(data));
 // Prints:
 // {
   // date: '2023-01-30',
@@ -253,19 +389,59 @@ console.log(data);
 // }
 ```
 
-## Indices
+### `stocks.holders(params)`
+
+取得股票在特定日期的集保分佈
+
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `symbol` (optional): {string} 股票代號
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `data`: {Object[]} 集保分佈資料，包含以下物件屬性：
+    * `level`: {string} 持股分級
+    * `holders`: {number} 持股人數
+    * `shares`: {number} 持股股數
+    * `proportion`: {number} 持股比例
+
+```js
+twstock.stocks.holders({ date: '2022-12-30', symbol: '2330' })
+  .then(data => console.log(data));
+// Prints:
+// {
+//   date: '2022-12-30',
+//   symbol: '2330',
+//   name: '台積電',
+//   data: [
+//     {
+//       level: '1-999',
+//       holders: 891264,
+//       shares: 166263025,
+//       proportion: 0.64
+//     },
+//     ... more items
+//   ]
+// }
+```
 
 ### `indices.list(params)`
 
-Get a list of listed indices.
+取得指數列表
 
-- `params`: Optional parameters
-  - `market`: Filter indices by market ('TSE' or 'OTC')
-- Returns: Promise that resolves to an array of `Ticker` objects.
+* `params`: {Object}
+  * `market`: {string} 按市場別篩選指數 (`'TSE'` 或 `'OTC'`)
+* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+  * `symbol`: {string} 指數代號
+  * `name`: {string} 指數名稱
+  * `exchange`: {string} 交易所
+  * `market`: {string} 市場別
+  * `alias`: {string} 代號別稱
 
 ```js
-const data = await twstock.indices.list({ market: 'TSE' });
-console.log(data);
+twstock.indices.list({ market: 'TSE' })
+  .then(data => console.log(data));
 // Prints:
 // [
 //   {
@@ -281,15 +457,24 @@ console.log(data);
 
 ### `indices.quote(params)`
 
-Get real-time quote for a specific index.
+取得指數即時行情
 
-- `params`:
-  - `symbol`: Index symbol
-- Returns: Promise that resolves to the real-time quote.
+* `params`: {Object}
+  * `market`: {string} 按市場別篩選指數 (`'TSE'` 或 `'OTC'`)
+* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+  * `date`: {string} 日期
+  * `symbol`: {string} 指數代號
+  * `name`: {string} 指數名稱
+  * `open`: {number} 開盤價
+  * `high`: {number} 最高價
+  * `low`: {number} 最低價
+  * `close`: {number} 收盤價
+  * `volume`: {number} 成交金額(千元)
+  * `lastUpdated`: {number} 最後更新時間
 
 ```js
-const data = await twstock.indices.quote({ symbol: 'IX0001' });
-console.log(data);
+twstock.indices.quote({ symbol: 'IX0001' })
+  .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-12-08',
@@ -307,17 +492,25 @@ console.log(data);
 
 ### `indices.historical(params)`
 
-Get historical data for a specific index on a given date.
+取得指數在特定日期的收盤行情
 
-- `params`:
-  - `date`: Date in the format 'YYYY-MM-DD'
-  - `market` (optional): Filter indices by market ('TSE' or 'OTC')
-  - `symbol` (optional): Index symbol
-- Returns: Promise that resolves to the historical data.
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `symbol` (optional): {string} 指數代號
+* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+  * `date`: {string} 日期
+  * `symbol`: {string} 指數代號
+  * `name`: {string} 指數名稱
+  * `open`: {number} 開盤價
+  * `high`: {number} 最高價
+  * `low`: {number} 最低價
+  * `close`: {number} 收盤價
+  * `change`: {number} 漲跌
 
 ```js
-const data = await twstock.indices.historical({ date: '2023-01-30', symbol: 'IX0001' });
-console.log(data);
+twstock.indices.historical({ date: '2023-01-30', symbol: 'IX0001' })
+  .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -335,17 +528,25 @@ console.log(data);
 
 ### `indices.trades(params)`
 
-Get trades for a specific index on a given date.
+取得指數在特定日期的成交量值
 
-- `params`:
-  - `date`: Date in the format 'YYYY-MM-DD'
-  - `market` (optional): Filter indices by market ('TSE' or 'OTC')
-  - `symbol` (optional): Index symbol
-- Returns: Promise that resolves to the trades.
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `symbol` (optional): {string} 指數代號
+* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+  * `date`: {string} 日期
+  * `exchange`: {string} 交易所
+  * `market`: {string} 市場別
+  * `symbol`: {string} 指數代號
+  * `name`: {string} 指數名稱
+  * `tradeVolume`: {number} 成交股數
+  * `tradeValue`: {number} 成交金額
+  * `tradeWeight`: {number} 成交比重
 
 ```js
-const data = await twstock.indices.trades({ date: '2023-01-30', symbol: 'IX0028' });
-console.log(data);
+twstock.indices.trades({ date: '2023-01-30', symbol: 'IX0028' })
+  .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -359,20 +560,26 @@ console.log(data);
 // }
 ```
 
-## Market
-
 ### `market.trades(params)`
 
-Get trades for the market on a given date.
+取得股票市場在特定日期的成交量值
 
-- `params`:
-  - `date`: Date in the format 'YYYY-MM-DD'
-  - `market`: 'TSE' or 'OTC'
-- Returns: Promise that resolves to the trades.
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `exchange`: {string} 交易所
+  * `market`: {string} 市場別
+  * `tradeVolume`: {number} 成交股數
+  * `tradeValue`: {number} 成交金額
+  * `transaction`: {number} 成交筆數
+  * `index`: {number} 大盤指數
+  * `change`: {number} 指數漲跌
 
 ```js
-const data = await twstock.market.trades({ date: '2023-01-30', market: 'TSE' });
-console.log(data);
+twstock.market.trades({ date: '2023-01-30', market: 'TSE' })
+  .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -388,16 +595,26 @@ console.log(data);
 
 ### `market.breadth(params)`
 
-Get breadth for the market on a given date.
+取得股票市場在特定日期的上漲與下跌家數
 
-- `params`:
-  - `date`: Date in the format 'YYYY-MM-DD'
-  - `market`: 'TSE' or 'OTC'
-- Returns: Promise that resolves to the breadth.
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `exchange`: {string} 交易所
+  * `market`: {string} 市場別
+  * `up`: {number} 上漲家數
+  * `limitUp`: {number} 漲停家數
+  * `down`: {number} 下跌家數
+  * `limitDown`: {number} 跌停家數
+  * `unchanged`: {number} 平盤家數
+  * `unmatched`: {number} 未成交家數
+  * `notApplicable`: {number} 無比價家數
 
 ```js
-const data = await twstock.market.breadth({ date: '2023-01-30', market: 'TSE' });
-console.log(data);
+twstock.market.breadth({ date: '2023-01-30', market: 'TSE' })
+  .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -408,22 +625,50 @@ console.log(data);
 //   down: 132,
 //   limitDown: 0,
 //   unchanged: 67,
-//   unmatched: 5
+//   unmatched: 1,
+//   notApplicable: 4
 // }
 ```
 
 ### `market.instTrades(params)`
 
-Get institutional investors' trades for the market on a given date.
+取得股票市場在特定日期的三大法人買賣超
 
-- `params`:
-  - `date`: Date in the format 'YYYY-MM-DD'
-  - `market`: 'TSE' or 'OTC'
-- Returns: Promise that resolves to the institutional investors' trades.
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `exchange`: {string} 交易所
+  * `market`: {string} 市場別
+  * `finiWithoutDealersBuy`: {number} 外資及陸資(不含外資自營商)買進金額
+  * `finiWithoutDealersSell`: {number} 外資及陸資(不含外資自營商)賣出金額
+  * `finiWithoutDealersNetBuySell`: {number} 外資及陸資(不含外資自營商)買賣差額
+  * `finiDealersBuy`: {number} 外資自營商買進金額
+  * `finiDealersSell`: {number} 外資自營商賣出金額
+  * `finiDealersNetBuySell`: {number} 外資自營商買賣差額
+  * `finiBuy`: {number} 外資買進金額
+  * `finiSell`: {number} 外資賣出金額
+  * `finiNetBuySell`: {number} 外資買賣差額
+  * `sitcBuy`: {number} 投信買進金額
+  * `sitcSell`: {number} 投信賣出金額
+  * `sitcNetBuySell`: {number} 投信買賣差額
+  * `dealersForProprietaryBuy`: {number} 自營商(自行買賣)買進金額
+  * `dealersForProprietarySell`: {number} 自營商(自行買賣)賣出金額
+  * `dealersForProprietaryNetBuySell`: {number} 自營商(自行買賣)買賣差額
+  * `dealersForHedgingBuy`: {number} 自營商(避險)買進金額
+  * `dealersForHedgingSell`: {number} 自營商(避險)賣出金額
+  * `dealersForHedgingNetBuySell`: {number} 自營商(避險)買賣差額
+  * `dealersBuy`: {number} 自營商買進金額
+  * `dealersSell`: {number} 自營商賣出金額
+  * `dealersNetBuySell`: {number} 自營商買賣差額
+  * `totalInstInvestorsBuy`: {number} 三大法人合計買進金額
+  * `totalInstInvestorsSell`: {number} 三大法人合計賣出金額
+  * `totalInstInvestorsNetBuySell`: {number} 三大法人合計買賣差額
 
 ```js
-const data = await twstock.market.instTrades({ date: '2023-01-30', market: 'TSE' });
-console.log(data);
+twstock.market.instTrades({ date: '2023-01-30', market: 'TSE' })
+  .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -458,16 +703,34 @@ console.log(data);
 
 ### `market.marginTrades(params)`
 
-Get margin trades for the market on a given date.
+取得股票市場在特定日期的信用交易統計
 
-- `params`:
-  - `date`: Date in the format 'YYYY-MM-DD'
-  - `market`: 'TSE' or 'OTC'
-- Returns: Promise that resolves to the margin trades.
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `exchange`: {string} 交易所
+  * `market`: {string} 市場別
+  * `marginBuy`: {number} 融資買進(張)
+  * `marginSell`: {number} 融資賣出(張)
+  * `marginRedeem`: {number} 現金償還(張)
+  * `marginBalancePrev`: {number} 前日融資餘額(張)
+  * `marginBalance`: {number} 今日融資餘額(張)
+  * `shortBuy`: {number} 融券買進(張)
+  * `shortSell`: {number} 融券賣出(張)
+  * `shortRedeem`: {number} 現券償還(張)
+  * `shortBalancePrev`: {number} 前日融券餘額(張)
+  * `shortBalance`: {number} 今日融券餘額(張)
+  * `marginBuyValue`: {number} 融資買進(仟元)
+  * `marginSellValue`: {number} 融資賣出(仟元)
+  * `marginRedeemValue`: {number} 現金償還(仟元)
+  * `marginBalancePrevValue`: {number} 前日融資餘額(仟元)
+  * `marginBalanceValue`: {number} 今日融資餘額(仟元)
 
 ```js
-const data = await twstock.market.marginTrades({ date: '2023-01-30', market: 'TSE' });
-console.log(data);
+twstock.market.marginTrades({ date: '2023-01-30', market: 'TSE' })
+  .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
@@ -490,6 +753,10 @@ console.log(data);
 //   marginBalanceValue: 151144020
 // }
 ```
+
+## Changelog
+
+[Changelog](./CHANGELOG.md)
 
 ## License
 

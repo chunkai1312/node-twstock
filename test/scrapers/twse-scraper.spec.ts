@@ -377,7 +377,8 @@ describe('TwseScraper', () => {
         down: 132,
         limitDown: 0,
         unchanged: 67,
-        unmatched: 5,
+        unmatched: 1,
+        notApplicable: 4,
       });
     });
 

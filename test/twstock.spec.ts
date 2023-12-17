@@ -126,6 +126,14 @@ jest.mock('../src/scrapers', () => ({
       return null;
     }),
   },
+  TdccScraper: {
+    fetchStocksHolders: jest.fn(({ date, symbol }) => {
+      if (date === '2022-12-30' && symbol === '2330') {
+        return require('./fixtures/fetched-stocks-holders.json');
+      }
+      return null;
+    }),
+  },
 }));
 
 describe('TwStock', () => {
@@ -332,6 +340,23 @@ describe('TwStock', () => {
         const stock = await twstock.stocks.values({ date: '2023-01-30', symbol: '2330' });
         expect(stock).toBeDefined();
         expect(stock.symbol).toBe('2330')
+      });
+    });
+
+    describe('.holders()', () => {
+      it('should fetch stocks holders for the symbol', async () => {
+        const stock = await twstock.stocks.holders({ date: '2022-12-30', symbol: '2330' });
+        expect(stock).toBeDefined();
+        expect(stock?.symbol).toBe('2330');
+      });
+
+      it('should throw an error if the symbol is not found', async () => {
+        await expect(() => twstock.stocks.holders({ date: '2022-12-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+
+      it('should return null when no data is available', async () => {
+        const stock = await twstock.stocks.holders({ date: '2023-01-01', symbol: '2330' });
+        expect(stock).toBe(null);
       });
     });
   });
