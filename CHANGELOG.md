@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.7.0](https://github.com/chunkai1312/node-twstock/compare/v0.6.0...v0.7.0) (2023-12-18)
+
+
+### Features
+
+* support for fetching the table for spread of shareholdings under TDCC custody ([50fc5c6](https://github.com/chunkai1312/node-twstock/commit/50fc5c69a58077c6282d98701a3798478b8a5b4a))
+
 # [0.6.0](https://github.com/chunkai1312/node-twstock/compare/v0.5.0...v0.6.0) (2023-12-16)
 
 
