@@ -1,4 +1,4 @@
-import { IsinScraper, TwseScraper, TpexScraper, MisScraper, TdccScraper } from './scrapers';
+import { IsinScraper, TwseScraper, TpexScraper, MisScraper, TdccScraper, MopsScraper } from './scrapers';
 import { Market } from './enums';
 import { Ticker } from './interfaces';
 import { getMarketIndices } from './utils';
@@ -17,6 +17,7 @@ export class TwStock {
       marginTrades: this.getStocksMarginTrades.bind(this),
       values: this.getStocksValues.bind(this),
       holders: this.getStocksHolders.bind(this),
+      eps: this.getStocksEps.bind(this),
     };
   }
 
@@ -180,19 +181,6 @@ export class TwStock {
     return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
   }
 
-  private async getStocksHolders(params: { date: string, symbol: string }) {
-    const { date, symbol } = params;
-
-    if (!this._stocks.has(symbol)) {
-      await this.loadStocks({ symbol });
-    }
-    if (!this._stocks.has(symbol)) {
-      throw new Error('symbol not found');
-    }
-
-    return TdccScraper.fetchStocksHolders({ date, symbol });
-  }
-
   private async getStocksValues(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
     const { date, symbol } = params;
 
@@ -211,6 +199,24 @@ export class TwStock {
       : await TwseScraper.fetchStocksValues({ date });
 
     return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
+  }
+
+  private async getStocksHolders(params: { date: string, symbol: string }) {
+    const { date, symbol } = params;
+
+    if (!this._stocks.has(symbol)) {
+      await this.loadStocks({ symbol });
+    }
+    if (!this._stocks.has(symbol)) {
+      throw new Error('symbol not found');
+    }
+
+    return TdccScraper.fetchStocksHolders({ date, symbol });
+  }
+
+  private async getStocksEps(params: { market: 'TSE' | 'OTC', year: number, quarter: number }) {
+    const { market, year, quarter } = params;
+    return MopsScraper.fetchStocksEps({ market, year, quarter });
   }
 
   private async getIndicesList(params?: { market: 'TSE' | 'OTC' }) {

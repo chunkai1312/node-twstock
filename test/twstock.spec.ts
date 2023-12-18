@@ -134,6 +134,14 @@ jest.mock('../src/scrapers', () => ({
       return null;
     }),
   },
+  MopsScraper: {
+    fetchStocksEps: jest.fn(({ market, year, quarter }) => {
+      if (market === 'TSE' && year === 2023 && quarter === 1) {
+        return require('./fixtures/fetched-tse-stocks-eps.json');
+      }
+      return null;
+    }),
+  },
 }));
 
 describe('TwStock', () => {
@@ -357,6 +365,14 @@ describe('TwStock', () => {
       it('should return null when no data is available', async () => {
         const stock = await twstock.stocks.holders({ date: '2023-01-01', symbol: '2330' });
         expect(stock).toBe(null);
+      });
+    });
+
+    describe('.eps()', () => {
+      it('should fetch stocks quarterly EPS for the market', async () => {
+        const stocks = await twstock.stocks.eps({ market: 'TSE', year: 2023, quarter: 1 });
+        expect(stocks).toBeDefined();
+        expect(stocks.length).toBeGreaterThan(0);
       });
     });
   });
