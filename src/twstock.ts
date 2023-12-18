@@ -18,6 +18,7 @@ export class TwStock {
       values: this.getStocksValues.bind(this),
       holders: this.getStocksHolders.bind(this),
       eps: this.getStocksEps.bind(this),
+      revenue: this.getStocksRevenue.bind(this),
     };
   }
 
@@ -217,6 +218,11 @@ export class TwStock {
   private async getStocksEps(params: { market: 'TSE' | 'OTC', year: number, quarter: number }) {
     const { market, year, quarter } = params;
     return MopsScraper.fetchStocksEps({ market, year, quarter });
+  }
+
+  private async getStocksRevenue(params: { market: 'TSE' | 'OTC', year: number, month: number, foreign?: boolean }) {
+    const { market, year, month, foreign } = params;
+    return MopsScraper.fetchStocksRevenue({ market, year, month, foreign });
   }
 
   private async getIndicesList(params?: { market: 'TSE' | 'OTC' }) {

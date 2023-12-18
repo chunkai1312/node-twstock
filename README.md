@@ -19,6 +19,8 @@
   * [stocks.marginTrades(params)](#stocksmargintradesparams)
   * [stocks.values(params)](#stocksvaluesparams)
   * [stocks.holders(params)](#stocksholdersparams)
+  * [stocks.eps(params)](#stocksepsparams)
+  * [stocks.revenue(params)](#stocksrevenueparams)
   * [indices.list(params)](#indiceslistparams)
   * [indices.quote(params)](#indicesquoteparams)
   * [indices.historical(params)](#indiceshistoricalparams)
@@ -60,7 +62,7 @@ const market = twstock.market;
 取得上市櫃股票列表
 
 * `params`: {Object}
-  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
@@ -143,7 +145,7 @@ twstock.stocks.quote({ symbol: '2330' })
 
 * `params`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 股票代號
 * Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
@@ -187,7 +189,7 @@ twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' })
 
 * `params`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 股票代號
 * Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
@@ -263,7 +265,7 @@ twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' })
 
 * `params`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 股票代號
 * Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
@@ -303,7 +305,7 @@ twstock.stocks.finiHoldings({ date: '2023-01-30', symbol: '2330' })
 
 * `params`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 股票代號
 * Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
@@ -359,7 +361,7 @@ twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' })
 
 * `params`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 股票代號
 * Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
@@ -395,7 +397,7 @@ twstock.stocks.values({ date: '2023-01-30', symbol: '2330' })
 
 * `params`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `symbol` (optional): {string} 股票代號
+  * `symbol`: {string} 股票代號
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
   * `symbol`: {string} 股票代號
@@ -424,6 +426,69 @@ twstock.stocks.holders({ date: '2022-12-30', symbol: '2330' })
 //     ... more items
 //   ]
 // }
+```
+
+### `stocks.eps(params)`
+
+取得上市櫃股票在特定年度季度每股盈餘
+
+* `params`: {Object}
+  * `market`: {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `year`: {number} 年度
+  * `quarter`: {number} 季度
+* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `eps`: {number} 每股盈餘
+  * `year`: {number} 年度
+  * `quarter`: {number} 季度
+
+```js
+twstock.stocks.eps({ market: 'TSE', year: 2023, quarter: 1 })
+  .then(data => console.log(data));
+// Prints:
+// [
+//   {
+//     symbol: '1101',
+//     name: '台泥',
+//     eps: 0.2,
+//     year: 2023,
+//     quarter: 1
+//   },
+//   ... more items
+// ]
+```
+
+### `stocks.revenue(params)`
+
+取得上市櫃股票在特定年度月份營業收入
+
+* `params`: {Object}
+  * `market`: {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `year`: {number} 年度
+  * `month`: {number} 月份
+  * `foreign` (optional): {boolean} 外國公司股票
+* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `revenue`: {number} 營業收入
+  * `year`: {number} 年度
+  * `month`: {number} 月份
+
+```js
+twstock.stocks.revenue({ market: 'TSE', year: 2023, month: 1 })
+  .then(data => console.log(data));
+// Prints:
+// [
+//   {
+//     symbol: '1101',
+//     name: '台泥',
+//     revenue: 7325221,
+//     year: 2023,
+//     month: 1
+//   },
+//   ... more items
+// ]
 ```
 
 ### `indices.list(params)`
@@ -496,7 +561,7 @@ twstock.indices.quote({ symbol: 'IX0001' })
 
 * `params`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 指數代號
 * Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
   * `date`: {string} 日期
@@ -532,7 +597,7 @@ twstock.indices.historical({ date: '2023-01-30', symbol: 'IX0001' })
 
 * `params`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別篩選股票 (`'TSE'` 或 `'OTC'`)
+  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 指數代號
 * Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
   * `date`: {string} 日期

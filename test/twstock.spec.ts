@@ -141,6 +141,12 @@ jest.mock('../src/scrapers', () => ({
       }
       return null;
     }),
+    fetchStocksRevenue: jest.fn(({ market, year, month, foreign }) => {
+      if (market === 'TSE' && year === 2023 && month === 1 && !foreign) {
+        return require('./fixtures/fetched-tse-stocks-revenue.json');
+      }
+      return null;
+    }),
   },
 }));
 
@@ -371,6 +377,14 @@ describe('TwStock', () => {
     describe('.eps()', () => {
       it('should fetch stocks quarterly EPS for the market', async () => {
         const stocks = await twstock.stocks.eps({ market: 'TSE', year: 2023, quarter: 1 });
+        expect(stocks).toBeDefined();
+        expect(stocks.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe('.revenue()', () => {
+      it('should fetch stocks monthly revenue for the market', async () => {
+        const stocks = await twstock.stocks.revenue({ market: 'TSE', year: 2023, month: 1 });
         expect(stocks).toBeDefined();
         expect(stocks.length).toBeGreaterThan(0);
       });

@@ -37,4 +37,20 @@ describe('MopsScraper', () => {
       expect(stocks[0]).toEqual({ symbol: '1101', name: '台泥', eps: 0.2, year: 2023, quarter: 1 });
     });
   });
+
+  describe('.fetchStocksRevenue()', () => {
+    it('should fetch stocks monthly revenue', async () => {
+      const data = fs.readFileSync('./test/fixtures/mops-tse-stocks-revenue.html');
+      mockAxios.get.mockResolvedValueOnce({ data });
+
+      const stocks = await scraper.fetchStocksRevenue({ market: 'TSE', year: 2023, month: 1 });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://mops.twse.com.tw/nas/t21/sii/t21sc03_112_1_0.html',
+        { responseType: 'arraybuffer' },
+      );
+      expect(stocks).toBeDefined();
+      expect(stocks.length).toBeGreaterThan(0);
+      expect(stocks[0]).toEqual({ symbol: '1101', name: '台泥', revenue: 7325221, year: 2023, month: 1 });
+    });
+  });
 });
