@@ -1,5 +1,13 @@
 # Changelog
 
+# [0.8.0](https://github.com/chunkai1312/node-twstock/compare/v0.7.0...v0.8.0) (2023-12-19)
+
+
+### Features
+
+* support for fetching stocks monthly revenue ([73a0e64](https://github.com/chunkai1312/node-twstock/commit/73a0e64e5d29debaf9f62e7dc744fa1414f4e774))
+* support for fetching stocks quarterly EPS ([36c73e2](https://github.com/chunkai1312/node-twstock/commit/36c73e2578daf4867bbdc1587d0d11547a747410))
+
 # [0.7.0](https://github.com/chunkai1312/node-twstock/compare/v0.6.0...v0.7.0) (2023-12-18)
 
 
