@@ -161,6 +161,12 @@ jest.mock('../src/scrapers', () => ({
       }
       return null;
     }),
+    fetchTxoPutCallRatio: jest.fn(({ date }) => {
+      if (date === '2023-01-30') {
+        return require('./fixtures/fetched-txo-put-call-ratio.json');
+      }
+      return null;
+    }),
   },
 }));
 
@@ -577,6 +583,18 @@ describe('TwStock', () => {
 
       it('should return null when no data is available', async () => {
         const txo = await twstock.futopt.txoInstTrades({ date: '2023-01-01' });
+        expect(txo).toBe(null);
+      });
+    });
+
+    describe('.txoPutCallRatio()', () => {
+      it('should fetch TXO Put/Call ratio', async () => {
+        const txo = await twstock.futopt.txoPutCallRatio({ date: '2023-01-30' });
+        expect(txo).toBeDefined();
+      });
+
+      it('should return null when no data is available', async () => {
+        const txo = await twstock.futopt.txoPutCallRatio({ date: '2023-01-01' });
         expect(txo).toBe(null);
       });
     });

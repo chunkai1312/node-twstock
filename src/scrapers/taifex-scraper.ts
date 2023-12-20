@@ -162,4 +162,31 @@ export class TaifexScraper extends Scraper {
     data.puts.dealersNetOiValue = numeral(dealersPuts[15]).value();
     return data;
   }
+
+  async fetchTxoPutCallRatio(options: { date: string }) {
+    const { date } = options;
+    const queryDate = DateTime.fromISO(date).toFormat('yyyy/MM/dd');
+    const form = new URLSearchParams({
+      queryStartDate: queryDate,
+      queryEndDate: queryDate,
+    });
+    const url = 'https://www.taifex.com.tw/cht/3/pcRatioDown';
+
+    const response = await this.httpService.post(url, form, { responseType: 'arraybuffer' });
+    const csv = iconv.decode(response.data, 'big5');
+    const json = await csvtojson({ noheader: true, output: 'csv' }).fromString(csv);
+
+    const [_, row] = json;
+    if (!row) return null;
+
+    const data: Record<string, any> = {};
+    data.date = date;
+    data.txoPutVolume = numeral(row[1]).value();
+    data.txoCallVolume = numeral(row[2]).value();
+    data.txoPutCallVolumeRatio = numeral(row[3]).divide(100).value();
+    data.txoPutOi = numeral(row[4]).value();
+    data.txoCallOi = numeral(row[5]).value();
+    data.txoPutCallOiRatio = numeral(row[6]).divide(100).value();
+    return data;
+  }
 }

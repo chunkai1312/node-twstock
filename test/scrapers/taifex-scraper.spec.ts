@@ -198,4 +198,43 @@ describe('TaifexScraper', () => {
       expect(txo).toBe(null);
     });
   });
+
+  describe('.fetchTxoPutCallRatio()', () => {
+    it('should fetch TXO Put/Call ratio for the given date', async () => {
+      const data = fs.readFileSync('./test/fixtures/txo-put-call-ratio.csv');
+      mockAxios.post.mockResolvedValueOnce({ data });
+
+      const txo = await scraper.fetchTxoPutCallRatio({ date: '2023-01-30' });
+      const url = 'https://www.taifex.com.tw/cht/3/pcRatioDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2023/01/30',
+        queryEndDate: '2023/01/30',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(txo).toBeDefined();
+      expect(txo).toEqual({
+        date: '2023-01-30',
+        txoPutVolume: 349525,
+        txoCallVolume: 410532,
+        txoPutCallVolumeRatio: 0.8514,
+        txoPutOi: 89495,
+        txoCallOi: 87502,
+        txoPutCallOiRatio: 1.0228,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      const data = fs.readFileSync('./test/fixtures/txo-put-call-ratio-no-data.csv');
+      mockAxios.post.mockResolvedValueOnce({ data });
+
+      const txo = await scraper.fetchTxoPutCallRatio({ date: '2023-01-01' });
+      const url = 'https://www.taifex.com.tw/cht/3/pcRatioDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2023/01/01',
+        queryEndDate: '2023/01/01',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(txo).toBe(null);
+    });
+  });
 });

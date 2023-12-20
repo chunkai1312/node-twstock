@@ -1086,6 +1086,36 @@ twstock.futopt.txoInstTrades({ date: '2023-01-30' })
 // }
 ```
 
+### `futopt.txoPutCallRatio(params)`
+
+取得臺指選擇權在特定日期的 Put/Call Ratio
+
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `txoPutVolume`: {string} 賣權成交量
+  * `txoCallVolume`: {number} 買權成交量
+  * `txoPutCallVolumeRatio`: {number} 買賣權成交量比率
+  * `txoPutOi`: {number} 賣權未平倉量
+  * `txoCallOi`: {number} 買權未平倉量
+  * `txoPutCallOiRatio`: {number} 買賣權未平倉量比率
+  
+```js
+twstock.futopt.txoPutCallRatio({ date: '2023-01-30' })
+  .then(data => console.log(data));
+// Prints:
+// {
+//   date: '2023-01-30',
+//   txoPutVolume: 349525,
+//   txoCallVolume: 410532,
+//   txoPutCallVolumeRatio: 0.8514,
+//   txoPutOi: 89495,
+//   txoCallOi: 87502,
+//   txoPutCallOiRatio: 1.0228
+// }
+```
+
 ## Changelog
 
 [Changelog](./CHANGELOG.md)
