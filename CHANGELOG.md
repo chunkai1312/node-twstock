@@ -1,5 +1,14 @@
 # Changelog
 
+# [0.9.0](https://github.com/chunkai1312/node-twstock/compare/v0.8.0...v0.9.0) (2023-12-20)
+
+
+### Features
+
+* add support to retrieve futures and options trades information from TAIFEX ([8c9f9ee](https://github.com/chunkai1312/node-twstock/commit/8c9f9eece679d539a3a0d17f0780371752630396))
+* support for fetching TXF institutional investors' trades ([171f5dc](https://github.com/chunkai1312/node-twstock/commit/171f5dc93321e4c6f6a2768e029f8b59d2aea152))
+* support for fetching TXO institutional investors' trades ([5a2d47b](https://github.com/chunkai1312/node-twstock/commit/5a2d47b72cf3ba98644e51f85075d6223611be91))
+
 # [0.8.0](https://github.com/chunkai1312/node-twstock/compare/v0.7.0...v0.8.0) (2023-12-19)
 
 
