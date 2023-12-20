@@ -29,6 +29,8 @@
   * [market.breadth(params)](#marketbreadthparams)
   * [market.instTrades(params)](#marketinsttradesparams)
   * [market.marginTrades(params)](#marketmargintradesparams)
+  * [futopt.txfInstTrades(params)](#futopttxfinsttradesparams)
+  * [futopt.txoInstTrades(params)](#futopttxoinsttradesparams)
 * [Changelog](#changelog)
 * [License](#license)
 
@@ -816,6 +818,271 @@ twstock.market.marginTrades({ date: '2023-01-30', market: 'TSE' })
 //   marginRedeemValue: 300879,
 //   marginBalancePrevValue: 151760467,
 //   marginBalanceValue: 151144020
+// }
+```
+
+### `futopt.txfInstTrades(params)`
+
+取得臺股期貨在特定日期的三大法人交易口數、契約金額與未平倉餘額
+
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `symbol`: {string} 契約代號
+  * `finiLongTradeVolume`: {number} 外資-多方交易口數
+  * `finiLongTradeValue`: {number} 外資-多方交易契約金額(千元)
+  * `finiShortTradeVolume`: {number} 外資-空方交易口數
+  * `finiShortTradeValue`: {number} 外資-空方交易契約金額(千元)
+  * `finiNetTradeVolume`: {number} 外資-多空交易口數淨額
+  * `finiNetTradeValue`: {number} 外資-多空交易契約金額淨額(千元)
+  * `finiLongOiVolume`: {number} 外資-多方未平倉口數
+  * `finiLongOiValue`: {number} 外資-多方未平倉契約金額(千元)
+  * `finiShortOiVolume`: {number} 外資-空方未平倉口數
+  * `finiShortOiValue`: {number} 外資-空方未平倉契約金額(千元)
+  * `finiNetOiVolume`: {number} 外資-多空未平倉口數淨額
+  * `finiNetOiValue`: {number} 外資-多空未平倉契約金額淨額(千元) 
+  * `sitcLongTradeVolume`: {number} 投信-多方交易口數
+  * `sitcLongTradeValue`: {number} 投信-多方交易契約金額(千元)
+  * `sitcShortTradeVolume`: {number} 投信-空方交易口數
+  * `sitcShortTradeValue`: {number} 投信-空方交易契約金額(千元)
+  * `sitcNetTradeVolume`: {number} 投信-多空交易口數淨額
+  * `sitcNetTradeValue`: {number} 投信-多空交易契約金額淨額(千元)
+  * `sitcLongOiVolume`: {number} 投信-多方未平倉口數
+  * `sitcLongOiValue`: {number} 投信-多方未平倉契約金額(千元)
+  * `sitcShortOiVolume`: {number} 投信-空方未平倉口數
+  * `sitcShortOiValue`: {number} 投信-空方未平倉契約金額(千元)
+  * `sitcNetOiVolume`: {number} 投信-多空未平倉口數淨額
+  * `sitcNetOiValue`: {number} 投信-多空未平倉契約金額淨額(千元)
+  * `dealersLongTradeVolume`: {number} 自營商-多方交易口數
+  * `dealersLongTradeValue`: {number} 自營商-多方交易契約金額(千元)
+  * `dealersShortTradeVolume`: {number} 自營商-空方交易口數
+  * `dealersShortTradeValue`: {number} 自營商-空方交易契約金額(千元)
+  * `dealersNetTradeVolume`: {number} 自營商-多空交易口數淨額
+  * `dealersNetTradeValue`: {number} 自營商-多空交易契約金額淨額(千元)
+  * `dealersLongOiVolume`: {number} 自營商-多方未平倉口數
+  * `dealersLongOiValue`: {number} 自營商-多方未平倉契約金額(千元)
+  * `dealersShortOiVolume`: {number} 自營商-空方未平倉口數
+  * `dealersShortOiValue`: {number} 自營商-空方未平倉契約金額(千元)
+  * `dealersNetOiVolume`: {number} 自營商-多空未平倉口數淨額
+  * `dealersNetOiValue`: {number} 自營商-多空未平倉契約金額淨額(千元)
+
+
+```js
+twstock.futopt.txfInstTrades({ date: '2023-01-30' })
+  .then(data => console.log(data));
+// Prints:
+// {
+//   date: '2023-01-30',
+//   symbol: 'TXF',
+//   name: '臺股期貨',
+//   finiLongTradeVolume: 61232,
+//   finiLongTradeValue: 187462698,
+//   finiShortTradeVolume: 60146,
+//   finiShortTradeValue: 184303292,
+//   finiNetTradeVolume: 1086,
+//   finiNetTradeValue: 3159406,
+//   finiLongOiVolume: 32100,
+//   finiLongOiValue: 99233073,
+//   finiShortOiVolume: 24001,
+//   finiShortOiValue: 74192341,
+//   finiNetOiVolume: 8099,
+//   finiNetOiValue: 25040732,
+//   sitcLongTradeVolume: 2237,
+//   sitcLongTradeValue: 6907887,
+//   sitcShortTradeVolume: 449,
+//   sitcShortTradeValue: 1384268,
+//   sitcNetTradeVolume: 1788,
+//   sitcNetTradeValue: 5523619,
+//   sitcLongOiVolume: 10112,
+//   sitcLongOiValue: 31260237,
+//   sitcShortOiVolume: 15995,
+//   sitcShortOiValue: 49446943,
+//   sitcNetOiVolume: -5883,
+//   sitcNetOiValue: -18186706,
+//   dealersLongTradeVolume: 14205,
+//   dealersLongTradeValue: 43588157,
+//   dealersShortTradeVolume: 17049,
+//   dealersShortTradeValue: 52346096,
+//   dealersNetTradeVolume: -2844,
+//   dealersNetTradeValue: -8757939,
+//   dealersLongOiVolume: 10822,
+//   dealersLongOiValue: 33446397,
+//   dealersShortOiVolume: 5797,
+//   dealersShortOiValue: 17917728,
+//   dealersNetOiVolume: 5025,
+//   dealersNetOiValue: 15528669
+// }
+```
+
+### `futopt.txoInstTrades(params)`
+
+取得臺指選擇權在特定日期的三大法人交易口數、契約金額與未平倉餘額
+
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `symbol`: {string} 契約代號
+  * `calls`: {Object} 臺指選擇權-買權
+    * `finiLongTradeVolume`: {number} 外資-多方交易口數
+    * `finiLongTradeValue`: {number} 外資-多方交易契約金額(千元)
+    * `finiShortTradeVolume`: {number} 外資-空方交易口數
+    * `finiShortTradeValue`: {number} 外資-空方交易契約金額(千元)
+    * `finiNetTradeVolume`: {number} 外資-多空交易口數淨額
+    * `finiNetTradeValue`: {number} 外資-多空交易契約金額淨額(千元)
+    * `finiLongOiVolume`: {number} 外資-多方未平倉口數
+    * `finiLongOiValue`: {number} 外資-多方未平倉契約金額(千元)
+    * `finiShortOiVolume`: {number} 外資-空方未平倉口數
+    * `finiShortOiValue`: {number} 外資-空方未平倉契約金額(千元)
+    * `finiNetOiVolume`: {number} 外資-多空未平倉口數淨額
+    * `finiNetOiValue`: {number} 外資-多空未平倉契約金額淨額(千元) 
+    * `sitcLongTradeVolume`: {number} 投信-多方交易口數
+    * `sitcLongTradeValue`: {number} 投信-多方交易契約金額(千元)
+    * `sitcShortTradeVolume`: {number} 投信-空方交易口數
+    * `sitcShortTradeValue`: {number} 投信-空方交易契約金額(千元)
+    * `sitcNetTradeVolume`: {number} 投信-多空交易口數淨額
+    * `sitcNetTradeValue`: {number} 投信-多空交易契約金額淨額(千元)
+    * `sitcLongOiVolume`: {number} 投信-多方未平倉口數
+    * `sitcLongOiValue`: {number} 投信-多方未平倉契約金額(千元)
+    * `sitcShortOiVolume`: {number} 投信-空方未平倉口數
+    * `sitcShortOiValue`: {number} 投信-空方未平倉契約金額(千元)
+    * `sitcNetOiVolume`: {number} 投信-多空未平倉口數淨額
+    * `sitcNetOiValue`: {number} 投信-多空未平倉契約金額淨額(千元)
+    * `dealersLongTradeVolume`: {number} 自營商-多方交易口數
+    * `dealersLongTradeValue`: {number} 自營商-多方交易契約金額(千元)
+    * `dealersShortTradeVolume`: {number} 自營商-空方交易口數
+    * `dealersShortTradeValue`: {number} 自營商-空方交易契約金額(千元)
+    * `dealersNetTradeVolume`: {number} 自營商-多空交易口數淨額
+    * `dealersNetTradeValue`: {number} 自營商-多空交易契約金額淨額(千元)
+    * `dealersLongOiVolume`: {number} 自營商-多方未平倉口數
+    * `dealersLongOiValue`: {number} 自營商-多方未平倉契約金額(千元)
+    * `dealersShortOiVolume`: {number} 自營商-空方未平倉口數
+    * `dealersShortOiValue`: {number} 自營商-空方未平倉契約金額(千元)
+    * `dealersNetOiVolume`: {number} 自營商-多空未平倉口數淨額
+    * `dealersNetOiValue`: {number} 自營商-多空未平倉契約金額淨額(千元)
+  * `puts`: {Object} 臺指選擇權-賣權
+    * `finiLongTradeVolume`: {number} 外資-多方交易口數
+    * `finiLongTradeValue`: {number} 外資-多方交易契約金額(千元)
+    * `finiShortTradeVolume`: {number} 外資-空方交易口數
+    * `finiShortTradeValue`: {number} 外資-空方交易契約金額(千元)
+    * `finiNetTradeVolume`: {number} 外資-多空交易口數淨額
+    * `finiNetTradeValue`: {number} 外資-多空交易契約金額淨額(千元)
+    * `finiLongOiVolume`: {number} 外資-多方未平倉口數
+    * `finiLongOiValue`: {number} 外資-多方未平倉契約金額(千元)
+    * `finiShortOiVolume`: {number} 外資-空方未平倉口數
+    * `finiShortOiValue`: {number} 外資-空方未平倉契約金額(千元)
+    * `finiNetOiVolume`: {number} 外資-多空未平倉口數淨額
+    * `finiNetOiValue`: {number} 外資-多空未平倉契約金額淨額(千元) 
+    * `sitcLongTradeVolume`: {number} 投信-多方交易口數
+    * `sitcLongTradeValue`: {number} 投信-多方交易契約金額(千元)
+    * `sitcShortTradeVolume`: {number} 投信-空方交易口數
+    * `sitcShortTradeValue`: {number} 投信-空方交易契約金額(千元)
+    * `sitcNetTradeVolume`: {number} 投信-多空交易口數淨額
+    * `sitcNetTradeValue`: {number} 投信-多空交易契約金額淨額(千元)
+    * `sitcLongOiVolume`: {number} 投信-多方未平倉口數
+    * `sitcLongOiValue`: {number} 投信-多方未平倉契約金額(千元)
+    * `sitcShortOiVolume`: {number} 投信-空方未平倉口數
+    * `sitcShortOiValue`: {number} 投信-空方未平倉契約金額(千元)
+    * `sitcNetOiVolume`: {number} 投信-多空未平倉口數淨額
+    * `sitcNetOiValue`: {number} 投信-多空未平倉契約金額淨額(千元)
+    * `dealersLongTradeVolume`: {number} 自營商-多方交易口數
+    * `dealersLongTradeValue`: {number} 自營商-多方交易契約金額(千元)
+    * `dealersShortTradeVolume`: {number} 自營商-空方交易口數
+    * `dealersShortTradeValue`: {number} 自營商-空方交易契約金額(千元)
+    * `dealersNetTradeVolume`: {number} 自營商-多空交易口數淨額
+    * `dealersNetTradeValue`: {number} 自營商-多空交易契約金額淨額(千元)
+    * `dealersLongOiVolume`: {number} 自營商-多方未平倉口數
+    * `dealersLongOiValue`: {number} 自營商-多方未平倉契約金額(千元)
+    * `dealersShortOiVolume`: {number} 自營商-空方未平倉口數
+    * `dealersShortOiValue`: {number} 自營商-空方未平倉契約金額(千元)
+    * `dealersNetOiVolume`: {number} 自營商-多空未平倉口數淨額
+    * `dealersNetOiValue`: {number} 自營商-多空未平倉契約金額淨額(千元)
+
+```js
+twstock.futopt.txoInstTrades({ date: '2023-01-30' })
+  .then(data => console.log(data));
+// Prints:
+// {
+//   date: '2023-01-30',
+//   symbol: 'TXO',
+//   name: '臺指選擇權',
+//   calls: {
+//     finiLongTradeVolume: 58909,
+//     finiLongTradeValue: 277781,
+//     finiShortTradeVolume: 49665,
+//     finiShortTradeValue: 282059,
+//     finiNetTradeVolume: 9244,
+//     finiNetTradeValue: -4278,
+//     finiLongOiVolume: 11735,
+//     finiLongOiValue: 333628,
+//     finiShortOiVolume: 7956,
+//     finiShortOiValue: 182152,
+//     finiNetOiVolume: 3779,
+//     finiNetOiValue: 151476,
+//     sitcLongTradeVolume: 0,
+//     sitcLongTradeValue: 0,
+//     sitcShortTradeVolume: 0,
+//     sitcShortTradeValue: 0,
+//     sitcNetTradeVolume: 0,
+//     sitcNetTradeValue: 0,
+//     sitcLongOiVolume: 0,
+//     sitcLongOiValue: 0,
+//     sitcShortOiVolume: 0,
+//     sitcShortOiValue: 0,
+//     sitcNetOiVolume: 0,
+//     sitcNetOiValue: 0,
+//     dealersLongTradeVolume: 146455,
+//     dealersLongTradeValue: 790595,
+//     dealersShortTradeVolume: 150228,
+//     dealersShortTradeValue: 678924,
+//     dealersNetTradeVolume: -3773,
+//     dealersNetTradeValue: 111671,
+//     dealersLongOiVolume: 33450,
+//     dealersLongOiValue: 537454,
+//     dealersShortOiVolume: 37665,
+//     dealersShortOiValue: 377511,
+//     dealersNetOiVolume: -4215,
+//     dealersNetOiValue: 159943
+//   },
+//   puts: {
+//     finiLongTradeVolume: 29719,
+//     finiLongTradeValue: 88059,
+//     finiShortTradeVolume: 27070,
+//     finiShortTradeValue: 87819,
+//     finiNetTradeVolume: 2649,
+//     finiNetTradeValue: 240,
+//     finiLongOiVolume: 7147,
+//     finiLongOiValue: 8210,
+//     finiShortOiVolume: 9383,
+//     finiShortOiValue: 24009,
+//     finiNetOiVolume: -2236,
+//     finiNetOiValue: -15799,
+//     sitcLongTradeVolume: 141,
+//     sitcLongTradeValue: 1,
+//     sitcShortTradeVolume: 111,
+//     sitcShortTradeValue: 1152,
+//     sitcNetTradeVolume: 30,
+//     sitcNetTradeValue: -1151,
+//     sitcLongOiVolume: 0,
+//     sitcLongOiValue: 0,
+//     sitcShortOiVolume: 111,
+//     sitcShortOiValue: 1027,
+//     sitcNetOiVolume: -111,
+//     sitcNetOiValue: -1027,
+//     dealersLongTradeVolume: 118685,
+//     dealersLongTradeValue: 324370,
+//     dealersShortTradeVolume: 152013,
+//     dealersShortTradeValue: 332610,
+//     dealersNetTradeVolume: -33328,
+//     dealersNetTradeValue: -8240,
+//     dealersLongOiVolume: 24355,
+//     dealersLongOiValue: 126801,
+//     dealersShortOiVolume: 32667,
+//     dealersShortOiValue: 71726,
+//     dealersNetOiVolume: -8312,
+//     dealersNetOiValue: 55075
+//   }
 // }
 ```
 

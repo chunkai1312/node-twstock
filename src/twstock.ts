@@ -1,4 +1,4 @@
-import { IsinScraper, TwseScraper, TpexScraper, MisScraper, TdccScraper, MopsScraper } from './scrapers';
+import { IsinScraper, TwseScraper, TpexScraper, MisScraper, TdccScraper, MopsScraper, TaifexScraper } from './scrapers';
 import { Market } from './enums';
 import { Ticker } from './interfaces';
 import { getMarketIndices } from './utils';
@@ -37,6 +37,13 @@ export class TwStock {
       breadth: this.getMarketBreadth.bind(this),
       instTrades: this.getMarketInstTrades.bind(this),
       marginTrades: this.getMarketMarginTrades.bind(this),
+    };
+  }
+
+  get futopt() {
+    return {
+      txfInstTrades: this.getFutOptTxfInstTrades.bind(this),
+      txoInstTrades: this.getFutOptTxoInstTrades.bind(this),
     };
   }
 
@@ -327,5 +334,15 @@ export class TwStock {
       : await TwseScraper.fetchMarketMarginTrades({ date });
 
     return data;
+  }
+
+  private async getFutOptTxfInstTrades(params: { date: string }) {
+    const { date } = params;
+    return TaifexScraper.fetchTxfInstTrades({ date });
+  }
+
+  private async getFutOptTxoInstTrades(params: { date: string }) {
+    const { date } = params;
+    return TaifexScraper.fetchTxoInstTrades({ date });
   }
 }

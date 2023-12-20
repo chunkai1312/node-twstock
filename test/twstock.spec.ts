@@ -148,6 +148,20 @@ jest.mock('../src/scrapers', () => ({
       return null;
     }),
   },
+  TaifexScraper: {
+    fetchTxfInstTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') {
+        return require('./fixtures/fetched-txf-inst-trades.json');
+      }
+      return null;
+    }),
+    fetchTxoInstTrades: jest.fn(({ date }) => {
+      if (date === '2023-01-30') {
+        return require('./fixtures/fetched-txo-inst-trades.json');
+      }
+      return null;
+    }),
+  },
 }));
 
 describe('TwStock', () => {
@@ -538,6 +552,32 @@ describe('TwStock', () => {
         const market = await twstock.market.marginTrades({ date: '2023-01-30', market: 'OTC' });
         expect(market).toBeDefined();
         expect(market?.market).toBe('OTC');
+      });
+    });
+  });
+
+  describe('.futopt', () => {
+    describe('.txfInstTrades()', () => {
+      it('should fetch TXF institutional investors\' trades', async () => {
+        const txf = await twstock.futopt.txfInstTrades({ date: '2023-01-30' });
+        expect(txf).toBeDefined();
+      });
+
+      it('should return null when no data is available', async () => {
+        const txf = await twstock.futopt.txfInstTrades({ date: '2023-01-01' });
+        expect(txf).toBe(null);
+      });
+    });
+
+    describe('.txoInstTrades()', () => {
+      it('should fetch TXO institutional investors\' trades', async () => {
+        const txo = await twstock.futopt.txoInstTrades({ date: '2023-01-30' });
+        expect(txo).toBeDefined();
+      });
+
+      it('should return null when no data is available', async () => {
+        const txo = await twstock.futopt.txoInstTrades({ date: '2023-01-01' });
+        expect(txo).toBe(null);
       });
     });
   });
