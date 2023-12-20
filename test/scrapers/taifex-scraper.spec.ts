@@ -74,12 +74,85 @@ describe('TaifexScraper', () => {
       const data = fs.readFileSync('./test/fixtures/txf-inst-trades-no-data.html');
       mockAxios.post.mockResolvedValueOnce({ data });
 
-      const txf = await scraper.fetchTxfInstTrades({ date: '2023-01-30' });
+      const txf = await scraper.fetchTxfInstTrades({ date: '2023-01-01' });
+      const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2023/01/01',
+        queryEndDate: '2023/01/01',
+        commodityId: 'TXF',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(txf).toBe(null);
+    });
+  });
+
+  describe('.fetchMxfInstTrades()', () => {
+    it('should fetch MXF institutional investors\' trades for the given date', async () => {
+      const data = fs.readFileSync('./test/fixtures/mxf-inst-trades.csv');
+      mockAxios.post.mockResolvedValueOnce({ data });
+
+      const txf = await scraper.fetchMxfInstTrades({ date: '2023-01-30' });
       const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
         queryEndDate: '2023/01/30',
-        commodityId: 'TXF',
+        commodityId: 'MXF',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(txf).toBeDefined();
+      expect(txf).toEqual({
+        date: '2023-01-30',
+        symbol: 'MXF',
+        name: '小型臺指期貨',
+        finiLongTradeVolume: 76626,
+        finiLongTradeValue: 58456520,
+        finiShortTradeVolume: 71944,
+        finiShortTradeValue: 54942167,
+        finiNetTradeVolume: 4682,
+        finiNetTradeValue: 3514353,
+        finiLongOiVolume: 5383,
+        finiLongOiValue: 4159828,
+        finiShortOiVolume: 2406,
+        finiShortOiValue: 1859422,
+        finiNetOiVolume: 2977,
+        finiNetOiValue: 2300406,
+        sitcLongTradeVolume: 8,
+        sitcLongTradeValue: 6161,
+        sitcShortTradeVolume: 9,
+        sitcShortTradeValue: 6937,
+        sitcNetTradeVolume: -1,
+        sitcNetTradeValue: -776,
+        sitcLongOiVolume: 89,
+        sitcLongOiValue: 68784,
+        sitcShortOiVolume: 12,
+        sitcShortOiValue: 9274,
+        sitcNetOiVolume: 77,
+        sitcNetOiValue: 59510,
+        dealersLongTradeVolume: 16135,
+        dealersLongTradeValue: 12314862,
+        dealersShortTradeVolume: 16475,
+        dealersShortTradeValue: 12593227,
+        dealersNetTradeVolume: -340,
+        dealersNetTradeValue: -278365,
+        dealersLongOiVolume: 8469,
+        dealersLongOiValue: 6528692,
+        dealersShortOiVolume: 2690,
+        dealersShortOiValue: 2077468,
+        dealersNetOiVolume: 5779,
+        dealersNetOiValue: 4451224,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      const data = fs.readFileSync('./test/fixtures/mxf-inst-trades-no-data.html');
+      mockAxios.post.mockResolvedValueOnce({ data });
+
+      const txf = await scraper.fetchMxfInstTrades({ date: '2023-01-01' });
+      const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2023/01/01',
+        queryEndDate: '2023/01/01',
+        commodityId: 'MXF',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(txf).toBe(null);
