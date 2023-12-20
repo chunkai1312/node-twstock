@@ -65,4 +65,101 @@ export class TaifexScraper extends Scraper {
     data.dealersNetOiValue = numeral(dealers[14]).value();
     return data;
   }
+
+  async fetchTxoInstTrades(options: { date: string }) {
+    const { date } = options;
+    const queryDate = DateTime.fromISO(date).toFormat('yyyy/MM/dd');
+    const form = new URLSearchParams({
+      queryStartDate: queryDate,
+      queryEndDate: queryDate,
+      commodityId: 'TXO',
+    });
+    const url = 'https://www.taifex.com.tw/cht/3/callsAndPutsDateDown';
+    const response = await this.httpService.post(url, form, { responseType: 'arraybuffer' });
+    if (response.data.toString().includes('查無資料')) return null;
+
+    const csv = iconv.decode(response.data, 'big5');
+    const json = await csvtojson({ noheader: true, output: 'csv' }).fromString(csv);
+    const [_, dealersCalls, sitcCalls, finiCalls, dealersPuts, sitcPuts, finiPuts] = json;
+
+    const data: Record<string, any> = {};
+    data.date = date;
+    data.symbol = FutOpt.TXO;
+    data.name = dealersCalls[1];
+    data.calls = {};
+    data.calls.finiLongTradeVolume = numeral(finiCalls[4]).value();
+    data.calls.finiLongTradeValue = numeral(finiCalls[5]).value();
+    data.calls.finiShortTradeVolume = numeral(finiCalls[6]).value();
+    data.calls.finiShortTradeValue = numeral(finiCalls[7]).value();
+    data.calls.finiNetTradeVolume = numeral(finiCalls[8]).value();
+    data.calls.finiNetTradeValue = numeral(finiCalls[9]).value();
+    data.calls.finiLongOiVolume = numeral(finiCalls[10]).value();
+    data.calls.finiLongOiValue = numeral(finiCalls[11]).value();
+    data.calls.finiShortOiVolume = numeral(finiCalls[12]).value();
+    data.calls.finiShortOiValue = numeral(finiCalls[13]).value();
+    data.calls.finiNetOiVolume = numeral(finiCalls[14]).value();
+    data.calls.finiNetOiValue = numeral(finiCalls[15]).value();
+    data.calls.sitcLongTradeVolume = numeral(sitcCalls[4]).value();
+    data.calls.sitcLongTradeValue = numeral(sitcCalls[5]).value();
+    data.calls.sitcShortTradeVolume = numeral(sitcCalls[6]).value();
+    data.calls.sitcShortTradeValue = numeral(sitcCalls[7]).value();
+    data.calls.sitcNetTradeVolume = numeral(sitcCalls[8]).value();
+    data.calls.sitcNetTradeValue = numeral(sitcCalls[9]).value();
+    data.calls.sitcLongOiVolume = numeral(sitcCalls[10]).value();
+    data.calls.sitcLongOiValue = numeral(sitcCalls[11]).value();
+    data.calls.sitcShortOiVolume = numeral(sitcCalls[12]).value();
+    data.calls.sitcShortOiValue = numeral(sitcCalls[13]).value();
+    data.calls.sitcNetOiVolume = numeral(sitcCalls[14]).value();
+    data.calls.sitcNetOiValue = numeral(sitcCalls[15]).value();
+    data.calls.dealersLongTradeVolume = numeral(dealersCalls[4]).value();
+    data.calls.dealersLongTradeValue = numeral(dealersCalls[5]).value();
+    data.calls.dealersShortTradeVolume = numeral(dealersCalls[6]).value();
+    data.calls.dealersShortTradeValue = numeral(dealersCalls[7]).value();
+    data.calls.dealersNetTradeVolume = numeral(dealersCalls[8]).value();
+    data.calls.dealersNetTradeValue = numeral(dealersCalls[9]).value();
+    data.calls.dealersLongOiVolume = numeral(dealersCalls[10]).value();
+    data.calls.dealersLongOiValue = numeral(dealersCalls[11]).value();
+    data.calls.dealersShortOiVolume = numeral(dealersCalls[12]).value();
+    data.calls.dealersShortOiValue = numeral(dealersCalls[13]).value();
+    data.calls.dealersNetOiVolume = numeral(dealersCalls[14]).value();
+    data.calls.dealersNetOiValue = numeral(dealersCalls[15]).value();
+    data.puts = {};
+    data.puts.finiLongTradeVolume = numeral(finiPuts[4]).value();
+    data.puts.finiLongTradeValue = numeral(finiPuts[5]).value();
+    data.puts.finiShortTradeVolume = numeral(finiPuts[6]).value();
+    data.puts.finiShortTradeValue = numeral(finiPuts[7]).value();
+    data.puts.finiNetTradeVolume = numeral(finiPuts[8]).value();
+    data.puts.finiNetTradeValue = numeral(finiPuts[9]).value();
+    data.puts.finiLongOiVolume = numeral(finiPuts[10]).value();
+    data.puts.finiLongOiValue = numeral(finiPuts[11]).value();
+    data.puts.finiShortOiVolume = numeral(finiPuts[12]).value();
+    data.puts.finiShortOiValue = numeral(finiPuts[13]).value();
+    data.puts.finiNetOiVolume = numeral(finiPuts[14]).value();
+    data.puts.finiNetOiValue = numeral(finiPuts[15]).value();
+    data.puts.sitcLongTradeVolume = numeral(sitcPuts[4]).value();
+    data.puts.sitcLongTradeValue = numeral(sitcPuts[5]).value();
+    data.puts.sitcShortTradeVolume = numeral(sitcPuts[6]).value();
+    data.puts.sitcShortTradeValue = numeral(sitcPuts[7]).value();
+    data.puts.sitcNetTradeVolume = numeral(sitcPuts[8]).value();
+    data.puts.sitcNetTradeValue = numeral(sitcPuts[9]).value();
+    data.puts.sitcLongOiVolume = numeral(sitcPuts[10]).value();
+    data.puts.sitcLongOiValue = numeral(sitcPuts[11]).value();
+    data.puts.sitcShortOiVolume = numeral(sitcPuts[12]).value();
+    data.puts.sitcShortOiValue = numeral(sitcPuts[13]).value();
+    data.puts.sitcNetOiVolume = numeral(sitcPuts[14]).value();
+    data.puts.sitcNetOiValue = numeral(sitcPuts[15]).value();
+    data.puts.dealersLongTradeVolume = numeral(dealersPuts[4]).value();
+    data.puts.dealersLongTradeValue = numeral(dealersPuts[5]).value();
+    data.puts.dealersShortTradeVolume = numeral(dealersPuts[6]).value();
+    data.puts.dealersShortTradeValue = numeral(dealersPuts[7]).value();
+    data.puts.dealersNetTradeVolume = numeral(dealersPuts[8]).value();
+    data.puts.dealersNetTradeValue = numeral(dealersPuts[9]).value();
+    data.puts.dealersLongOiVolume = numeral(dealersPuts[10]).value();
+    data.puts.dealersLongOiValue = numeral(dealersPuts[11]).value();
+    data.puts.dealersShortOiVolume = numeral(dealersPuts[12]).value();
+    data.puts.dealersShortOiValue = numeral(dealersPuts[13]).value();
+    data.puts.dealersNetOiVolume = numeral(dealersPuts[14]).value();
+    data.puts.dealersNetOiValue = numeral(dealersPuts[15]).value();
+    return data;
+  }
 }
