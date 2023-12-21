@@ -310,4 +310,65 @@ describe('TaifexScraper', () => {
       expect(txo).toBe(null);
     });
   });
+
+  describe('.fetchMxfRetailPosition()', () => {
+    it('should fetch MXF retail investors\' position for the given date', async () => {
+      // @ts-ignore
+      mockAxios.post.mockImplementation((url: string) => {
+        return new Promise((resolve, reject) => {
+          switch (url) {
+            case 'https://www.taifex.com.tw/cht/3/futDataDown':
+              return resolve({ data: fs.readFileSync('./test/fixtures/mxf-market-trades.csv') });
+            case 'https://www.taifex.com.tw/cht/3/futContractsDateDown':
+              return resolve({ data: fs.readFileSync('./test/fixtures/mxf-inst-trades.csv') });
+            default: return reject();
+          }
+        });
+      });
+
+      const mxf = await scraper.fetchMxfRetailPosition({ date: '2023-01-30' });
+      const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
+      const form = new URLSearchParams({
+        down_type: '1',
+        queryStartDate: '2023/01/30',
+        queryEndDate: '2023/01/30',
+        commodity_id: 'MTX',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(mxf).toBeDefined();
+      expect(mxf).toEqual({
+        date: '2023-01-30',
+        mxfRetailLongOi: 30126,
+        mxfRetailShortOi: 38959,
+        mxfRetailNetOi: -8833,
+        mxfRetailLongShortRatio: -0.2004,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      // @ts-ignore
+      mockAxios.post.mockImplementation((url: string) => {
+        return new Promise((resolve, reject) => {
+          switch (url) {
+            case 'https://www.taifex.com.tw/cht/3/futDataDown':
+              return resolve({ data: fs.readFileSync('./test/fixtures/mxf-market-trades-no-data.csv') });
+            case 'https://www.taifex.com.tw/cht/3/futContractsDateDown':
+              return resolve({ data: fs.readFileSync('./test/fixtures/mxf-inst-trades-no-data.html') });
+            default: return reject();
+          }
+        });
+      });
+
+      const mxf = await scraper.fetchMxfRetailPosition({ date: '2023-01-01' });
+      const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
+      const form = new URLSearchParams({
+        down_type: '1',
+        queryStartDate: '2023/01/01',
+        queryEndDate: '2023/01/01',
+        commodity_id: 'MTX',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(mxf).toBe(null);
+    });
+  });
 });

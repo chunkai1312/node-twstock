@@ -248,4 +248,53 @@ export class TaifexScraper extends Scraper {
     data.txoPutCallOiRatio = numeral(row[6]).divide(100).value();
     return data;
   }
+
+  private async fetchMxfMarketOi(options: { date: string }) {
+    const { date } = options;
+    const queryDate = DateTime.fromISO(date).toFormat('yyyy/MM/dd');
+    const form = new URLSearchParams({
+      down_type: '1',
+      queryStartDate: queryDate,
+      queryEndDate: queryDate,
+      commodity_id: 'MTX',
+    });
+    const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
+
+    const response = await this.httpService.post(url, form, { responseType: 'arraybuffer' });
+    const csv = iconv.decode(response.data, 'big5');
+    const json = await csvtojson({ noheader: true, output: 'csv' }).fromString(csv);
+
+    const [_, ...rows] = json;
+    if (!rows.length) return null;
+
+    const mxfMarketOi = rows
+      .filter(row => row[17] === '一般' && !row[18])
+      .reduce((oi, row) => oi + numeral(row[11]).value(), 0);
+
+    return { date, mxfMarketOi };
+  }
+
+  async fetchMxfRetailPosition(options: { date: string }) {
+    const date = options.date;
+
+    const [fetchedMxfMarketOi, fetchedMxfInstTrades] = await Promise.all([
+      this.fetchMxfMarketOi({ date }),
+      this.fetchMxfInstTrades({ date }),
+    ]);
+    if (!fetchedMxfMarketOi || !fetchedMxfInstTrades) return null;
+
+    const { mxfMarketOi } = fetchedMxfMarketOi;
+    const { finiLongOiVolume, sitcLongOiVolume, dealersLongOiVolume } = fetchedMxfInstTrades;
+    const { finiShortOiVolume, sitcShortOiVolume, dealersShortOiVolume } = fetchedMxfInstTrades;
+    const mxfInstLongOi = finiLongOiVolume + sitcLongOiVolume + dealersLongOiVolume;
+    const mxfInstShortOi = finiShortOiVolume + sitcShortOiVolume + dealersShortOiVolume;
+
+    const data: Record<string, any> = {};
+    data.date = date;
+    data.mxfRetailLongOi = mxfMarketOi - mxfInstLongOi;
+    data.mxfRetailShortOi = mxfMarketOi - mxfInstShortOi;
+    data.mxfRetailNetOi = data.mxfRetailLongOi - data.mxfRetailShortOi;
+    data.mxfRetailLongShortRatio = Math.round(data.mxfRetailNetOi / mxfMarketOi * 10000) / 10000;
+    return data;
+  }
 }
