@@ -45,6 +45,7 @@ export class TwStock {
       txfInstTrades: this.getFutOptTxfInstTrades.bind(this),
       txoInstTrades: this.getFutOptTxoInstTrades.bind(this),
       txoPutCallRatio: this.getFutOptTxoPutCallRatio.bind(this),
+      mxfRetailPosition: this.getFutOptMxfRetailPosition.bind(this),
     };
   }
 
@@ -350,5 +351,10 @@ export class TwStock {
   private async getFutOptTxoPutCallRatio(params: { date: string }) {
     const { date } = params;
     return TaifexScraper.fetchTxoPutCallRatio({ date });
+  }
+
+  private async getFutOptMxfRetailPosition(params: { date: string }) {
+    const { date } = params;
+    return TaifexScraper.fetchMxfRetailPosition({ date });
   }
 }

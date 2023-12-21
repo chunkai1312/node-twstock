@@ -167,6 +167,12 @@ jest.mock('../src/scrapers', () => ({
       }
       return null;
     }),
+    fetchMxfRetailPosition: jest.fn(({ date }) => {
+      if (date === '2023-01-30') {
+        return require('./fixtures/fetched-mxf-retail-position.json');
+      }
+      return null;
+    }),
   },
 }));
 
@@ -595,6 +601,18 @@ describe('TwStock', () => {
 
       it('should return null when no data is available', async () => {
         const txo = await twstock.futopt.txoPutCallRatio({ date: '2023-01-01' });
+        expect(txo).toBe(null);
+      });
+    });
+
+    describe('.mxfRetailPosition()', () => {
+      it('should fetch MXF retail position', async () => {
+        const txo = await twstock.futopt.mxfRetailPosition({ date: '2023-01-30' });
+        expect(txo).toBeDefined();
+      });
+
+      it('should return null when no data is available', async () => {
+        const txo = await twstock.futopt.mxfRetailPosition({ date: '2023-01-01' });
         expect(txo).toBe(null);
       });
     });

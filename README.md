@@ -1116,6 +1116,32 @@ twstock.futopt.txoPutCallRatio({ date: '2023-01-30' })
 // }
 ```
 
+### `futopt.mxfRetailPosition(params)`
+
+取得特定日期的散戶小台淨部位及散戶小台多空比
+
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `mxfRetailLongOi`: {number} 散戶小台多單
+  * `mxfRetailShortOi`: {number} 散戶小台空單
+  * `mxfRetailNetOi`: {number} 散戶小台淨部位
+  * `mxfRetailLongShortRatio`: {number} 散戶小台多空比
+  
+```js
+twstock.futopt.mxfRetailPosition({ date: '2023-01-30' })
+  .then(data => console.log(data));
+// Prints:
+// {
+//   date: '2023-01-30',
+//   mxfRetailLongOi: 30126,
+//   mxfRetailShortOi: 38959,
+//   mxfRetailNetOi: -8833,
+//   mxfRetailLongShortRatio: -0.2004
+// }
+```
+
 ## Changelog
 
 [Changelog](./CHANGELOG.md)
