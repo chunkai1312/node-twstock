@@ -1,5 +1,15 @@
 # Changelog
 
+# [0.10.0](https://github.com/chunkai1312/node-twstock/compare/v0.9.0...v0.10.0) (2023-12-21)
+
+
+### Features
+
+* support for fetching MXF institutional investors' trades ([7d174ef](https://github.com/chunkai1312/node-twstock/commit/7d174ef7318b9712256bfcb842a58db9f86246f3))
+* support for fetching MXF market open interest ([18b6feb](https://github.com/chunkai1312/node-twstock/commit/18b6febdc45fe0a57c092ab7bfbe3f1089bd3bfd))
+* support for fetching MXF retail investors' position and long short ratio ([ad58251](https://github.com/chunkai1312/node-twstock/commit/ad5825138e21928b9cf2923305cc075a824da28d))
+* support for fetching TXO Put/Call ratio ([157524d](https://github.com/chunkai1312/node-twstock/commit/157524d306f1f1c7cdd064ace1f84d9590f6e836))
+
 # [0.9.0](https://github.com/chunkai1312/node-twstock/compare/v0.8.0...v0.9.0) (2023-12-20)
 
 
