@@ -371,4 +371,87 @@ describe('TaifexScraper', () => {
       expect(mxf).toBe(null);
     });
   });
+
+  describe('.fetchTxfLargeTradersPosition()', () => {
+    it('should fetch TXF large traders position for the given date', async () => {
+      const data = fs.readFileSync('./test/fixtures/txf-large-traders-position.csv');
+      mockAxios.post.mockResolvedValueOnce({ data });
+
+      const txf = await scraper.fetchTxfLargeTradersPosition({ date: '2023-01-30' });
+      const url = 'https://www.taifex.com.tw/cht/3/largeTraderFutDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2023/01/30',
+        queryEndDate: '2023/01/30',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(txf).toBeDefined();
+      expect(txf).toEqual({
+        frontMonth: {
+          topFiveLongOi: 30643,
+          topFiveShortOi: 29456,
+          topFiveNetOi: 1187,
+          topTenLongOi: 40363,
+          topTenShortOi: 36869,
+          topTenNetOi: 3494,
+          topFiveSpecificLongOi: 30643,
+          topFiveSpecificShortOi: 29456,
+          topFiveSpecificNetOi: 1187,
+          topTenSpecificLongOi: 38860,
+          topTenSpecificShortOi: 34209,
+          topTenSpecificNetOi: 4651,
+          topFiveNonspecificLongOi: 0,
+          topFiveNonspecificShortOi: 0,
+          topFiveNonspecificNetOi: 0,
+          topTenNonspecificLongOi: 1503,
+          topTenNonspecificShortOi: 2660,
+          topTenNonspecificNetOi: -1157,
+          marketOi: 68173,
+        },
+        allMonths: {
+          topFiveLongOi: 30828,
+          topFiveShortOi: 29523,
+          topFiveNetOi: 1305,
+          topTenLongOi: 40572,
+          topTenShortOi: 37209,
+          topTenNetOi: 3363,
+          topFiveSpecificLongOi: 30828,
+          topFiveSpecificShortOi: 29523,
+          topFiveSpecificNetOi: 1305,
+          topTenSpecificLongOi: 39045,
+          topTenSpecificShortOi: 34493,
+          topTenSpecificNetOi: 4552,
+          marketOi: 72437,
+        },
+        backMonths: {
+          topFiveLongOi: 185,
+          topFiveShortOi: 67,
+          topFiveNetOi: 118,
+          topTenLongOi: 209,
+          topTenShortOi: 340,
+          topTenNetOi: -131,
+          topFiveSpecificLongOi: 185,
+          topFiveSpecificShortOi: 67,
+          topFiveSpecificNetOi: 118,
+          topTenSpecificLongOi: 185,
+          topTenSpecificShortOi: 284,
+          topTenSpecificNetOi: -99,
+          marketOi: 4264,
+        },
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      const data = fs.readFileSync('./test/fixtures/txf-large-traders-position-no-data.html');
+      mockAxios.post.mockResolvedValueOnce({ data });
+
+      const txf = await scraper.fetchTxfLargeTradersPosition({ date: '2023-01-01' });
+      const url = 'https://www.taifex.com.tw/cht/3/largeTraderFutDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2023/01/01',
+        queryEndDate: '2023/01/01',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(txf).toBe(null);
+    });
+  });
 });
