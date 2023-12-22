@@ -173,6 +173,18 @@ jest.mock('../src/scrapers', () => ({
       }
       return null;
     }),
+    fetchTxfLargeTradersPosition: jest.fn(({ date }) => {
+      if (date === '2023-01-30') {
+        return require('./fixtures/fetched-txf-large-traders-position.json');
+      }
+      return null;
+    }),
+    fetchTxoLargeTradersPosition: jest.fn(({ date }) => {
+      if (date === '2023-01-30') {
+        return require('./fixtures/fetched-txo-large-traders-position.json');
+      }
+      return null;
+    }),
   },
 }));
 
@@ -613,6 +625,30 @@ describe('TwStock', () => {
 
       it('should return null when no data is available', async () => {
         const txo = await twstock.futopt.mxfRetailPosition({ date: '2023-01-01' });
+        expect(txo).toBe(null);
+      });
+    });
+
+    describe('.txfLargeTradersPosition()', () => {
+      it('should fetch TXF large traders position', async () => {
+        const txf = await twstock.futopt.txfLargeTradersPosition({ date: '2023-01-30' });
+        expect(txf).toBeDefined();
+      });
+
+      it('should return null when no data is available', async () => {
+        const txf = await twstock.futopt.txfLargeTradersPosition({ date: '2023-01-01' });
+        expect(txf).toBe(null);
+      });
+    });
+
+    describe('.txoLargeTradersPosition()', () => {
+      it('should fetch TXO large traders position', async () => {
+        const txo = await twstock.futopt.txoLargeTradersPosition({ date: '2023-01-30' });
+        expect(txo).toBeDefined();
+      });
+
+      it('should return null when no data is available', async () => {
+        const txo = await twstock.futopt.txoLargeTradersPosition({ date: '2023-01-01' });
         expect(txo).toBe(null);
       });
     });

@@ -31,6 +31,10 @@
   * [market.marginTrades(params)](#marketmargintradesparams)
   * [futopt.txfInstTrades(params)](#futopttxfinsttradesparams)
   * [futopt.txoInstTrades(params)](#futopttxoinsttradesparams)
+  * [futopt.txoPutCallRatio(params)](#futopttxoputcallratioparams)
+  * [futopt.mxfRetailPosition(params)](#futoptmxfretailpositionparams)
+  * [futopt.txfLargeTradersPosition(params)](#futopttxflargetraderspositionparams)
+  * [futopt.txoLargeTradersPosition(params)](#futopttxolargetraderspositionparams)
 * [Changelog](#changelog)
 * [License](#license)
 
@@ -1139,6 +1143,377 @@ twstock.futopt.mxfRetailPosition({ date: '2023-01-30' })
 //   mxfRetailShortOi: 38959,
 //   mxfRetailNetOi: -8833,
 //   mxfRetailLongShortRatio: -0.2004
+// }
+```
+
+### `futopt.txfLargeTradersPosition(params)`
+
+取得臺股期貨在特定日期的大額交易人未沖銷部位
+
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `frontMonth`: {Object} 近月契約
+    * `topFiveLongOi`: {number} 前五大交易人買方部位數
+    * `topFiveShortOi`: {number} 前五大交易人賣方部位數
+    * `topFiveNetOi`: {number} 前五大交易人淨部位
+    * `topTenLongOi`: {number} 前十大交易人買方部位數
+    * `topTenShortOi`: {number} 前十大交易人賣方部位數
+    * `topTenNetOi`: {number} 前十大交易人淨部位
+    * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
+    * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
+    * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
+    * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
+    * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
+    * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
+    * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
+    * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
+    * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
+    * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
+    * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
+    * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
+    * `marketOi`: {number} 全市場未沖銷部位數
+* `allMonths`: {Object} 所有契約
+    * `topFiveLongOi`: {number} 前五大交易人買方部位數
+    * `topFiveShortOi`: {number} 前五大交易人賣方部位數
+    * `topFiveNetOi`: {number} 前五大交易人淨部位
+    * `topTenLongOi`: {number} 前十大交易人買方部位數
+    * `topTenShortOi`: {number} 前十大交易人賣方部位數
+    * `topTenNetOi`: {number} 前十大交易人淨部位
+    * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
+    * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
+    * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
+    * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
+    * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
+    * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
+    * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
+    * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
+    * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
+    * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
+    * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
+    * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
+    * `marketOi`: {number} 全市場未沖銷部位數
+* `backMonths`: {Object} 遠月契約
+    * `topFiveLongOi`: {number} 前五大交易人買方部位數
+    * `topFiveShortOi`: {number} 前五大交易人賣方部位數
+    * `topFiveNetOi`: {number} 前五大交易人淨部位
+    * `topTenLongOi`: {number} 前十大交易人買方部位數
+    * `topTenShortOi`: {number} 前十大交易人賣方部位數
+    * `topTenNetOi`: {number} 前十大交易人淨部位
+    * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
+    * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
+    * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
+    * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
+    * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
+    * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
+    * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
+    * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
+    * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
+    * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
+    * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
+    * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
+    * `marketOi`: {number} 全市場未沖銷部位數
+```js
+twstock.futopt.txfLargeTradersPosition({ date: '2023-01-30' })
+  .then(data => console.log(data));
+// Prints:
+// {
+//   frontMonth: {
+//     topFiveLongOi: 30643,
+//     topFiveShortOi: 29456,
+//     topFiveNetOi: 1187,
+//     topTenLongOi: 40363,
+//     topTenShortOi: 36869,
+//     topTenNetOi: 3494,
+//     topFiveSpecificLongOi: 30643,
+//     topFiveSpecificShortOi: 29456,
+//     topFiveSpecificNetOi: 1187,
+//     topTenSpecificLongOi: 38860,
+//     topTenSpecificShortOi: 34209,
+//     topTenSpecificNetOi: 4651,
+//     topFiveNonspecificLongOi: 0,
+//     topFiveNonspecificShortOi: 0,
+//     topFiveNonspecificNetOi: 0,
+//     topTenNonspecificLongOi: 1503,
+//     topTenNonspecificShortOi: 2660,
+//     topTenNonspecificNetOi: -1157,
+//     marketOi: 68173
+//   },
+//   allMonths: {
+//     topFiveLongOi: 30828,
+//     topFiveShortOi: 29523,
+//     topFiveNetOi: 1305,
+//     topTenLongOi: 40572,
+//     topTenShortOi: 37209,
+//     topTenNetOi: 3363,
+//     topFiveSpecificLongOi: 30828,
+//     topFiveSpecificShortOi: 29523,
+//     topFiveSpecificNetOi: 1305,
+//     topTenSpecificLongOi: 39045,
+//     topTenSpecificShortOi: 34493,
+//     topTenSpecificNetOi: 4552,
+//     marketOi: 72437
+//   },
+//   backMonths: {
+//     topFiveLongOi: 185,
+//     topFiveShortOi: 67,
+//     topFiveNetOi: 118,
+//     topTenLongOi: 209,
+//     topTenShortOi: 340,
+//     topTenNetOi: -131,
+//     topFiveSpecificLongOi: 185,
+//     topFiveSpecificShortOi: 67,
+//     topFiveSpecificNetOi: 118,
+//     topTenSpecificLongOi: 185,
+//     topTenSpecificShortOi: 284,
+//     topTenSpecificNetOi: -99,
+//     marketOi: 4264
+//   }
+// }
+```
+
+### `futopt.txoLargeTradersPosition(params)`
+
+取得臺指選擇權在特定日期的大額交易人未沖銷部位
+
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `calls`: {Object} 臺指買權
+    * `frontMonth`: {Object} 近月契約
+      * `topFiveLongOi`: {number} 前五大交易人買方部位數
+      * `topFiveShortOi`: {number} 前五大交易人賣方部位數
+      * `topFiveNetOi`: {number} 前五大交易人淨部位
+      * `topTenLongOi`: {number} 前十大交易人買方部位數
+      * `topTenShortOi`: {number} 前十大交易人賣方部位數
+      * `topTenNetOi`: {number} 前十大交易人淨部位
+      * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
+      * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
+      * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
+      * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
+      * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
+      * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
+      * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
+      * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
+      * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
+      * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
+      * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
+      * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
+      * `marketOi`: {number} 全市場未沖銷部位數
+    * `allMonths`: {Object} 所有契約
+      * `topFiveLongOi`: {number} 前五大交易人買方部位數
+      * `topFiveShortOi`: {number} 前五大交易人賣方部位數
+      * `topFiveNetOi`: {number} 前五大交易人淨部位
+      * `topTenLongOi`: {number} 前十大交易人買方部位數
+      * `topTenShortOi`: {number} 前十大交易人賣方部位數
+      * `topTenNetOi`: {number} 前十大交易人淨部位
+      * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
+      * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
+      * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
+      * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
+      * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
+      * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
+      * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
+      * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
+      * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
+      * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
+      * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
+      * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
+      * `marketOi`: {number} 全市場未沖銷部位數
+    * `backMonths`: {Object} 遠月契約
+      * `topFiveLongOi`: {number} 前五大交易人買方部位數
+      * `topFiveShortOi`: {number} 前五大交易人賣方部位數
+      * `topFiveNetOi`: {number} 前五大交易人淨部位
+      * `topTenLongOi`: {number} 前十大交易人買方部位數
+      * `topTenShortOi`: {number} 前十大交易人賣方部位數
+      * `topTenNetOi`: {number} 前十大交易人淨部位
+      * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
+      * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
+      * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
+      * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
+      * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
+      * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
+      * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
+      * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
+      * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
+      * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
+      * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
+      * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
+      * `marketOi`: {number} 全市場未沖銷部位數
+  * `puts`: {Object} 臺指賣權
+    * `frontMonth`: {Object} 近月契約
+      * `topFiveLongOi`: {number} 前五大交易人買方部位數
+      * `topFiveShortOi`: {number} 前五大交易人賣方部位數
+      * `topFiveNetOi`: {number} 前五大交易人淨部位
+      * `topTenLongOi`: {number} 前十大交易人買方部位數
+      * `topTenShortOi`: {number} 前十大交易人賣方部位數
+      * `topTenNetOi`: {number} 前十大交易人淨部位
+      * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
+      * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
+      * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
+      * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
+      * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
+      * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
+      * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
+      * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
+      * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
+      * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
+      * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
+      * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
+      * `marketOi`: {number} 全市場未沖銷部位數
+    * `allMonths`: {Object} 所有契約
+      * `topFiveLongOi`: {number} 前五大交易人買方部位數
+      * `topFiveShortOi`: {number} 前五大交易人賣方部位數
+      * `topFiveNetOi`: {number} 前五大交易人淨部位
+      * `topTenLongOi`: {number} 前十大交易人買方部位數
+      * `topTenShortOi`: {number} 前十大交易人賣方部位數
+      * `topTenNetOi`: {number} 前十大交易人淨部位
+      * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
+      * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
+      * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
+      * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
+      * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
+      * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
+      * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
+      * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
+      * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
+      * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
+      * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
+      * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
+      * `marketOi`: {number} 全市場未沖銷部位數
+    * `backMonths`: {Object} 遠月契約
+      * `topFiveLongOi`: {number} 前五大交易人買方部位數
+      * `topFiveShortOi`: {number} 前五大交易人賣方部位數
+      * `topFiveNetOi`: {number} 前五大交易人淨部位
+      * `topTenLongOi`: {number} 前十大交易人買方部位數
+      * `topTenShortOi`: {number} 前十大交易人賣方部位數
+      * `topTenNetOi`: {number} 前十大交易人淨部位
+      * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
+      * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
+      * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
+      * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
+      * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
+      * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
+      * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
+      * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
+      * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
+      * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
+      * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
+      * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
+      * `marketOi`: {number} 全市場未沖銷部位數
+```js
+twstock.futopt.txoLargeTradersPosition({ date: '2023-01-30' })
+  .then(data => console.log(data));
+// Prints:
+// {
+//   calls: {
+//     frontMonth: {
+//       topFiveLongOi: 16007,
+//       topFiveShortOi: 11593,
+//       topFiveNetOi: 4414,
+//       topTenLongOi: 19936,
+//       topTenShortOi: 17255,
+//       topTenNetOi: 2681,
+//       topFiveSpecificLongOi: 2636,
+//       topFiveSpecificShortOi: 5158,
+//       topFiveSpecificNetOi: -2522,
+//       topTenSpecificLongOi: 5237,
+//       topTenSpecificShortOi: 6533,
+//       topTenSpecificNetOi: -1296,
+//       topFiveNonspecificLongOi: 13371,
+//       topFiveNonspecificShortOi: 6435,
+//       topFiveNonspecificNetOi: 6936,
+//       topTenNonspecificLongOi: 14699,
+//       topTenNonspecificShortOi: 10722,
+//       topTenNonspecificNetOi: 3977,
+//       marketOi: 37196
+//     },
+//     allMonths: {
+//       topFiveLongOi: 32966,
+//       topFiveShortOi: 33968,
+//       topFiveNetOi: -1002,
+//       topTenLongOi: 43496,
+//       topTenShortOi: 43773,
+//       topTenNetOi: -277,
+//       topFiveSpecificLongOi: 0,
+//       topFiveSpecificShortOi: 3000,
+//       topFiveSpecificNetOi: -3000,
+//       topTenSpecificLongOi: 7195,
+//       topTenSpecificShortOi: 5160,
+//       topTenSpecificNetOi: 2035,
+//       marketOi: 87502
+//     },
+//     backMonths: {
+//       topFiveLongOi: 16959,
+//       topFiveShortOi: 22375,
+//       topFiveNetOi: -5416,
+//       topTenLongOi: 23560,
+//       topTenShortOi: 26518,
+//       topTenNetOi: -2958,
+//       topFiveSpecificLongOi: -2636,
+//       topFiveSpecificShortOi: -2158,
+//       topFiveSpecificNetOi: -478,
+//       topTenSpecificLongOi: 1958,
+//       topTenSpecificShortOi: -1373,
+//       topTenSpecificNetOi: 3331,
+//       marketOi: 50306
+//     }
+//   },
+//   puts: {
+//     frontMonth: {
+//       topFiveLongOi: 9716,
+//       topFiveShortOi: 4483,
+//       topFiveNetOi: 5233,
+//       topTenLongOi: 11749,
+//       topTenShortOi: 6670,
+//       topTenNetOi: 5079,
+//       topFiveSpecificLongOi: 0,
+//       topFiveSpecificShortOi: 570,
+//       topFiveSpecificNetOi: -570,
+//       topTenSpecificLongOi: 0,
+//       topTenSpecificShortOi: 930,
+//       topTenSpecificNetOi: -930,
+//       topFiveNonspecificLongOi: 9716,
+//       topFiveNonspecificShortOi: 3913,
+//       topFiveNonspecificNetOi: 5803,
+//       topTenNonspecificLongOi: 11749,
+//       topTenNonspecificShortOi: 5740,
+//       topTenNonspecificNetOi: 6009,
+//       marketOi: 23838
+//     },
+//     allMonths: {
+//       topFiveLongOi: 13841,
+//       topFiveShortOi: 9469,
+//       topFiveNetOi: 4372,
+//       topTenLongOi: 17629,
+//       topTenShortOi: 11668,
+//       topTenNetOi: 5961,
+//       topFiveSpecificLongOi: 3474,
+//       topFiveSpecificShortOi: 1837,
+//       topFiveSpecificNetOi: 1637,
+//       topTenSpecificLongOi: 3474,
+//       topTenSpecificShortOi: 2208,
+//       topTenSpecificNetOi: 1266,
+//       marketOi: 34848
+//     },
+//     backMonths: {
+//       topFiveLongOi: 4125,
+//       topFiveShortOi: 4986,
+//       topFiveNetOi: -861,
+//       topTenLongOi: 5880,
+//       topTenShortOi: 4998,
+//       topTenNetOi: 882,
+//       topFiveSpecificLongOi: 3474,
+//       topFiveSpecificShortOi: 1267,
+//       topFiveSpecificNetOi: 2207,
+//       topTenSpecificLongOi: 3474,
+//       topTenSpecificShortOi: 1278,
+//       topTenSpecificNetOi: 2196,
+//       marketOi: 11010
+//     }
+//   }
 // }
 ```
 

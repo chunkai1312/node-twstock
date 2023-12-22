@@ -367,4 +367,123 @@ export class TaifexScraper extends Scraper {
     data.backMonths.marketOi = data.allMonths.marketOi - data.frontMonth.marketOi;
     return data;
   }
+
+  async fetchTxoLargeTradersPosition(options: { date: string }) {
+    const date = options.date;
+    const queryDate = DateTime.fromISO(date).toFormat('yyyy/MM/dd');
+    const form = new URLSearchParams({
+      queryStartDate: queryDate,
+      queryEndDate: queryDate,
+    });
+    const url = 'https://www.taifex.com.tw/cht/3/largeTraderOptDown';
+
+    const response = await this.httpService.post(url, form, { responseType: 'arraybuffer' });
+    if (response.data.toString().includes('查無資料')) return null;
+
+    const csv = iconv.decode(response.data, 'big5');
+    const json = await csvtojson({ noheader: true, output: 'csv' }).fromString(csv);
+    const [_, ...rows] = json;
+
+    const txoRows = rows.filter(row => row[1] === 'TXO');
+    const data: Record<string, any> = {};
+    data.calls = {};
+    data.calls.frontMonth = {};
+    data.calls.frontMonth.topFiveLongOi = numeral(txoRows[2][6]).value();
+    data.calls.frontMonth.topFiveShortOi = numeral(txoRows[2][7]).value();
+    data.calls.frontMonth.topFiveNetOi = data.calls.frontMonth.topFiveLongOi - data.calls.frontMonth.topFiveShortOi;
+    data.calls.frontMonth.topTenLongOi = numeral(txoRows[2][8]).value();
+    data.calls.frontMonth.topTenShortOi = numeral(txoRows[2][9]).value();
+    data.calls.frontMonth.topTenNetOi = data.calls.frontMonth.topTenLongOi - data.calls.frontMonth.topTenShortOi;
+    data.calls.frontMonth.topFiveSpecificLongOi = numeral(txoRows[3][6]).value();
+    data.calls.frontMonth.topFiveSpecificShortOi = numeral(txoRows[3][7]).value();
+    data.calls.frontMonth.topFiveSpecificNetOi = data.calls.frontMonth.topFiveSpecificLongOi - data.calls.frontMonth.topFiveSpecificShortOi;
+    data.calls.frontMonth.topTenSpecificLongOi = numeral(txoRows[3][8]).value();
+    data.calls.frontMonth.topTenSpecificShortOi = numeral(txoRows[3][9]).value();
+    data.calls.frontMonth.topTenSpecificNetOi = data.calls.frontMonth.topTenSpecificLongOi - data.calls.frontMonth.topTenSpecificShortOi;
+    data.calls.frontMonth.topFiveNonspecificLongOi = data.calls.frontMonth.topFiveLongOi - data.calls.frontMonth.topFiveSpecificLongOi;
+    data.calls.frontMonth.topFiveNonspecificShortOi = data.calls.frontMonth.topFiveShortOi - data.calls.frontMonth.topFiveSpecificShortOi;
+    data.calls.frontMonth.topFiveNonspecificNetOi = data.calls.frontMonth.topFiveNetOi - data.calls.frontMonth.topFiveSpecificNetOi;
+    data.calls.frontMonth.topTenNonspecificLongOi = data.calls.frontMonth.topTenLongOi - data.calls.frontMonth.topTenSpecificLongOi;
+    data.calls.frontMonth.topTenNonspecificShortOi = data.calls.frontMonth.topTenShortOi - data.calls.frontMonth.topTenSpecificShortOi;
+    data.calls.frontMonth.topTenNonspecificNetOi = data.calls.frontMonth.topTenNetOi - data.calls.frontMonth.topTenSpecificNetOi;
+    data.calls.frontMonth.marketOi = numeral(txoRows[3][10]).value();
+    data.calls.allMonths = {};
+    data.calls.allMonths.topFiveLongOi = numeral(txoRows[4][6]).value();
+    data.calls.allMonths.topFiveShortOi = numeral(txoRows[4][7]).value();
+    data.calls.allMonths.topFiveNetOi = data.calls.allMonths.topFiveLongOi - data.calls.allMonths.topFiveShortOi;
+    data.calls.allMonths.topTenLongOi = numeral(txoRows[4][8]).value();
+    data.calls.allMonths.topTenShortOi = numeral(txoRows[4][9]).value();
+    data.calls.allMonths.topTenNetOi = data.calls.allMonths.topTenLongOi - data.calls.allMonths.topTenShortOi;
+    data.calls.allMonths.topFiveSpecificLongOi = numeral(txoRows[5][6]).value();
+    data.calls.allMonths.topFiveSpecificShortOi = numeral(txoRows[5][7]).value();
+    data.calls.allMonths.topFiveSpecificNetOi = data.calls.allMonths.topFiveSpecificLongOi - data.calls.allMonths.topFiveSpecificShortOi;
+    data.calls.allMonths.topTenSpecificLongOi = numeral(txoRows[5][8]).value();
+    data.calls.allMonths.topTenSpecificShortOi = numeral(txoRows[5][9]).value();
+    data.calls.allMonths.topTenSpecificNetOi = data.calls.allMonths.topTenSpecificLongOi - data.calls.allMonths.topTenSpecificShortOi;
+    data.calls.allMonths.marketOi = numeral(txoRows[5][10]).value();
+    data.calls.backMonths = {};
+    data.calls.backMonths.topFiveLongOi = data.calls.allMonths.topFiveLongOi - data.calls.frontMonth.topFiveLongOi;
+    data.calls.backMonths.topFiveShortOi = data.calls.allMonths.topFiveShortOi - data.calls.frontMonth.topFiveShortOi;
+    data.calls.backMonths.topFiveNetOi = data.calls.allMonths.topFiveNetOi - data.calls.frontMonth.topFiveNetOi;
+    data.calls.backMonths.topTenLongOi = data.calls.allMonths.topTenLongOi - data.calls.frontMonth.topTenLongOi;
+    data.calls.backMonths.topTenShortOi = data.calls.allMonths.topTenShortOi - data.calls.frontMonth.topTenShortOi;
+    data.calls.backMonths.topTenNetOi = data.calls.allMonths.topTenNetOi - data.calls.frontMonth.topTenNetOi;
+    data.calls.backMonths.topFiveSpecificLongOi = data.calls.allMonths.topFiveSpecificLongOi - data.calls.frontMonth.topFiveSpecificLongOi;
+    data.calls.backMonths.topFiveSpecificShortOi = data.calls.allMonths.topFiveSpecificShortOi - data.calls.frontMonth.topFiveSpecificShortOi;
+    data.calls.backMonths.topFiveSpecificNetOi = data.calls.allMonths.topFiveSpecificNetOi - data.calls.frontMonth.topFiveSpecificNetOi;
+    data.calls.backMonths.topTenSpecificLongOi = data.calls.allMonths.topTenSpecificLongOi - data.calls.frontMonth.topTenSpecificLongOi;
+    data.calls.backMonths.topTenSpecificShortOi = data.calls.allMonths.topTenSpecificShortOi - data.calls.frontMonth.topTenSpecificShortOi;
+    data.calls.backMonths.topTenSpecificNetOi = data.calls.allMonths.topTenSpecificNetOi - data.calls.frontMonth.topTenSpecificNetOi;
+    data.calls.backMonths.marketOi = data.calls.allMonths.marketOi - data.calls.frontMonth.marketOi;
+    data.puts = {};
+    data.puts.frontMonth = {};
+    data.puts.frontMonth.topFiveLongOi = numeral(txoRows[6][6]).value();
+    data.puts.frontMonth.topFiveShortOi = numeral(txoRows[6][7]).value();
+    data.puts.frontMonth.topFiveNetOi = data.puts.frontMonth.topFiveLongOi - data.puts.frontMonth.topFiveShortOi;
+    data.puts.frontMonth.topTenLongOi = numeral(txoRows[6][8]).value();
+    data.puts.frontMonth.topTenShortOi = numeral(txoRows[6][9]).value();
+    data.puts.frontMonth.topTenNetOi = data.puts.frontMonth.topTenLongOi - data.puts.frontMonth.topTenShortOi;
+    data.puts.frontMonth.topFiveSpecificLongOi = numeral(txoRows[7][6]).value();
+    data.puts.frontMonth.topFiveSpecificShortOi = numeral(txoRows[7][7]).value();
+    data.puts.frontMonth.topFiveSpecificNetOi = data.puts.frontMonth.topFiveSpecificLongOi - data.puts.frontMonth.topFiveSpecificShortOi;
+    data.puts.frontMonth.topTenSpecificLongOi = numeral(txoRows[7][8]).value();
+    data.puts.frontMonth.topTenSpecificShortOi = numeral(txoRows[7][9]).value();
+    data.puts.frontMonth.topTenSpecificNetOi = data.puts.frontMonth.topTenSpecificLongOi - data.puts.frontMonth.topTenSpecificShortOi;
+    data.puts.frontMonth.topFiveNonspecificLongOi = data.puts.frontMonth.topFiveLongOi - data.puts.frontMonth.topFiveSpecificLongOi;
+    data.puts.frontMonth.topFiveNonspecificShortOi = data.puts.frontMonth.topFiveShortOi - data.puts.frontMonth.topFiveSpecificShortOi;
+    data.puts.frontMonth.topFiveNonspecificNetOi = data.puts.frontMonth.topFiveNetOi - data.puts.frontMonth.topFiveSpecificNetOi;
+    data.puts.frontMonth.topTenNonspecificLongOi = data.puts.frontMonth.topTenLongOi - data.puts.frontMonth.topTenSpecificLongOi;
+    data.puts.frontMonth.topTenNonspecificShortOi = data.puts.frontMonth.topTenShortOi - data.puts.frontMonth.topTenSpecificShortOi;
+    data.puts.frontMonth.topTenNonspecificNetOi = data.puts.frontMonth.topTenNetOi - data.puts.frontMonth.topTenSpecificNetOi;
+    data.puts.frontMonth.marketOi = numeral(txoRows[7][10]).value();
+    data.puts.allMonths = {};
+    data.puts.allMonths.topFiveLongOi = numeral(txoRows[8][6]).value();
+    data.puts.allMonths.topFiveShortOi = numeral(txoRows[8][7]).value();
+    data.puts.allMonths.topFiveNetOi = data.puts.allMonths.topFiveLongOi - data.puts.allMonths.topFiveShortOi;
+    data.puts.allMonths.topTenLongOi = numeral(txoRows[8][8]).value();
+    data.puts.allMonths.topTenShortOi = numeral(txoRows[8][9]).value();
+    data.puts.allMonths.topTenNetOi = data.puts.allMonths.topTenLongOi - data.puts.allMonths.topTenShortOi;
+    data.puts.allMonths.topFiveSpecificLongOi = numeral(txoRows[9][6]).value();
+    data.puts.allMonths.topFiveSpecificShortOi = numeral(txoRows[9][7]).value();
+    data.puts.allMonths.topFiveSpecificNetOi = data.puts.allMonths.topFiveSpecificLongOi - data.puts.allMonths.topFiveSpecificShortOi;
+    data.puts.allMonths.topTenSpecificLongOi = numeral(txoRows[9][8]).value();
+    data.puts.allMonths.topTenSpecificShortOi = numeral(txoRows[9][9]).value();
+    data.puts.allMonths.topTenSpecificNetOi = data.puts.allMonths.topTenSpecificLongOi - data.puts.allMonths.topTenSpecificShortOi;
+    data.puts.allMonths.marketOi = numeral(txoRows[9][10]).value();
+    data.puts.backMonths = {};
+    data.puts.backMonths.topFiveLongOi = data.puts.allMonths.topFiveLongOi - data.puts.frontMonth.topFiveLongOi;
+    data.puts.backMonths.topFiveShortOi = data.puts.allMonths.topFiveShortOi - data.puts.frontMonth.topFiveShortOi;
+    data.puts.backMonths.topFiveNetOi = data.puts.allMonths.topFiveNetOi - data.puts.frontMonth.topFiveNetOi;
+    data.puts.backMonths.topTenLongOi = data.puts.allMonths.topTenLongOi - data.puts.frontMonth.topTenLongOi;
+    data.puts.backMonths.topTenShortOi = data.puts.allMonths.topTenShortOi - data.puts.frontMonth.topTenShortOi;
+    data.puts.backMonths.topTenNetOi = data.puts.allMonths.topTenNetOi - data.puts.frontMonth.topTenNetOi;
+    data.puts.backMonths.topFiveSpecificLongOi = data.puts.allMonths.topFiveSpecificLongOi - data.puts.frontMonth.topFiveSpecificLongOi;
+    data.puts.backMonths.topFiveSpecificShortOi = data.puts.allMonths.topFiveSpecificShortOi - data.puts.frontMonth.topFiveSpecificShortOi;
+    data.puts.backMonths.topFiveSpecificNetOi = data.puts.allMonths.topFiveSpecificNetOi - data.puts.frontMonth.topFiveSpecificNetOi;
+    data.puts.backMonths.topTenSpecificLongOi = data.puts.allMonths.topTenSpecificLongOi - data.puts.frontMonth.topTenSpecificLongOi;
+    data.puts.backMonths.topTenSpecificShortOi = data.puts.allMonths.topTenSpecificShortOi - data.puts.frontMonth.topTenSpecificShortOi;
+    data.puts.backMonths.topTenSpecificNetOi = data.puts.allMonths.topTenSpecificNetOi - data.puts.frontMonth.topTenSpecificNetOi;
+    data.puts.backMonths.marketOi = data.puts.allMonths.marketOi - data.puts.frontMonth.marketOi;
+    return data;
+  }
 }
