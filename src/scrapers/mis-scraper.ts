@@ -20,13 +20,15 @@ export class MisScraper extends Scraper {
     const json = (response.data.rtmessage === 'OK') && response.data;
     if (!json) return null;
 
-    return json.msgArray.map((row: any) => ({
+    const data = json.msgArray.map((row: any) => ({
       symbol: asIndex(row.n) ?? (row.ch).replace('.tw', ''),
       exchange: asExchange(row.ex.toUpperCase() as Market),
       market: row.ex.toUpperCase(),
       name: row.n,
       ex_ch: `${row.ex}_${row.ch}`,
     }));
+
+    return data;
   }
 
   async fetchStocksQuote(options: { ticker: Ticker, odd?: boolean }) {
@@ -42,7 +44,7 @@ export class MisScraper extends Scraper {
     const json = (response.data.rtmessage === 'OK') && response.data;
     if (!json) return null;
 
-    return json.msgArray.map((row: any) => ({
+    const data = json.msgArray.map((row: any) => ({
       date: DateTime.fromFormat(row.d, 'yyyyMMdd').toISODate(),
       symbol: row.c,
       name: row.n,
@@ -60,7 +62,9 @@ export class MisScraper extends Scraper {
       bidSize: row.g && row.g.split('_').slice(0, -1).map((size: string) => numeral(size).value()),
       askSize: row.f && row.f.split('_').slice(0, -1).map((size: string) => numeral(size).value()),
       lastUpdated: row.tlong && numeral(row.tlong).value(),
-    }));
+    })) as Record<string, any>[];
+
+    return data.find(row => row.symbol === ticker.symbol);
   }
 
   async fetchIndicesQuote(options: { ticker: Ticker }) {
@@ -74,7 +78,7 @@ export class MisScraper extends Scraper {
     const json = (response.data.rtmessage === 'OK') && response.data;
     if (!json) return null;
 
-    return json.msgArray.map((row: any) => ({
+    const data = json.msgArray.map((row: any) => ({
       date: DateTime.fromFormat(row.d, 'yyyyMMdd').toISODate(),
       symbol: ticker.symbol,
       name: row.n,
@@ -85,7 +89,9 @@ export class MisScraper extends Scraper {
       close: row.z && numeral(row.z).value(),
       volume: row.v && numeral(row.v).value(),
       lastUpdated: row.tlong && numeral(row.tlong).value(),
-    }));
+    })) as Record<string, any>[];
+
+    return data.find(row => row.symbol === ticker.symbol);
   }
 
   private extractExChFromTicker(ticker: Ticker) {

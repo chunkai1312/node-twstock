@@ -7,8 +7,8 @@ import { Exchange, Market } from '../enums';
 import { asIndex, isWarrant } from '../utils';
 
 export class TpexScraper extends Scraper {
-  async fetchStocksHistorical(options: { date: string }) {
-    const { date } = options;
+  async fetchStocksHistorical(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const [ year, month, day ] = date.split('-');
     const query = new URLSearchParams({
       d: `${+year - 1911}/${month}/${day}`,
@@ -20,7 +20,7 @@ export class TpexScraper extends Scraper {
     const json = response.data.iTotalRecords > 0 && response.data;
     if (!json) return null;
 
-    return json.aaData
+    const data = json.aaData
       .filter((row: string[]) => !isWarrant(row[0]))
       .map((row: string[]) => {
         const [symbol, name, ...values] = row;
@@ -39,11 +39,13 @@ export class TpexScraper extends Scraper {
         data.transaction = numeral(values[8]).value();
         data.change = numeral(values[1]).value();
         return data;
-      });
+      }) as Record<string, any>[];
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchStocksInstTrades(options: { date: string }) {
-    const { date } = options;
+  async fetchStocksInstInvestorsTrades(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
       d: `${+year - 1911}/${month}/${day}`,
@@ -57,7 +59,7 @@ export class TpexScraper extends Scraper {
     const json = response.data.iTotalRecords > 0 && response.data;
     if (!json) return null;
 
-    return json.aaData.map((row: string[]) => {
+    const data = json.aaData.map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
@@ -90,11 +92,13 @@ export class TpexScraper extends Scraper {
       data.totalInstInvestorsSell = data.finiSell + data.sitcSell + data.dealersSell;
       data.totalInstInvestorsNetBuySell = numeral(values[21]).value();
       return data;
-    });
+    }) as Record<string, any>[];
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchStocksFiniHoldings(options: { date: string }) {
-    const { date } = options;
+  async fetchStocksFiniHoldings(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const [year, month, day] = date.split('-');
     const form = new URLSearchParams({
       years: year,
@@ -111,7 +115,7 @@ export class TpexScraper extends Scraper {
     const message = $('h3').text().trim();
     if (message === '查無所需資料') return null;
 
-    return $('table:eq(0) tr').slice(2).map((_, el) => {
+    const data = $('table:eq(0) tr').slice(2).map((_, el) => {
       const td = $(el).find('td');
       return {
         date,
@@ -126,11 +130,13 @@ export class TpexScraper extends Scraper {
         heldPercent: numeral(td.eq(6).text()).value(),
         upperLimitPercent: numeral(td.eq(7).text()).value(),
       };
-    }).toArray() as any;
+    }).toArray() as Record<string, any>[];
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchStocksMarginTrades(options: { date: string }) {
-    const { date } = options;
+  async fetchStocksMarginTrades(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
       d: `${+year - 1911}/${month}/${day}`,
@@ -142,7 +148,7 @@ export class TpexScraper extends Scraper {
     const json = response.data.iTotalRecords > 0 && response.data;
     if (!json) return null;
 
-    return json.aaData.map((row: string[]) => {
+    const data = json.aaData.map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
@@ -165,11 +171,13 @@ export class TpexScraper extends Scraper {
       data.offset = numeral(values[16]).value();
       data.note = values[17].trim();
       return data;
-    });
+    }) as Record<string, any>[];
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchStocksValues(options: { date: string }) {
-    const { date } = options;
+  async fetchStocksValues(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
       d: `${+year - 1911}/${month}/${day}`,
@@ -181,7 +189,7 @@ export class TpexScraper extends Scraper {
     const json = response.data.iTotalRecords > 0 && response.data;
     if (!json) return null;
 
-    return json.aaData.map((row: string[]) => {
+    const data = json.aaData.map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
@@ -194,11 +202,13 @@ export class TpexScraper extends Scraper {
       data.dividendYield = numeral(values[3]).value();
       data.dividendYear = numeral(values[2]).add(1911).value();
       return data;
-    });
+    }) as Record<string, any>[];
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchIndicesHistorical(options: { date: string }) {
-    const { date } = options;
+  async fetchIndicesHistorical(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const [ year, month, day ] = date.split('-');
     const query = new URLSearchParams({
       d: `${+year - 1911}/${month}/${day}`,
@@ -234,7 +244,7 @@ export class TpexScraper extends Scraper {
       }));
     }).toArray() as any;
 
-    return _(quotes).groupBy('symbol')
+    const data = _(quotes).groupBy('symbol')
       .map(quotes => {
         const [prev, ...rows] = quotes;
         const { date, symbol, name } = prev;
@@ -250,11 +260,13 @@ export class TpexScraper extends Scraper {
         data.close = _.maxBy(rows, 'time').price;
         data.change = numeral(data.close).subtract(prev.price).value();
         return data;
-      }).value() as any;
+      }).value() as Record<string, any>[];
+
+      return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchIndicesTrades(options: { date: string }) {
-    const { date } = options;
+  async fetchIndicesTrades(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
       d: `${+year - 1911}/${month}/${day}`,
@@ -266,7 +278,7 @@ export class TpexScraper extends Scraper {
     const json = response.data.iTotalRecords > 0 && response.data;
     if (!json) return null;
 
-    const data = json.aaData.map((values: string[]) => {
+    let data = json.aaData.map((values: string[]) => {
       const index = `櫃買${values[0]}類指數`
       const data: Record<string, any> = {};
       data.date = date,
@@ -278,7 +290,7 @@ export class TpexScraper extends Scraper {
       data.tradeValue = numeral(values[1]).value();
       data.tradeWeight = numeral(values[2]).value();
       return data;
-    });
+    }) as Record<string, any>[];
 
     const electronics = [
       'IX0053', 'IX0054', 'IX0055', 'IX0056',
@@ -298,9 +310,11 @@ export class TpexScraper extends Scraper {
         tradeValue: _.sumBy(data, 'tradeValue'),
         tradeWeight: +numeral(_.sumBy(data, 'tradeWeight')).format('0.00'),
       }))
-      .value();
+      .value() as Record<string, any>[];
 
-    return [...data, electronic].filter(index => index.symbol) as any;
+    data = [...data, electronic].filter(index => index.symbol);
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
   async fetchMarketTrades(options: { date: string }) {
@@ -316,7 +330,7 @@ export class TpexScraper extends Scraper {
     const json = response.data.iTotalRecords > 0 && response.data;
     if (!json) return null;
 
-    return json.aaData.map((row: string[]) => {
+    const data = json.aaData.map((row: string[]) => {
       const [year, month, day] = row[0].split('/');
       return {
         date: `${+year + 1911}-${month}-${day}`,
@@ -328,7 +342,9 @@ export class TpexScraper extends Scraper {
         index: numeral(row[4]).value(),
         change: numeral(row[5]).value(),
       };
-    }).find((data: Record<string, any>) => data.date === date);
+    }) as Record<string, any>[];
+
+    return data.find(data => data.date === date);
   }
 
   async fetchMarketBreadth(options: { date: string }) {
@@ -357,7 +373,7 @@ export class TpexScraper extends Scraper {
     return data;
   }
 
-  async fetchMarketInstTrades(options: { date: string }) {
+  async fetchMarketInstInvestorsTrades(options: { date: string }) {
     const { date } = options;
     const [year, month, day] = date.split('-');
     const query = new URLSearchParams({

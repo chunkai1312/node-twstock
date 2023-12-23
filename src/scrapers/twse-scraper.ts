@@ -2,12 +2,11 @@ import * as _ from 'lodash';
 import * as numeral from 'numeral';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
-import { Exchange, Market } from '../enums';
 import { asIndex } from '../utils';
 
 export class TwseScraper extends Scraper {
-  async fetchStocksHistorical(options: { date: string }) {
-    const { date } = options;
+  async fetchStocksHistorical(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const query = new URLSearchParams({
       date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
       type: 'ALLBUT0999',
@@ -19,12 +18,10 @@ export class TwseScraper extends Scraper {
     const json = (response.data.stat === 'OK') && response.data;
     if (!json) return null;
 
-    return json.tables[8].data.map((row: string[]) => {
+    const data = json.tables[8].data.map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
-      data.exchange = Exchange.TWSE;
-      data.market = Market.TSE;
       data.symbol = symbol;
       data.name = name.trim();
       data.open = numeral(values[3]).value();
@@ -36,11 +33,13 @@ export class TwseScraper extends Scraper {
       data.transaction = numeral(values[1]).value();
       data.change = values[7].includes('green') ? numeral(values[8]).multiply(-1).value() : numeral(values[8]).value();
       return data;
-    });
+    }) as Record<string, any>[];
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchStocksInstTrades(options: { date: string }) {
-    const { date } = options;
+  async fetchStocksInstInvestorsTrades(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const query = new URLSearchParams({
       date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
       selectType: 'ALLBUT0999',
@@ -52,12 +51,10 @@ export class TwseScraper extends Scraper {
     const json = (response.data.stat === 'OK') && response.data;
     if (!json) return null;
 
-    return json.data.map((row: string[]) => {
+    const data = json.data.map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
-      data.exchange = Exchange.TWSE;
-      data.market = Market.TSE;
       data.symbol = symbol;
       data.name = name.trim();
       data.finiWithoutDealersBuy = numeral(values[0]).value();
@@ -85,11 +82,13 @@ export class TwseScraper extends Scraper {
       data.totalInstInvestorsSell = data.finiSell + data.sitcSell + data.dealersSell;
       data.totalInstInvestorsNetBuySell = numeral(values[16]).value();
       return data;
-    });
+    }) as Record<string, any>[];
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchStocksFiniHoldings(options: { date: string }) {
-    const { date } = options;
+  async fetchStocksFiniHoldings(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const query = new URLSearchParams({
       date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
       selectType: 'ALLBUT0999',
@@ -101,12 +100,10 @@ export class TwseScraper extends Scraper {
     const json = (response.data.stat === 'OK') && response.data;
     if (!json) return null;
 
-    return json.data.map((row: string[]) => {
+    const data = json.data.map((row: string[]) => {
       const [symbol, name, isin, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
-      data.exchange = Exchange.TWSE;
-      data.market = Market.TSE;
       data.symbol = symbol;
       data.name = name.trim();
       data.issuedShares = numeral(values[0]).value();
@@ -116,11 +113,13 @@ export class TwseScraper extends Scraper {
       data.heldPercent = numeral(values[4]).value();
       data.upperLimitPercent = numeral(values[5]).value();
       return data;
-    });
+    }) as Record<string, any>[];
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchStocksMarginTrades(options: { date: string }) {
-    const { date } = options;
+  async fetchStocksMarginTrades(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const query = new URLSearchParams({
       date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
       selectType: 'ALL',
@@ -132,12 +131,10 @@ export class TwseScraper extends Scraper {
     const json = (response.data.stat === 'OK') && response.data;
     if (!json) return null;
 
-    return json.tables[1].data.map((row: string[]) => {
+    const data = json.tables[1].data.map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
-      data.exchange = Exchange.TWSE;
-      data.market = Market.TSE;
       data.symbol = symbol;
       data.name = name.trim();
       data.marginBuy = numeral(values[0]).value();
@@ -155,11 +152,13 @@ export class TwseScraper extends Scraper {
       data.offset = numeral(values[12]).value();
       data.note = values[13].trim();
       return data;
-    });
+    }) as Record<string, any>[];
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchStocksValues(options: { date: string }) {
-    const { date } = options;
+  async fetchStocksValues(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const query = new URLSearchParams({
       date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
       selectType: 'ALL',
@@ -171,12 +170,10 @@ export class TwseScraper extends Scraper {
     const json = (response.data.stat === 'OK') && response.data;
     if (!json) return null;
 
-    return json.data.map((row: string[]) => {
+    const data = json.data.map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
-      data.exchange = Exchange.TWSE;
-      data.market = Market.TSE;
       data.symbol = symbol;
       data.name = name.trim();
       data.peRatio = numeral(values[2]).value();
@@ -184,11 +181,13 @@ export class TwseScraper extends Scraper {
       data.dividendYield = numeral(values[0]).value();
       data.dividendYear = numeral(values[1]).add(1911).value();
       return data;
-    });
+    }) as Record<string, any>[];
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchIndicesHistorical(options: { date: string }) {
-    const { date } = options;
+  async fetchIndicesHistorical(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const query = new URLSearchParams({
       date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
       response: 'json',
@@ -215,14 +214,12 @@ export class TwseScraper extends Scraper {
       }));
     });
 
-    return _(quotes).groupBy('symbol')
+    const data = _(quotes).groupBy('symbol')
       .map(quotes => {
         const [prev, ...rows] = quotes;
         const { date, symbol, name } = prev;
         const data: Record<string, any> = {};
         data.date = date,
-        data.exchange = Exchange.TWSE;
-        data.market = Market.TSE;
         data.symbol = symbol,
         data.name = name.trim();
         data.open = _.minBy(rows, 'time').price;
@@ -231,11 +228,13 @@ export class TwseScraper extends Scraper {
         data.close = _.maxBy(rows, 'time').price;
         data.change = numeral(data.close).subtract(prev.price).value();
         return data;
-      }).value() as any;
+      }).value() as Record<string, any>[];
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchIndicesTrades(options: { date: string }) {
-    const { date } = options;
+  async fetchIndicesTrades(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
     const query = new URLSearchParams({
       date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
       response: 'json',
@@ -248,18 +247,18 @@ export class TwseScraper extends Scraper {
     const market = await this.fetchMarketTrades({ date });
     if (!market) return null;
 
-    return json.data.map((row: string[]) => {
+    const data = json.data.map((row: string[]) => {
       const data: Record<string, any> = {};
       data.date = date,
-      data.exchange = Exchange.TWSE;
-      data.market = Market.TSE;
       data.symbol = asIndex(row[0].trim());
       data.name = row[0].trim();
       data.tradeVolume = numeral(row[1]).value();
       data.tradeValue = numeral(row[2]).value();
       data.tradeWeight = +numeral(data.tradeValue).divide(market.tradeValue).multiply(100).format('0.00');
       return data;
-    });
+    }) as Record<string, any>[];
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
   async fetchMarketTrades(options: { date: string }) {
@@ -274,19 +273,19 @@ export class TwseScraper extends Scraper {
     const json = (response.data.stat === 'OK') && response.data;
     if (!json) return null;
 
-    return json.data.map((row: string[]) => {
+    const data = json.data.map((row: string[]) => {
       const [year, month, day] = row[0].split('/');
       return {
         date: `${+year + 1911}-${month}-${day}`,
-        exchange: Exchange.TWSE,
-        market: Market.TSE,
         tradeVolume: numeral(row[1]).value(),
         tradeValue: numeral(row[2]).value(),
         transaction: numeral(row[3]).value(),
         index: numeral(row[4]).value(),
         change: numeral(row[5]).value(),
       };
-    }).find((data: Record<string, any>) => data.date === date);
+    }) as Record<string, any>[];
+
+    return data.find(data => data.date === date);
   }
 
   async fetchMarketBreadth(options: { date: string }) {
@@ -308,8 +307,6 @@ export class TwseScraper extends Scraper {
 
     const data: Record<string, any> = {};
     data.date = date;
-    data.exchange = Exchange.TWSE;
-    data.market = Market.TSE;
     data.up = numeral(up).value();
     data.limitUp = numeral(limitUp).value();
     data.down = numeral(down).value();
@@ -320,7 +317,7 @@ export class TwseScraper extends Scraper {
     return data;
   }
 
-  async fetchMarketInstTrades(options: { date: string }) {
+  async fetchMarketInstInvestorsTrades(options: { date: string }) {
     const { date } = options;
     const query = new URLSearchParams({
       dayDate: DateTime.fromISO(date).toFormat('yyyyMMdd'),
@@ -336,8 +333,6 @@ export class TwseScraper extends Scraper {
     const values = json.data.map((row: string []) => row.slice(1)).flat();
     const data: Record<string, any> = {};
     data.date = date;
-    data.exchange = Exchange.TWSE;
-    data.market = Market.TSE;
     data.finiWithoutDealersBuy = numeral(values[9]).value();
     data.finiWithoutDealersSell = numeral(values[10]).value();
     data.finiWithoutDealersNetBuySell = numeral(values[11]).value();
@@ -381,8 +376,6 @@ export class TwseScraper extends Scraper {
     const values = json.tables[0].data.map((row: string []) => row.slice(1)).flat();
     const data: Record<string, any> = {};
     data.date = date;
-    data.exchange = Exchange.TWSE;
-    data.market = Market.TSE;
     data.marginBuy = numeral(values[0]).value();
     data.marginSell = numeral(values[1]).value();
     data.marginRedeem = numeral(values[2]).value();

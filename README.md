@@ -11,31 +11,31 @@
 * [Installation](#installation)
 * [Usage](#usage)
 * [API](#api)
-  * [stocks.list(params)](#stockslistparams)
-  * [stocks.quote(params)](#stocksquoteparams)
-  * [stocks.historical(params)](#stockshistoricalparams)
-  * [stocks.instTrades(params)](#stocksinsttradesparams)
-  * [stocks.finiHoldings(params)](#stocksfiniholdingsparams)
-  * [stocks.marginTrades(params)](#stocksmargintradesparams)
-  * [stocks.values(params)](#stocksvaluesparams)
-  * [stocks.holders(params)](#stocksholdersparams)
-  * [stocks.eps(params)](#stocksepsparams)
-  * [stocks.revenue(params)](#stocksrevenueparams)
-  * [indices.list(params)](#indiceslistparams)
-  * [indices.quote(params)](#indicesquoteparams)
-  * [indices.historical(params)](#indiceshistoricalparams)
-  * [indices.trades(params)](#indicestradesparams)
-  * [market.trades(params)](#markettradesparams)
-  * [market.breadth(params)](#marketbreadthparams)
-  * [market.instTrades(params)](#marketinsttradesparams)
-  * [market.marginTrades(params)](#marketmargintradesparams)
-  * [futopt.txfInstTrades(params)](#futopttxfinsttradesparams)
-  * [futopt.txoInstTrades(params)](#futopttxoinsttradesparams)
-  * [futopt.txoPutCallRatio(params)](#futopttxoputcallratioparams)
-  * [futopt.mxfRetailPosition(params)](#futoptmxfretailpositionparams)
-  * [futopt.txfLargeTradersPosition(params)](#futopttxflargetraderspositionparams)
-  * [futopt.txoLargeTradersPosition(params)](#futopttxolargetraderspositionparams)
-  * [futopt.exchangeRates(params)](#futoptexchangeratesparams)
+  * [stocks.list(options)](#stockslistoptions)
+  * [stocks.quote(options)](#stocksquoteoptions)
+  * [stocks.historical(options)](#stockshistoricaloptions)
+  * [stocks.instTrades(options)](#stocksinsttradesoptions)
+  * [stocks.finiHoldings(options)](#stocksfiniholdingsoptions)
+  * [stocks.marginTrades(options)](#stocksmargintradesoptions)
+  * [stocks.values(options)](#stocksvaluesoptions)
+  * [stocks.holders(options)](#stocksholdersoptions)
+  * [stocks.eps(options)](#stocksepsoptions)
+  * [stocks.revenue(options)](#stocksrevenueoptions)
+  * [indices.list(options)](#indiceslistoptions)
+  * [indices.quote(options)](#indicesquoteoptions)
+  * [indices.historical(options)](#indiceshistoricaloptions)
+  * [indices.trades(options)](#indicestradesoptions)
+  * [market.trades(options)](#markettradesoptions)
+  * [market.breadth(options)](#marketbreadthoptions)
+  * [market.instTrades(options)](#marketinsttradesoptions)
+  * [market.marginTrades(options)](#marketmargintradesoptions)
+  * [futopt.txfInstTrades(options)](#futopttxfinsttradesoptions)
+  * [futopt.txoInstTrades(options)](#futopttxoinsttradesoptions)
+  * [futopt.txoPutCallRatio(options)](#futopttxoputcallratiooptions)
+  * [futopt.mxfRetailPosition(options)](#futoptmxfretailpositionoptions)
+  * [futopt.txfLargeTradersPosition(options)](#futopttxflargetraderspositionoptions)
+  * [futopt.txoLargeTradersPosition(options)](#futopttxolargetraderspositionoptions)
+  * [futopt.exchangeRates(options)](#futoptexchangeratesoptions)
 * [Changelog](#changelog)
 * [License](#license)
 
@@ -64,11 +64,11 @@ const market = twstock.market;
 
 ## API
 
-### `stocks.list(params)`
+### `stocks.list(options)`
 
 取得上市櫃股票列表
 
-* `params`: {Object}
+* `options`: {Object}
   * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
   * `symbol`: {string} 股票代號
@@ -95,11 +95,11 @@ twstock.stocks.list({ market: 'TSE' })
 // ]
 ```
 
-### `stocks.quote(params)`
+### `stocks.quote(options)`
 
 取得股票即時行情
 
-* `params`: {Object}
+* `options`: {Object}
   * `symbol`: {string} 股票代號
   * `odd` (optional): {boolean} 盤中零股交易
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
@@ -146,11 +146,11 @@ twstock.stocks.quote({ symbol: '2330' })
 // }
 ```
 
-### `stocks.historical(params)`
+### `stocks.historical(options)`
 
 取得股票在特定日期的收盤行情
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
   * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 股票代號
@@ -190,11 +190,11 @@ twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' })
 // }
 ```
 
-### `stocks.instTrades(params)`
+### `stocks.instTrades(options)`
 
 取得股票在特定日期的三大法人買賣超
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
   * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 股票代號
@@ -266,11 +266,11 @@ twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' })
 // }
 ```
 
-### `stocks.finiHoldings(params)`
+### `stocks.finiHoldings(options)`
 
 取得股票在特定日期的外資持股比例
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
   * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 股票代號
@@ -306,11 +306,11 @@ twstock.stocks.finiHoldings({ date: '2023-01-30', symbol: '2330' })
 // }
 ```
 
-### `stocks.marginTrades(params)`
+### `stocks.marginTrades(options)`
 
 取得股票在特定日期的融資融券餘額
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
   * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 股票代號
@@ -362,11 +362,11 @@ twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' })
 // }
 ```
 
-### `stocks.values(params)`
+### `stocks.values(options)`
 
 取得股票在特定日期的本益比、殖利率及股價淨值比
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
   * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 股票代號
@@ -398,11 +398,11 @@ twstock.stocks.values({ date: '2023-01-30', symbol: '2330' })
 // }
 ```
 
-### `stocks.holders(params)`
+### `stocks.holders(options)`
 
 取得股票在特定日期的集保分佈
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
   * `symbol`: {string} 股票代號
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
@@ -435,11 +435,11 @@ twstock.stocks.holders({ date: '2022-12-30', symbol: '2330' })
 // }
 ```
 
-### `stocks.eps(params)`
+### `stocks.eps(options)`
 
 取得上市櫃股票在特定年度季度每股盈餘
 
-* `params`: {Object}
+* `options`: {Object}
   * `market`: {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `year`: {number} 年度
   * `quarter`: {number} 季度
@@ -466,11 +466,11 @@ twstock.stocks.eps({ market: 'TSE', year: 2023, quarter: 1 })
 // ]
 ```
 
-### `stocks.revenue(params)`
+### `stocks.revenue(options)`
 
 取得上市櫃股票在特定年度月份營業收入
 
-* `params`: {Object}
+* `options`: {Object}
   * `market`: {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `year`: {number} 年度
   * `month`: {number} 月份
@@ -498,11 +498,11 @@ twstock.stocks.revenue({ market: 'TSE', year: 2023, month: 1 })
 // ]
 ```
 
-### `indices.list(params)`
+### `indices.list(options)`
 
 取得指數列表
 
-* `params`: {Object}
+* `options`: {Object}
   * `market`: {string} 按市場別篩選指數 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
   * `symbol`: {string} 指數代號
@@ -527,11 +527,11 @@ twstock.indices.list({ market: 'TSE' })
 // ]
 ```
 
-### `indices.quote(params)`
+### `indices.quote(options)`
 
 取得指數即時行情
 
-* `params`: {Object}
+* `options`: {Object}
   * `market`: {string} 按市場別篩選指數 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
   * `date`: {string} 日期
@@ -562,11 +562,11 @@ twstock.indices.quote({ symbol: 'IX0001' })
 // }
 ```
 
-### `indices.historical(params)`
+### `indices.historical(options)`
 
 取得指數在特定日期的收盤行情
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
   * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 指數代號
@@ -598,11 +598,11 @@ twstock.indices.historical({ date: '2023-01-30', symbol: 'IX0001' })
 // }
 ```
 
-### `indices.trades(params)`
+### `indices.trades(options)`
 
 取得指數在特定日期的成交量值
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
   * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
   * `symbol` (optional): {string} 指數代號
@@ -632,11 +632,11 @@ twstock.indices.trades({ date: '2023-01-30', symbol: 'IX0028' })
 // }
 ```
 
-### `market.trades(params)`
+### `market.trades(options)`
 
 取得股票市場在特定日期的成交量值
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
   * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
@@ -665,11 +665,11 @@ twstock.market.trades({ date: '2023-01-30', market: 'TSE' })
 // }
 ```
 
-### `market.breadth(params)`
+### `market.breadth(options)`
 
 取得股票市場在特定日期的上漲與下跌家數
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
   * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
@@ -702,11 +702,11 @@ twstock.market.breadth({ date: '2023-01-30', market: 'TSE' })
 // }
 ```
 
-### `market.instTrades(params)`
+### `market.instTrades(options)`
 
 取得股票市場在特定日期的三大法人買賣超
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
   * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
@@ -773,11 +773,11 @@ twstock.market.instTrades({ date: '2023-01-30', market: 'TSE' })
 // }
 ```
 
-### `market.marginTrades(params)`
+### `market.marginTrades(options)`
 
 取得股票市場在特定日期的信用交易統計
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
   * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
@@ -826,11 +826,11 @@ twstock.market.marginTrades({ date: '2023-01-30', market: 'TSE' })
 // }
 ```
 
-### `futopt.txfInstTrades(params)`
+### `futopt.txfInstTrades(options)`
 
 取得臺股期貨在特定日期的三大法人交易口數、契約金額與未平倉餘額
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
@@ -920,11 +920,11 @@ twstock.futopt.txfInstTrades({ date: '2023-01-30' })
 // }
 ```
 
-### `futopt.txoInstTrades(params)`
+### `futopt.txoInstTrades(options)`
 
 取得臺指選擇權在特定日期的三大法人交易口數、契約金額與未平倉餘額
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
@@ -1091,11 +1091,11 @@ twstock.futopt.txoInstTrades({ date: '2023-01-30' })
 // }
 ```
 
-### `futopt.txoPutCallRatio(params)`
+### `futopt.txoPutCallRatio(options)`
 
 取得臺指選擇權在特定日期的 Put/Call Ratio
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
@@ -1121,11 +1121,11 @@ twstock.futopt.txoPutCallRatio({ date: '2023-01-30' })
 // }
 ```
 
-### `futopt.mxfRetailPosition(params)`
+### `futopt.mxfRetailPosition(options)`
 
 取得特定日期的散戶小台淨部位及散戶小台多空比
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
@@ -1147,11 +1147,11 @@ twstock.futopt.mxfRetailPosition({ date: '2023-01-30' })
 // }
 ```
 
-### `futopt.txfLargeTradersPosition(params)`
+### `futopt.txfLargeTradersPosition(options)`
 
 取得臺股期貨在特定日期的大額交易人未沖銷部位
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
@@ -1274,11 +1274,11 @@ twstock.futopt.txfLargeTradersPosition({ date: '2023-01-30' })
 // }
 ```
 
-### `futopt.txoLargeTradersPosition(params)`
+### `futopt.txoLargeTradersPosition(options)`
 
 取得臺指選擇權在特定日期的大額交易人未沖銷部位
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
@@ -1518,11 +1518,11 @@ twstock.futopt.txoLargeTradersPosition({ date: '2023-01-30' })
 // }
 ```
 
-### `futopt.exchangeRates(params)`
+### `futopt.exchangeRates(options)`
 
 取得特定日期的外幣參考匯率
 
-* `params`: {Object}
+* `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期

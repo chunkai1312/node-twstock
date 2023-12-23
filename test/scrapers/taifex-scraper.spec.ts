@@ -15,10 +15,9 @@ describe('TaifexScraper', () => {
 
   describe('.fetchTxfInstTrades()', () => {
     it('should fetch TXF institutional investors\' trades for the given date', async () => {
-      const data = fs.readFileSync('./test/fixtures/txf-inst-trades.csv');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txf-inst-trades.csv') });
 
-      const txf = await scraper.fetchTxfInstTrades({ date: '2023-01-30' });
+      const data = await scraper.fetchTxfInstTrades({ date: '2023-01-30' });
       const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
@@ -26,8 +25,8 @@ describe('TaifexScraper', () => {
         commodityId: 'TXF',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(txf).toBeDefined();
-      expect(txf).toEqual({
+      expect(data).toBeDefined();
+      expect(data).toEqual({
         date: '2023-01-30',
         symbol: 'TXF',
         name: '臺股期貨',
@@ -71,10 +70,9 @@ describe('TaifexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      const data = fs.readFileSync('./test/fixtures/txf-inst-trades-no-data.html');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txf-inst-trades-no-data.html') });
 
-      const txf = await scraper.fetchTxfInstTrades({ date: '2023-01-01' });
+      const data = await scraper.fetchTxfInstTrades({ date: '2023-01-01' });
       const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/01',
@@ -82,16 +80,15 @@ describe('TaifexScraper', () => {
         commodityId: 'TXF',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(txf).toBe(null);
+      expect(data).toBe(null);
     });
   });
 
   describe('.fetchMxfInstTrades()', () => {
     it('should fetch MXF institutional investors\' trades for the given date', async () => {
-      const data = fs.readFileSync('./test/fixtures/mxf-inst-trades.csv');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mxf-inst-trades.csv') });
 
-      const txf = await scraper.fetchMxfInstTrades({ date: '2023-01-30' });
+      const data = await scraper.fetchMxfInstTrades({ date: '2023-01-30' });
       const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
@@ -99,8 +96,8 @@ describe('TaifexScraper', () => {
         commodityId: 'MXF',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(txf).toBeDefined();
-      expect(txf).toEqual({
+      expect(data).toBeDefined();
+      expect(data).toEqual({
         date: '2023-01-30',
         symbol: 'MXF',
         name: '小型臺指期貨',
@@ -144,10 +141,9 @@ describe('TaifexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      const data = fs.readFileSync('./test/fixtures/mxf-inst-trades-no-data.html');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mxf-inst-trades-no-data.html') });
 
-      const txf = await scraper.fetchMxfInstTrades({ date: '2023-01-01' });
+      const data = await scraper.fetchMxfInstTrades({ date: '2023-01-01' });
       const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/01',
@@ -155,16 +151,15 @@ describe('TaifexScraper', () => {
         commodityId: 'MXF',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(txf).toBe(null);
+      expect(data).toBe(null);
     });
   });
 
   describe('.fetchTxoInstTrades()', () => {
     it('should fetch TXO institutional investors\' trades for the given date', async () => {
-      const data = fs.readFileSync('./test/fixtures/txo-inst-trades.csv');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txo-inst-trades.csv') });
 
-      const txo = await scraper.fetchTxoInstTrades({ date: '2023-01-30' });
+      const data = await scraper.fetchTxoInstTrades({ date: '2023-01-30' });
       const url = 'https://www.taifex.com.tw/cht/3/callsAndPutsDateDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
@@ -172,8 +167,8 @@ describe('TaifexScraper', () => {
         commodityId: 'TXO',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(txo).toBeDefined();
-      expect(txo).toEqual({
+      expect(data).toBeDefined();
+      expect(data).toEqual({
         date: '2023-01-30',
         symbol: 'TXO',
         name: '臺指選擇權',
@@ -257,10 +252,9 @@ describe('TaifexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      const data = fs.readFileSync('./test/fixtures/txo-inst-trades-no-data.html');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txo-inst-trades-no-data.html') });
 
-      const txo = await scraper.fetchTxoInstTrades({ date: '2023-01-30' });
+      const data = await scraper.fetchTxoInstTrades({ date: '2023-01-30' });
       const url = 'https://www.taifex.com.tw/cht/3/callsAndPutsDateDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
@@ -268,24 +262,23 @@ describe('TaifexScraper', () => {
         commodityId: 'TXO',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(txo).toBe(null);
+      expect(data).toBe(null);
     });
   });
 
   describe('.fetchTxoPutCallRatio()', () => {
     it('should fetch TXO Put/Call ratio for the given date', async () => {
-      const data = fs.readFileSync('./test/fixtures/txo-put-call-ratio.csv');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txo-put-call-ratio.csv') });
 
-      const txo = await scraper.fetchTxoPutCallRatio({ date: '2023-01-30' });
+      const data = await scraper.fetchTxoPutCallRatio({ date: '2023-01-30' });
       const url = 'https://www.taifex.com.tw/cht/3/pcRatioDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
         queryEndDate: '2023/01/30',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(txo).toBeDefined();
-      expect(txo).toEqual({
+      expect(data).toBeDefined();
+      expect(data).toEqual({
         date: '2023-01-30',
         txoPutVolume: 349525,
         txoCallVolume: 410532,
@@ -297,17 +290,16 @@ describe('TaifexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      const data = fs.readFileSync('./test/fixtures/txo-put-call-ratio-no-data.csv');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txo-put-call-ratio-no-data.csv') });
 
-      const txo = await scraper.fetchTxoPutCallRatio({ date: '2023-01-01' });
+      const data = await scraper.fetchTxoPutCallRatio({ date: '2023-01-01' });
       const url = 'https://www.taifex.com.tw/cht/3/pcRatioDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/01',
         queryEndDate: '2023/01/01',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(txo).toBe(null);
+      expect(data).toBe(null);
     });
   });
 
@@ -326,7 +318,7 @@ describe('TaifexScraper', () => {
         });
       });
 
-      const mxf = await scraper.fetchMxfRetailPosition({ date: '2023-01-30' });
+      const data = await scraper.fetchMxfRetailPosition({ date: '2023-01-30' });
       const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
       const form = new URLSearchParams({
         down_type: '1',
@@ -335,8 +327,8 @@ describe('TaifexScraper', () => {
         commodity_id: 'MTX',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(mxf).toBeDefined();
-      expect(mxf).toEqual({
+      expect(data).toBeDefined();
+      expect(data).toEqual({
         date: '2023-01-30',
         mxfRetailLongOi: 30126,
         mxfRetailShortOi: 38959,
@@ -359,7 +351,7 @@ describe('TaifexScraper', () => {
         });
       });
 
-      const mxf = await scraper.fetchMxfRetailPosition({ date: '2023-01-01' });
+      const data = await scraper.fetchMxfRetailPosition({ date: '2023-01-01' });
       const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
       const form = new URLSearchParams({
         down_type: '1',
@@ -368,24 +360,23 @@ describe('TaifexScraper', () => {
         commodity_id: 'MTX',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(mxf).toBe(null);
+      expect(data).toBe(null);
     });
   });
 
   describe('.fetchTxfLargeTradersPosition()', () => {
     it('should fetch TXF large traders position for the given date', async () => {
-      const data = fs.readFileSync('./test/fixtures/txf-large-traders-position.csv');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txf-large-traders-position.csv') });
 
-      const txf = await scraper.fetchTxfLargeTradersPosition({ date: '2023-01-30' });
+      const data = await scraper.fetchTxfLargeTradersPosition({ date: '2023-01-30' });
       const url = 'https://www.taifex.com.tw/cht/3/largeTraderFutDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
         queryEndDate: '2023/01/30',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(txf).toBeDefined();
-      expect(txf).toEqual({
+      expect(data).toBeDefined();
+      expect(data).toEqual({
         frontMonth: {
           topFiveLongOi: 30643,
           topFiveShortOi: 29456,
@@ -441,34 +432,32 @@ describe('TaifexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      const data = fs.readFileSync('./test/fixtures/txf-large-traders-position-no-data.html');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txf-large-traders-position-no-data.html') });
 
-      const txf = await scraper.fetchTxfLargeTradersPosition({ date: '2023-01-01' });
+      const data = await scraper.fetchTxfLargeTradersPosition({ date: '2023-01-01' });
       const url = 'https://www.taifex.com.tw/cht/3/largeTraderFutDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/01',
         queryEndDate: '2023/01/01',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(txf).toBe(null);
+      expect(data).toBe(null);
     });
   });
 
   describe('.fetchTxoLargeTradersPosition()', () => {
     it('should fetch TXO large traders position for the given date', async () => {
-      const data = fs.readFileSync('./test/fixtures/txo-large-traders-position.csv');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txo-large-traders-position.csv') });
 
-      const txo = await scraper.fetchTxoLargeTradersPosition({ date: '2023-01-30' });
+      const data = await scraper.fetchTxoLargeTradersPosition({ date: '2023-01-30' });
       const url = 'https://www.taifex.com.tw/cht/3/largeTraderOptDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
         queryEndDate: '2023/01/30',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(txo).toBeDefined();
-      expect(txo).toEqual({
+      expect(data).toBeDefined();
+      expect(data).toEqual({
         calls: {
           frontMonth: {
             topFiveLongOi: 16007,
@@ -579,34 +568,32 @@ describe('TaifexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      const data = fs.readFileSync('./test/fixtures/txo-large-traders-position-no-data.html');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txo-large-traders-position-no-data.html') });
 
-      const txo = await scraper.fetchTxoLargeTradersPosition({ date: '2023-01-01' });
+      const data = await scraper.fetchTxoLargeTradersPosition({ date: '2023-01-01' });
       const url = 'https://www.taifex.com.tw/cht/3/largeTraderOptDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/01',
         queryEndDate: '2023/01/01',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(txo).toBe(null);
+      expect(data).toBe(null);
     });
   });
 
   describe('.fetchExchangeRates()', () => {
     it('should fetch exchange rates for the given date', async () => {
-      const data = fs.readFileSync('./test/fixtures/exchange-rates.csv');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/exchange-rates.csv') });
 
-      const exchangeRates = await scraper.fetchExchangeRates({ date: '2023-01-30' });
+      const data = await scraper.fetchExchangeRates({ date: '2023-01-30' });
       const url = 'https://www.taifex.com.tw/cht/3/dailyFXRateDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
         queryEndDate: '2023/01/30',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(exchangeRates).toBeDefined();
-      expect(exchangeRates).toEqual({
+      expect(data).toBeDefined();
+      expect(data).toEqual({
         date: '2023-01-30',
         usdtwd: 30.137,
         cnytwd: 4.464224,
@@ -622,17 +609,16 @@ describe('TaifexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      const data = fs.readFileSync('./test/fixtures/exchange-rates-no-data.csv');
-      mockAxios.post.mockResolvedValueOnce({ data });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/exchange-rates-no-data.csv') });
 
-      const txo = await scraper.fetchExchangeRates({ date: '2023-01-01' });
+      const data = await scraper.fetchExchangeRates({ date: '2023-01-01' });
       const url = 'https://www.taifex.com.tw/cht/3/dailyFXRateDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/01',
         queryEndDate: '2023/01/01',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(txo).toBe(null);
+      expect(data).toBe(null);
     });
   });
 });

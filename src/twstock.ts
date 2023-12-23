@@ -1,11 +1,16 @@
-import { IsinScraper, TwseScraper, TpexScraper, MisScraper, TdccScraper, MopsScraper, TaifexScraper } from './scrapers';
+import { omit, map } from 'lodash';
+import { ScraperFactory } from './scrapers';
 import { Market } from './enums';
-import { Ticker } from './interfaces';
-import { getMarketIndices } from './utils';
+import { RateLimitOptions, Ticker } from './interfaces';
 
 export class TwStock {
+  private readonly _scraper: ScraperFactory;
   private readonly _stocks = new Map<string, Ticker>();
   private readonly _indices = new Map<string, Ticker>();
+
+  constructor(options?: RateLimitOptions) {
+    this._scraper = new ScraperFactory(options);
+  }
 
   get stocks() {
     return {
@@ -54,325 +59,297 @@ export class TwStock {
 
   private async loadStocks(options?: { symbol?: string }) {
     const { symbol } = options ?? {};
+    const isinScraper = this._scraper.getIsinScraper();
 
-    if (symbol) {
-      const results = await IsinScraper.fetchStocksInfo({ symbol });
-      results.forEach((ticker) => {
-        const { symbol } = ticker;
-        this._stocks.set(symbol, ticker);
-      });
-    } else {
-      const results = await Promise.all([
-        IsinScraper.fetchListedStocks({ market: Market.TSE }),
-        IsinScraper.fetchListedStocks({ market: Market.OTC }),
-      ]);
-      results.flat().forEach((ticker) => {
-        const { symbol } = ticker;
-        this._stocks.set(symbol, ticker);
-      });
-    }
+    const stocks = (symbol)
+      ? await isinScraper.fetchStocksInfo({ symbol })
+      : await Promise.all([
+          isinScraper.fetchListedStocks({ market: Market.TSE }),
+          isinScraper.fetchListedStocks({ market: Market.OTC }),
+        ]).then(results => results.flat());
+
+    stocks.forEach(({ symbol, ...ticker }) => this._stocks.set(symbol, { symbol, ...ticker }));
+
+    return stocks;
   }
 
   private async loadIndices() {
-    const indices = getMarketIndices();
-    indices.forEach(ticker => {
-      const { symbol } = ticker;
-      this._indices.set(symbol, ticker);
-    });
-    const results = await Promise.all([
-      MisScraper.fetchListedIndices({ market: Market.TSE }),
-      MisScraper.fetchListedIndices({ market: Market.OTC }),
-    ]);
-    results.flat().forEach(ticker => {
-      const { symbol } = ticker;
-      if (symbol && !this._indices.has(symbol)) {
-        this._indices.set(symbol, ticker);
-      }
-    });
+    const misScraper = this._scraper.getMisScraper();
+
+    const data = await Promise.all([
+      misScraper.fetchListedIndices({ market: Market.TSE }),
+      misScraper.fetchListedIndices({ market: Market.OTC }),
+    ]).then(results => results.flat());
+
+    const indices = data
+      .filter(({ symbol, ...ticker }) => {
+        const isExist = this._indices.has(symbol);
+        if (!isExist) this._indices.set(symbol, { symbol, ...ticker });
+        return !isExist;
+      })
+      .map(ticker => omit(ticker, 'ex_ch'));
+
+    return indices;
   }
 
-  private async getStocksList(params?: { market: 'TSE' | 'OTC' }) {
-    const { market } = params ?? {};
-    await this.loadStocks();
-    const data = Array.from(this._stocks.values());
+  private async getStocksList(options?: { market: 'TSE' | 'OTC' }) {
+    const { market } = options ?? {};
+    const data = await this.loadStocks();
     return market ? data.filter(ticker => ticker.market === market) : data;
   }
 
-  private async getStocksQuote(params: { symbol: string, odd?: boolean }) {
-    const { symbol, odd } = params;
+  private async getStocksQuote(options: { symbol: string, odd?: boolean }) {
+    const { symbol, odd } = options;
 
     if (!this._stocks.has(symbol)) {
-      await this.loadStocks({ symbol });
-    }
-    if (!this._stocks.has(symbol)) {
-      throw new Error('symbol not found');
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
     }
 
     const ticker = this._stocks.get(symbol) as Ticker;
-    const data = await MisScraper.fetchStocksQuote({ ticker, odd });
-
-    return data ? data.find((row: any) => row.symbol === symbol) : null;
+    return this._scraper.getMisScraper().fetchStocksQuote({ ticker, odd });
   }
 
-  private async getStocksHistorical(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
-    const { date, symbol } = params;
+  private async getStocksHistorical(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+    const { date, symbol } = options;
 
     if (symbol && !this._stocks.has(symbol)) {
-      await this.loadStocks({ symbol });
-    }
-    if (symbol && !this._stocks.has(symbol)) {
-      throw new Error('symbol not found');
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
     }
 
     const ticker = this._stocks.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : params.market;
+    const market = symbol ? ticker.market : options.market;
 
-    const data = (market === Market.OTC)
-      ? await TpexScraper.fetchStocksHistorical({ date })
-      : await TwseScraper.fetchStocksHistorical({ date });
-
-    return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
+    return (market === Market.OTC)
+      ? await this._scraper.getTpexScraper().fetchStocksHistorical({ date, symbol })
+      : await this._scraper.getTwseScraper().fetchStocksHistorical({ date, symbol });
   }
 
-  private async getStocksInstTrades(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
-    const { date, symbol } = params;
+  private async getStocksInstTrades(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+    const { date, symbol } = options;
 
     if (symbol && !this._stocks.has(symbol)) {
-      await this.loadStocks({ symbol });
-    }
-    if (symbol && !this._stocks.has(symbol)) {
-      throw new Error('symbol not found');
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
     }
 
     const ticker = this._stocks.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : params.market;
+    const market = symbol ? ticker.market : options.market;
 
-    const data = (market === Market.OTC)
-      ? await TpexScraper.fetchStocksInstTrades({ date })
-      : await TwseScraper.fetchStocksInstTrades({ date });
-
-    return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
+    return (market === Market.OTC)
+      ? await this._scraper.getTpexScraper().fetchStocksInstInvestorsTrades({ date, symbol })
+      : await this._scraper.getTwseScraper().fetchStocksInstInvestorsTrades({ date, symbol });
   }
 
-  private async getStocksFiniHoldings(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
-    const { date, symbol } = params;
+  private async getStocksFiniHoldings(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+    const { date, symbol } = options;
 
     if (symbol && !this._stocks.has(symbol)) {
-      await this.loadStocks({ symbol });
-    }
-    if (symbol && !this._stocks.has(symbol)) {
-      throw new Error('symbol not found');
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
     }
 
     const ticker = this._stocks.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : params.market;
+    const market = symbol ? ticker.market : options.market;
 
-    const data = (market === Market.OTC)
-      ? await TpexScraper.fetchStocksFiniHoldings({ date })
-      : await TwseScraper.fetchStocksFiniHoldings({ date });
-
-    return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
+    return (market === Market.OTC)
+      ? await this._scraper.getTpexScraper().fetchStocksFiniHoldings({ date, symbol })
+      : await this._scraper.getTwseScraper().fetchStocksFiniHoldings({ date, symbol });
   }
 
-  private async getStocksMarginTrades(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
-    const { date, symbol } = params;
+  private async getStocksMarginTrades(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+    const { date, symbol } = options;
 
     if (symbol && !this._stocks.has(symbol)) {
-      await this.loadStocks({ symbol });
-    }
-    if (symbol && !this._stocks.has(symbol)) {
-      throw new Error('symbol not found');
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
     }
 
     const ticker = this._stocks.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : params.market;
+    const market = symbol ? ticker.market : options.market;
 
-    const data = (market === Market.OTC)
-      ? await TpexScraper.fetchStocksMarginTrades({ date })
-      : await TwseScraper.fetchStocksMarginTrades({ date });
-
-    return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
+    return (market === Market.OTC)
+      ? await this._scraper.getTpexScraper().fetchStocksMarginTrades({ date, symbol })
+      : await this._scraper.getTwseScraper().fetchStocksMarginTrades({ date, symbol });
   }
 
-  private async getStocksValues(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
-    const { date, symbol } = params;
+  private async getStocksValues(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+    const { date, symbol } = options;
 
     if (symbol && !this._stocks.has(symbol)) {
-      await this.loadStocks({ symbol });
-    }
-    if (symbol && !this._stocks.has(symbol)) {
-      throw new Error('symbol not found');
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
     }
 
     const ticker = this._stocks.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : params.market;
+    const market = symbol ? ticker.market : options.market;
 
-    const data = (market === Market.OTC)
-      ? await TpexScraper.fetchStocksValues({ date })
-      : await TwseScraper.fetchStocksValues({ date });
-
-    return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
+    return (market === Market.OTC)
+      ? await this._scraper.getTpexScraper().fetchStocksValues({ date, symbol })
+      : await this._scraper.getTwseScraper().fetchStocksValues({ date, symbol });
   }
 
-  private async getStocksHolders(params: { date: string, symbol: string }) {
-    const { date, symbol } = params;
+  private async getStocksHolders(options: { date: string, symbol: string }) {
+    const { date, symbol } = options;
 
-    if (!this._stocks.has(symbol)) {
-      await this.loadStocks({ symbol });
-    }
-    if (!this._stocks.has(symbol)) {
-      throw new Error('symbol not found');
+    if (symbol && !this._stocks.has(symbol)) {
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
     }
 
-    return TdccScraper.fetchStocksHolders({ date, symbol });
+    return this._scraper.getTdccScraper().fetchStocksHolders({ date, symbol });
   }
 
-  private async getStocksEps(params: { market: 'TSE' | 'OTC', year: number, quarter: number }) {
-    const { market, year, quarter } = params;
-    return MopsScraper.fetchStocksEps({ market, year, quarter });
+  private async getStocksEps(options: { year: number, quarter: number, market?: 'TSE' | 'OTC', symbol?: string }) {
+    const { symbol, year, quarter } = options;
+
+    if (!options.market && !options.symbol) {
+      throw new Error('Either "market" or "symbol" options must be specified');
+    }
+    if (options.market && options.symbol) {
+      throw new Error('One and only one of the "market" or "symbol" options must be specified');
+    }
+    if (symbol && !this._stocks.has(symbol)) {
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
+    }
+
+    const ticker = this._stocks.get(symbol as string) as Ticker;
+    const market = symbol ? ticker.market : options.market as string;
+
+    return this._scraper.getMopsScraper().fetchStocksEps({ market, year, quarter, symbol });
   }
 
-  private async getStocksRevenue(params: { market: 'TSE' | 'OTC', year: number, month: number, foreign?: boolean }) {
-    const { market, year, month, foreign } = params;
-    return MopsScraper.fetchStocksRevenue({ market, year, month, foreign });
+  private async getStocksRevenue(options: { market?: 'TSE' | 'OTC', year: number, month: number, foreign?: boolean, symbol?: string  }) {
+    const { symbol, year, month, foreign } = options;
+
+    if (symbol && !this._stocks.has(symbol)) {
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
+    }
+
+    const ticker = this._stocks.get(symbol as string) as Ticker;
+    const market = symbol ? ticker.market : options.market as string;
+
+    return this._scraper.getMopsScraper().fetchStocksRevenue({ market, year, month, foreign, symbol });
   }
 
-  private async getIndicesList(params?: { market: 'TSE' | 'OTC' }) {
-    const { market } = params ?? {};
-    await this.loadIndices();
-    const data = Array.from(this._indices.values());
+  private async getIndicesList(options?: { market: 'TSE' | 'OTC' }) {
+    const { market } = options ?? {};
+    const data = await this.loadIndices();
     return market ? data.filter(ticker => ticker.market === market) : data;
   }
 
-  private async getIndicesQuote(params: { symbol: string }) {
-    const { symbol } = params;
+  private async getIndicesQuote(options: { symbol: string }) {
+    const { symbol } = options;
 
     if (!this._indices.has(symbol)) {
-      await this.loadIndices();
-    }
-    if (!this._indices.has(symbol)) {
-      throw new Error('symbol not found');
+      const indices = await this.loadIndices();
+      if (!map(indices, 'symbol').includes(symbol)) throw new Error('symbol not found');
     }
 
     const ticker = this._indices.get(symbol) as Ticker;
-    const data = await MisScraper.fetchIndicesQuote({ ticker });
-
-    return data ? data.find((row: any) => row.symbol === symbol) : null;
+    return this._scraper.getMisScraper().fetchIndicesQuote({ ticker });
   }
 
-  private async getIndicesHistorical(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
-    const { date, symbol } = params;
+  private async getIndicesHistorical(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+    const { date, symbol } = options;
 
     if (symbol && !this._indices.has(symbol)) {
-      await this.loadIndices();
-    }
-    if (symbol && !this._indices.has(symbol)) {
-      throw new Error('symbol not found');
+      const indices = await this.loadIndices();
+      if (!map(indices, 'symbol').includes(symbol)) throw new Error('symbol not found');
     }
 
     const ticker = this._indices.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : params.market;
+    const market = symbol ? ticker.market : options.market;
 
-    const data = (market === Market.OTC)
-      ? await TpexScraper.fetchIndicesHistorical({ date })
-      : await TwseScraper.fetchIndicesHistorical({ date });
-
-    return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
+    return (market === Market.OTC)
+      ? await this._scraper.getTpexScraper().fetchIndicesHistorical({ date, symbol })
+      : await this._scraper.getTwseScraper().fetchIndicesHistorical({ date, symbol });
   }
 
-  private async getIndicesTrades(params: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
-    const { date, symbol } = params;
+  private async getIndicesTrades(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+    const { date, symbol } = options;
 
     if (symbol && !this._indices.has(symbol)) {
-      await this.loadIndices();
-    }
-    if (symbol && !this._indices.has(symbol)) {
-      throw new Error('symbol not found');
+      const indices = await this.loadIndices();
+      if (!map(indices, 'symbol').includes(symbol)) throw new Error('symbol not found');
     }
 
     const ticker = this._indices.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : params.market;
+    const market = symbol ? ticker.market : options.market;
 
-    const data = (market === Market.OTC)
-      ? await TpexScraper.fetchIndicesTrades({ date })
-      : await TwseScraper.fetchIndicesTrades({ date });
-
-    return data && symbol ? data.find((row: any) => row.symbol === symbol) : data;
+    return (market === Market.OTC)
+      ? await this._scraper.getTpexScraper().fetchIndicesTrades({ date, symbol })
+      : await this._scraper.getTwseScraper().fetchIndicesTrades({ date, symbol });
   }
 
 
-  private async getMarketTrades(params: { date: string, market?: 'TSE' | 'OTC' }) {
-    const { date, market } = params;
+  private async getMarketTrades(options: { date: string, market?: 'TSE' | 'OTC' }) {
+    const { date, market } = options;
 
-    const data = (market === Market.OTC)
-      ? await TpexScraper.fetchMarketTrades({ date })
-      : await TwseScraper.fetchMarketTrades({ date });
-
-    return data;
+    return (market === Market.OTC)
+      ? await this._scraper.getTpexScraper().fetchMarketTrades({ date })
+      : await this._scraper.getTwseScraper().fetchMarketTrades({ date });
   }
 
-  private async getMarketBreadth(params: { date: string, market?: 'TSE' | 'OTC' }) {
-    const { date, market } = params;
+  private async getMarketBreadth(options: { date: string, market?: 'TSE' | 'OTC' }) {
+    const { date, market } = options;
 
-    const data = (market === Market.OTC)
-      ? await TpexScraper.fetchMarketBreadth({ date })
-      : await TwseScraper.fetchMarketBreadth({ date });
-
-    return data;
+    return (market === Market.OTC)
+      ? await this._scraper.getTpexScraper().fetchMarketBreadth({ date })
+      : await this._scraper.getTwseScraper().fetchMarketBreadth({ date });
   }
 
-  private async getMarketInstTrades(params: { date: string, market?: 'TSE' | 'OTC' }) {
-    const { date, market } = params;
+  private async getMarketInstTrades(options: { date: string, market?: 'TSE' | 'OTC' }) {
+    const { date, market } = options;
 
-    const data = (market === Market.OTC)
-      ? await TpexScraper.fetchMarketInstTrades({ date })
-      : await TwseScraper.fetchMarketInstTrades({ date });
-
-    return data;
+    return (market === Market.OTC)
+      ? await this._scraper.getTpexScraper().fetchMarketInstInvestorsTrades({ date })
+      : await this._scraper.getTwseScraper().fetchMarketInstInvestorsTrades({ date });
   }
 
-  private async getMarketMarginTrades(params: { date: string, market?: 'TSE' | 'OTC' }) {
-    const { date, market } = params;
+  private async getMarketMarginTrades(options: { date: string, market?: 'TSE' | 'OTC' }) {
+    const { date, market } = options;
 
-    const data = (market === Market.OTC)
-      ? await TpexScraper.fetchMarketMarginTrades({ date })
-      : await TwseScraper.fetchMarketMarginTrades({ date });
-
-    return data;
+    return (market === Market.OTC)
+      ? await this._scraper.getTpexScraper().fetchMarketMarginTrades({ date })
+      : await this._scraper.getTwseScraper().fetchMarketMarginTrades({ date });
   }
 
-  private async getFutOptTxfInstTrades(params: { date: string }) {
-    const { date } = params;
-    return TaifexScraper.fetchTxfInstTrades({ date });
+  private async getFutOptTxfInstTrades(options: { date: string }) {
+    const { date } = options;
+    return this._scraper.getTaifexScraper().fetchTxfInstTrades({ date });
   }
 
-  private async getFutOptTxoInstTrades(params: { date: string }) {
-    const { date } = params;
-    return TaifexScraper.fetchTxoInstTrades({ date });
+  private async getFutOptTxoInstTrades(options: { date: string }) {
+    const { date } = options;
+    return this._scraper.getTaifexScraper().fetchTxoInstTrades({ date });
   }
 
-  private async getFutOptTxoPutCallRatio(params: { date: string }) {
-    const { date } = params;
-    return TaifexScraper.fetchTxoPutCallRatio({ date });
+  private async getFutOptTxoPutCallRatio(options: { date: string }) {
+    const { date } = options;
+    return this._scraper.getTaifexScraper().fetchTxoPutCallRatio({ date });
   }
 
-  private async getFutOptMxfRetailPosition(params: { date: string }) {
-    const { date } = params;
-    return TaifexScraper.fetchMxfRetailPosition({ date });
+  private async getFutOptMxfRetailPosition(options: { date: string }) {
+    const { date } = options;
+    return this._scraper.getTaifexScraper().fetchMxfRetailPosition({ date });
   }
 
-  private async getFutOptTxfLargeTradersPosition(params: { date: string }) {
-    const { date } = params;
-    return TaifexScraper.fetchTxfLargeTradersPosition({ date });
+  private async getFutOptTxfLargeTradersPosition(options: { date: string }) {
+    const { date } = options;
+    return this._scraper.getTaifexScraper().fetchTxfLargeTradersPosition({ date });
   }
 
-  private async getFutOptTxoLargeTradersPosition(params: { date: string }) {
-    const { date } = params;
-    return TaifexScraper.fetchTxoLargeTradersPosition({ date });
+  private async getFutOptTxoLargeTradersPosition(options: { date: string }) {
+    const { date } = options;
+    return this._scraper.getTaifexScraper().fetchTxoLargeTradersPosition({ date });
   }
 
-  private async getFutOptExchangeRates(params: { date: string }) {
-    const { date } = params;
-    return TaifexScraper.fetchExchangeRates({ date });
+  private async getFutOptExchangeRates(options: { date: string }) {
+    const { date } = options;
+    return this._scraper.getTaifexScraper().fetchExchangeRates({ date });
   }
 }

@@ -16,19 +16,18 @@ describe('TdccScraper', () => {
 
   describe('.fetchStocksHolders()', () => {
     it('should fetch stocks holders', async () => {
-      const getPage = fs.readFileSync('./test/fixtures/tdcc-stocks-holders-get.html');
       mockAxios.get.mockResolvedValueOnce({
-        data: getPage,
+        data: fs.readFileSync('./test/fixtures/tdcc-stocks-holders-get.html'),
         headers: { 'set-cookie': 'foobar' }
       });
-      const postPage = fs.readFileSync('./test/fixtures/tdcc-stocks-holders-post.html');
       mockAxios.post.mockResolvedValueOnce({
-        data: postPage,
+        data: fs.readFileSync('./test/fixtures/tdcc-stocks-holders-post.html'),
         headers: { 'set-cookie': 'foobar' }
       });
 
       const url = 'https://www.tdcc.com.tw/portal/zh/smWeb/qryStock';
-      const $ = cheerio.load(getPage);
+      const html = fs.readFileSync('./test/fixtures/tdcc-stocks-holders-get.html');
+      const $ = cheerio.load(html);
       const form = new URLSearchParams({
         SYNCHRONIZER_TOKEN: $('#SYNCHRONIZER_TOKEN').attr('value') as string,
         SYNCHRONIZER_URI: $('#SYNCHRONIZER_URI').attr('value') as string,
@@ -39,12 +38,11 @@ describe('TdccScraper', () => {
         stockNo: '2330',
         stockName: '',
       });
-
-      const stock = await scraper.fetchStocksHolders({ date: '2022-12-30', symbol: '2330' });
+      const data = await scraper.fetchStocksHolders({ date: '2022-12-30', symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(url);
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { headers: { 'Cookie': 'foobar' } });
-      expect(stock).toBeDefined();
-      expect(stock).toEqual({
+      expect(data).toBeDefined();
+      expect(data).toEqual({
         date: '2022-12-30',
         symbol: '2330',
         name: '台積電',
@@ -150,19 +148,18 @@ describe('TdccScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      const getPage = fs.readFileSync('./test/fixtures/tdcc-stocks-holders-get.html');
       mockAxios.get.mockResolvedValueOnce({
-        data: getPage,
+        data: fs.readFileSync('./test/fixtures/tdcc-stocks-holders-get.html'),
         headers: { 'set-cookie': 'foobar' }
       });
-      const postPage = fs.readFileSync('./test/fixtures/tdcc-stocks-holders-post-no-data.html');
       mockAxios.post.mockResolvedValueOnce({
-        data: postPage,
+        data: fs.readFileSync('./test/fixtures/tdcc-stocks-holders-post-no-data.html'),
         headers: { 'set-cookie': 'foobar' }
       });
 
       const url = 'https://www.tdcc.com.tw/portal/zh/smWeb/qryStock';
-      const $ = cheerio.load(getPage);
+      const html = fs.readFileSync('./test/fixtures/tdcc-stocks-holders-get.html');
+      const $ = cheerio.load(html);
       const form = new URLSearchParams({
         SYNCHRONIZER_TOKEN: $('#SYNCHRONIZER_TOKEN').attr('value') as string,
         SYNCHRONIZER_URI: $('#SYNCHRONIZER_URI').attr('value') as string,
@@ -173,11 +170,10 @@ describe('TdccScraper', () => {
         stockNo: '2330',
         stockName: '',
       });
-
-      const stock = await scraper.fetchStocksHolders({ date: '2023-01-01', symbol: '2330' });
+      const data = await scraper.fetchStocksHolders({ date: '2023-01-01', symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(url);
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { headers: { 'Cookie': 'foobar' } });
-      expect(stock).toBe(null);
+      expect(data).toBe(null);
     });
   });
 });

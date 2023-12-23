@@ -5,9 +5,9 @@ import * as numeral from 'numeral';
 import { Scraper } from './scraper';
 
 export class MopsScraper extends Scraper {
-  async fetchStocksEps(options: { market: 'TSE' | 'OTC', year: number, quarter: number }) {
-    const { market, year, quarter } = options;
-    const type = { 'TSE': 'sii', 'OTC': 'otc' };
+  async fetchStocksEps(options: { market: string, year: number, quarter: number, symbol?: string }) {
+    const { market, year, quarter, symbol } = options;
+    const type: Record<string, string> = { 'TSE': 'sii', 'OTC': 'otc' };
     const form = new URLSearchParams({
       encodeURIComponent: '1',
       step: '1',
@@ -19,7 +19,10 @@ export class MopsScraper extends Scraper {
       season: numeral(quarter).format('00'),
     });
     const url = 'https://mops.twse.com.tw/mops/web/t163sb04';
+
     const response = await this.httpService.post(url, form);
+    if (response.data.includes('查詢無資料!')) return null;
+
     const $ = cheerio.load(response.data);
 
     const data = $('.even,.odd').map((_, el) => {
@@ -28,18 +31,21 @@ export class MopsScraper extends Scraper {
       const name = td.eq(1).text().trim();
       const eps = numeral(td.eq(td.length - 1).text().trim()).value();
       return { symbol, name, eps, year, quarter };
-    }).toArray();
+    }).toArray() as Record<string, any>[];
 
-    return _.sortBy(data, 'symbol');
+    return symbol ? data.find(data => data.symbol === symbol) : _.sortBy(data, 'symbol');
   }
 
-  async fetchStocksRevenue(options: { market: 'TSE' | 'OTC', year: number, month: number, foreign?: boolean }) {
-    const { market, year, month, foreign = false } = options;
-    const type = { 'TSE': 'sii', 'OTC': 'otc' };
+  async fetchStocksRevenue(options: { market: string, year: number, month: number, foreign?: boolean, symbol?: string }) {
+    const { market, year, month, foreign = false, symbol } = options;
+    const type: Record<string, string> = { 'TSE': 'sii', 'OTC': 'otc' };
     const suffix = `${numeral(year).subtract(1911).value()}_${month}_${+foreign}`;
     const url = `https://mops.twse.com.tw/nas/t21/${type[market]}/t21sc03_${suffix}.html`;
+
     const response = await this.httpService.get(url, { responseType: 'arraybuffer' });
     const page = iconv.decode(response.data, 'big5');
+    if (page.toString().includes('查無資料')) return null;
+
     const $ = cheerio.load(page);
 
     const data = $('tr [align=right]')
@@ -55,9 +61,9 @@ export class MopsScraper extends Scraper {
         const revenue = numeral(td.eq(2).text().trim()).value();
         return { symbol, name, revenue, year, month };
       })
-      .toArray();
+      .toArray() as Record<string, any>[];
 
-    return _.sortBy(data, 'symbol');
+    return symbol ? data.find(data => data.symbol === symbol) : _.sortBy(data, 'symbol');
   }
 }
 

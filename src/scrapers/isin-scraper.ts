@@ -13,7 +13,7 @@ export class IsinScraper extends Scraper {
     const page = iconv.decode(response.data, 'big5');
     const $ = cheerio.load(page);
 
-    return $('.h4 tr').slice(1).map((_, el) => {
+    const data = $('.h4 tr').slice(1).map((_, el) => {
       const td = $(el).find('td');
       return {
         symbol: td.eq(2).text().trim(),
@@ -21,9 +21,11 @@ export class IsinScraper extends Scraper {
         exchange: asExchange(td.eq(4).text().trim()),
         market: asMarket(td.eq(4).text().trim()),
         industry: asIndustry(td.eq(6).text().trim()),
-        listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate() as string,
-      };
+        listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate(),
+      } as Record<string, any>;
     }).toArray();
+
+    return data;
   }
 
   async fetchListedStocks(options: { market: 'TSE' | 'OTC' }) {
@@ -36,7 +38,7 @@ export class IsinScraper extends Scraper {
     const page = iconv.decode(response.data, 'big5');
     const $ = cheerio.load(page);
 
-    return $('.h4 tr').slice(1).map((_, el) => {
+    const data = $('.h4 tr').slice(1).map((_, el) => {
       const td = $(el).find('td');
       return {
         symbol: td.eq(2).text().trim(),
@@ -44,8 +46,10 @@ export class IsinScraper extends Scraper {
         exchange: asExchange(td.eq(4).text().trim()),
         market: asMarket(td.eq(4).text().trim()),
         industry: asIndustry(td.eq(6).text().trim()),
-        listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate() as string,
-      };
+        listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate(),
+      } as Record<string, any>;
     }).toArray();
+
+    return data;
   }
 }
