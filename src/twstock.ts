@@ -48,6 +48,7 @@ export class TwStock {
       mxfRetailPosition: this.getFutOptMxfRetailPosition.bind(this),
       txfLargeTradersPosition: this.getFutOptTxfLargeTradersPosition.bind(this),
       txoLargeTradersPosition: this.getFutOptTxoLargeTradersPosition.bind(this),
+      exchangeRates: this.getFutOptExchangeRates.bind(this),
     };
   }
 
@@ -368,5 +369,10 @@ export class TwStock {
   private async getFutOptTxoLargeTradersPosition(params: { date: string }) {
     const { date } = params;
     return TaifexScraper.fetchTxoLargeTradersPosition({ date });
+  }
+
+  private async getFutOptExchangeRates(params: { date: string }) {
+    const { date } = params;
+    return TaifexScraper.fetchExchangeRates({ date });
   }
 }

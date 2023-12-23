@@ -35,6 +35,7 @@
   * [futopt.mxfRetailPosition(params)](#futoptmxfretailpositionparams)
   * [futopt.txfLargeTradersPosition(params)](#futopttxflargetraderspositionparams)
   * [futopt.txoLargeTradersPosition(params)](#futopttxolargetraderspositionparams)
+  * [futopt.exchangeRates(params)](#futoptexchangeratesparams)
 * [Changelog](#changelog)
 * [License](#license)
 
@@ -1514,6 +1515,44 @@ twstock.futopt.txoLargeTradersPosition({ date: '2023-01-30' })
 //       marketOi: 11010
 //     }
 //   }
+// }
+```
+
+### `futopt.exchangeRates(params)`
+
+取得特定日期的外幣參考匯率
+
+* `params`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `usdtwd`: {number} 美元／新台幣
+  * `cnytwd`: {number} 人民幣／新台幣
+  * `eurusd`: {number} 歐元／美元
+  * `usdjpy`: {number} 美元／日幣
+  * `gbpusd`: {number} 英鎊／美元
+  * `audusd`: {number} 澳幣／美元
+  * `usdhkd`: {number} 美元／港幣
+  * `usdcny`: {number} 美元／人民幣
+  * `usdzar`: {number} 美元／南非幣
+  * `nzdusd`: {number} 紐幣／美元
+  
+```js
+twstock.futopt.exchangeRates({ date: '2023-01-30' })
+  .then(data => console.log(data));
+// Prints:
+// {
+//   date: '2023-01-30',
+//   usdtwd: 30.137,
+//   cnytwd: 4.464224,
+//   eurusd: 1.08835,
+//   usdjpy: 129.925,
+//   gbpusd: 1.23865,
+//   audusd: 0.70825,
+//   usdhkd: 7.83585,
+//   usdcny: 6.7508,
+//   usdzar: 17.2262,
+//   nzdusd: 0.64805
 // }
 ```
 

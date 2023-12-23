@@ -592,4 +592,47 @@ describe('TaifexScraper', () => {
       expect(txo).toBe(null);
     });
   });
+
+  describe('.fetchExchangeRates()', () => {
+    it('should fetch exchange rates for the given date', async () => {
+      const data = fs.readFileSync('./test/fixtures/exchange-rates.csv');
+      mockAxios.post.mockResolvedValueOnce({ data });
+
+      const exchangeRates = await scraper.fetchExchangeRates({ date: '2023-01-30' });
+      const url = 'https://www.taifex.com.tw/cht/3/dailyFXRateDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2023/01/30',
+        queryEndDate: '2023/01/30',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(exchangeRates).toBeDefined();
+      expect(exchangeRates).toEqual({
+        date: '2023-01-30',
+        usdtwd: 30.137,
+        cnytwd: 4.464224,
+        eurusd: 1.08835,
+        usdjpy: 129.925,
+        gbpusd: 1.23865,
+        audusd: 0.70825,
+        usdhkd: 7.83585,
+        usdcny: 6.7508,
+        usdzar: 17.2262,
+        nzdusd: 0.64805,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      const data = fs.readFileSync('./test/fixtures/exchange-rates-no-data.csv');
+      mockAxios.post.mockResolvedValueOnce({ data });
+
+      const txo = await scraper.fetchExchangeRates({ date: '2023-01-01' });
+      const url = 'https://www.taifex.com.tw/cht/3/dailyFXRateDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2023/01/01',
+        queryEndDate: '2023/01/01',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(txo).toBe(null);
+    });
+  });
 });

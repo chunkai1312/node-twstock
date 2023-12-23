@@ -486,4 +486,35 @@ export class TaifexScraper extends Scraper {
     data.puts.backMonths.marketOi = data.puts.allMonths.marketOi - data.puts.frontMonth.marketOi;
     return data;
   }
+
+  async fetchExchangeRates(options: { date: string }) {
+    const date = options.date;
+    const queryDate = DateTime.fromISO(date).toFormat('yyyy/MM/dd');
+    const form = new URLSearchParams({
+      queryStartDate: queryDate,
+      queryEndDate: queryDate,
+    });
+    const url = 'https://www.taifex.com.tw/cht/3/dailyFXRateDown';
+
+    const response = await this.httpService.post(url, form, { responseType: 'arraybuffer' });
+    const csv = iconv.decode(response.data, 'big5');
+    const json = await csvtojson({ noheader: true, output: 'csv' }).fromString(csv);
+
+    const [_, row] = json;
+    if (!row.length) return null;
+
+    const data: Record<string, any> = {};
+    data.date = DateTime.fromFormat(row[0], 'yyyy/MM/dd').toISODate();
+    data.usdtwd = numeral(row[1]).value();
+    data.cnytwd = numeral(row[2]).value();
+    data.eurusd = numeral(row[3]).value();
+    data.usdjpy = numeral(row[4]).value();
+    data.gbpusd = numeral(row[5]).value();
+    data.audusd = numeral(row[6]).value();
+    data.usdhkd = numeral(row[7]).value();
+    data.usdcny = numeral(row[8]).value();
+    data.usdzar = numeral(row[9]).value();
+    data.nzdusd = numeral(row[10]).value();
+    return data
+  }
 }

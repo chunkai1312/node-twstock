@@ -185,6 +185,12 @@ jest.mock('../src/scrapers', () => ({
       }
       return null;
     }),
+    fetchExchangeRates: jest.fn(({ date }) => {
+      if (date === '2023-01-30') {
+        return require('./fixtures/fetched-exchange-rates.json');
+      }
+      return null;
+    }),
   },
 }));
 
@@ -650,6 +656,18 @@ describe('TwStock', () => {
       it('should return null when no data is available', async () => {
         const txo = await twstock.futopt.txoLargeTradersPosition({ date: '2023-01-01' });
         expect(txo).toBe(null);
+      });
+    });
+
+    describe('.exchangeRates()', () => {
+      it('should fetch exchange rates', async () => {
+        const exchangeRates = await twstock.futopt.exchangeRates({ date: '2023-01-30' });
+        expect(exchangeRates).toBeDefined();
+      });
+
+      it('should return null when no data is available', async () => {
+        const exchangeRates = await twstock.futopt.exchangeRates({ date: '2023-01-01' });
+        expect(exchangeRates).toBe(null);
       });
     });
   });
