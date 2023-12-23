@@ -1,5 +1,13 @@
 # Changelog
 
+# [0.11.0](https://github.com/chunkai1312/node-twstock/compare/v0.10.0...v0.11.0) (2023-12-23)
+
+
+### Features
+
+* support for fetching TXF large traders' position ([672024f](https://github.com/chunkai1312/node-twstock/commit/672024f8ddc1735a0b6714a346bc0bae4fb2a34c))
+* support for fetching TXO large traders' position ([6d73544](https://github.com/chunkai1312/node-twstock/commit/6d7354483e4e7df1ce1ce0d8d1322091a3850df5))
+
 # [0.10.0](https://github.com/chunkai1312/node-twstock/compare/v0.9.0...v0.10.0) (2023-12-21)
 
 
