@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.12.0](https://github.com/chunkai1312/node-twstock/compare/v0.11.0...v0.12.0) (2023-12-24)
+
+
+### Features
+
+* support for fetching exchange rates ([e6f6fa8](https://github.com/chunkai1312/node-twstock/commit/e6f6fa8b3bc263f36e8d855e671e0b0d93e048b4))
+
 # [0.11.0](https://github.com/chunkai1312/node-twstock/compare/v0.10.0...v0.11.0) (2023-12-23)
 
 
