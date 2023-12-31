@@ -165,7 +165,7 @@ describe('TwseScraper', () => {
   });
 
   describe('.fetchStocksMarginTrades()', () => {
-    it('should fetch stocks maigin trades for the given date', async () => {
+    it('should fetch stocks margin trades for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-margin-trades.json') });
 
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30' });
@@ -176,7 +176,7 @@ describe('TwseScraper', () => {
       expect(data?.length).toBeGreaterThan(0);
     });
 
-    it('should fetch stocks maigin trades for the specified stock on the given date', async () => {
+    it('should fetch stocks margin trades for the specified stock on the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-margin-trades.json') });
 
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30', symbol: '2330' });
@@ -211,6 +211,57 @@ describe('TwseScraper', () => {
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20230101&selectType=ALL&response=json',
+      );
+      expect(data).toBe(null);
+    });
+  });
+
+  describe('.fetchStocksShortSales()', () => {
+    it('should fetch stocks short sales for the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-short-sales.json') });
+
+      const data = await scraper.fetchStocksShortSales({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/marginTrading/TWT93U?date=20230130&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data?.length).toBeGreaterThan(0);
+    });
+
+    it('should fetch stocks short sales for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-short-sales.json') });
+
+      const data = await scraper.fetchStocksShortSales({ date: '2023-01-30', symbol: '2330' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/marginTrading/TWT93U?date=20230130&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual({
+        date: '2023-01-30',
+        symbol: '2330',
+        name: '台積電',
+        marginShortBalancePrev: 1506000,
+        marginShortSell: 284000,
+        marginShortBuy: 56000,
+        marginShortRedeem: 101000,
+        marginShortBalance: 1633000,
+        marginShortQuota: 6482595114,
+        sblShortBalancePrev: 30846988,
+        sblShortSale: 286000,
+        sblShortReturn: 742000,
+        sblShortAdjustment: 0,
+        sblShortBalance: 30390988,
+        sblShortQuota: 3399967,
+        note: '',
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-short-sales-no-data.json') });
+
+      const data = await scraper.fetchStocksShortSales({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/marginTrading/TWT93U?date=20230101&response=json',
       );
       expect(data).toBe(null);
     });
