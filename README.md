@@ -4,39 +4,41 @@
 [![Build Status][action-image]][action-url]
 [![Coverage Status][codecov-image]][codecov-url]
 
-> A client library for scraping Taiwan stock market data, provided by [Taiwan Stock Exchange](https://www.twse.com.tw) and [Taipei Exchange](https://www.tpex.org.tw).
+> A client library for scraping Taiwan stock market data
 
 ## Table of Contents
 
 * [Installation](#installation)
 * [Usage](#usage)
 * [API](#api)
-  * [stocks.list(options)](#stockslistoptions)
-  * [stocks.quote(options)](#stocksquoteoptions)
-  * [stocks.historical(options)](#stockshistoricaloptions)
-  * [stocks.instTrades(options)](#stocksinsttradesoptions)
-  * [stocks.finiHoldings(options)](#stocksfiniholdingsoptions)
-  * [stocks.marginTrades(options)](#stocksmargintradesoptions)
-  * [stocks.shortSales(options)](#stocksshortsalesoptions)
-  * [stocks.values(options)](#stocksvaluesoptions)
-  * [stocks.holders(options)](#stocksholdersoptions)
-  * [stocks.eps(options)](#stocksepsoptions)
-  * [stocks.revenue(options)](#stocksrevenueoptions)
-  * [indices.list(options)](#indiceslistoptions)
-  * [indices.quote(options)](#indicesquoteoptions)
-  * [indices.historical(options)](#indiceshistoricaloptions)
-  * [indices.trades(options)](#indicestradesoptions)
-  * [market.trades(options)](#markettradesoptions)
-  * [market.breadth(options)](#marketbreadthoptions)
-  * [market.instTrades(options)](#marketinsttradesoptions)
-  * [market.marginTrades(options)](#marketmargintradesoptions)
-  * [futopt.txfInstTrades(options)](#futopttxfinsttradesoptions)
-  * [futopt.txoInstTrades(options)](#futopttxoinsttradesoptions)
-  * [futopt.txoPutCallRatio(options)](#futopttxoputcallratiooptions)
-  * [futopt.mxfRetailPosition(options)](#futoptmxfretailpositionoptions)
-  * [futopt.txfLargeTradersPosition(options)](#futopttxflargetraderspositionoptions)
-  * [futopt.txoLargeTradersPosition(options)](#futopttxolargetraderspositionoptions)
-  * [futopt.exchangeRates(options)](#futoptexchangeratesoptions)
+  * [new TwStock([options])](#new-twstockoptions)
+  * [.stocks.list([options])](#stockslistoptions)
+  * [.stocks.quote(options)](#stocksquoteoptions)
+  * [.stocks.historical(options)](#stockshistoricaloptions)
+  * [.stocks.instTrades(options)](#stocksinsttradesoptions)
+  * [.stocks.finiHoldings(options)](#stocksfiniholdingsoptions)
+  * [.stocks.marginTrades(options)](#stocksmargintradesoptions)
+  * [.stocks.shortSales(options)](#stocksshortsalesoptions)
+  * [.stocks.values(options)](#stocksvaluesoptions)
+  * [.stocks.holders(options)](#stocksholdersoptions)
+  * [.stocks.eps(options)](#stocksepsoptions)
+  * [.stocks.revenue(options)](#stocksrevenueoptions)
+  * [.indices.list([options])](#indiceslistoptions)
+  * [.indices.quote(options)](#indicesquoteoptions)
+  * [.indices.historical(options)](#indiceshistoricaloptions)
+  * [.indices.trades(options)](#indicestradesoptions)
+  * [.market.trades(options)](#markettradesoptions)
+  * [.market.breadth(options)](#marketbreadthoptions)
+  * [.market.instTrades(options)](#marketinsttradesoptions)
+  * [.market.marginTrades(options)](#marketmargintradesoptions)
+  * [.futopt.txfInstTrades(options)](#futopttxfinsttradesoptions)
+  * [.futopt.txoInstTrades(options)](#futopttxoinsttradesoptions)
+  * [.futopt.txoPutCallRatio(options)](#futopttxoputcallratiooptions)
+  * [.futopt.mxfRetailPosition(options)](#futoptmxfretailpositionoptions)
+  * [.futopt.txfLargeTradersPosition(options)](#futopttxflargetraderspositionoptions)
+  * [.futopt.txoLargeTradersPosition(options)](#futopttxolargetraderspositionoptions)
+  * [.futopt.exchangeRates(options)](#futoptexchangeratesoptions)
+* [Data Sources](#data-sources)
 * [Changelog](#changelog)
 * [License](#license)
 
@@ -50,34 +52,34 @@ $ npm install --save node-twstock
 
 ```js
 const { TwStock } = require('node-twstock');
-
-const twstock = new TwStock();
-
-// To retrieve stocks data
-const stocks = twstock.stocks;
-
-// To retrieve indices data
-const indices = twstock.indices;
-
-// To retrieve market data
-const market = twstock.market;
-
-// To retrieve futopt data
-const futopt = twstock.futopt;
 ```
 
 ## API
 
-### `stocks.list(options)`
+### `new TwStock([options])`
 
-取得上市櫃股票列表
+建立 `TwStock` 實例，用於取得台灣股票市場資料。
+
+* `options`: {Object} 可配置選項，用於設定速率限制 (Rate Limiting)
+  - `ttl`: 每個請求持續的毫秒數。**Default:** `5000`
+  - `limit`: 在 TTL 限制內的最大請求數。**Default:** `3`
+
+> 請注意，過於頻繁的請求可能導致被交易所禁止訪問。預設設定為每 5 秒最多發送 3 個請求。
+
+```js
+const twstock = new TwStock({ ttl: 5000, limit: 3  });
+```
+
+### `.stocks.list([options])`
+
+取得上市櫃股票列表。
 
 * `options`: {Object}
   * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
-  * `exchange`: {string} 股票名稱
+  * `exchange`: {string} 交易所
   * `market`: {string} 市場別
   * `industry`: {string} 產業別
   * `listedDate`: {string} 上市日期
@@ -99,9 +101,9 @@ twstock.stocks.list({ market: 'TSE' })
 // ]
 ```
 
-### `stocks.quote(options)`
+### `.stocks.quote(options)`
 
-取得股票即時行情
+取得股票即時行情。
 
 * `options`: {Object}
   * `symbol`: {string} 股票代號
@@ -150,9 +152,9 @@ twstock.stocks.quote({ symbol: '2330' })
 // }
 ```
 
-### `stocks.historical(options)`
+### `.stocks.historical(options)`
 
-取得股票在特定日期的收盤行情
+取得股票在特定日期的收盤行情。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -190,9 +192,9 @@ twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' })
 // }
 ```
 
-### `stocks.instTrades(options)`
+### `.stocks.instTrades(options)`
 
-取得股票在特定日期的三大法人買賣超
+取得股票在特定日期的三大法人買賣超。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -262,9 +264,9 @@ twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' })
 // }
 ```
 
-### `stocks.finiHoldings(options)`
+### `.stocks.finiHoldings(options)`
 
-取得股票在特定日期的外資持股比例
+取得股票在特定日期的外資持股比例。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -298,9 +300,9 @@ twstock.stocks.finiHoldings({ date: '2023-01-30', symbol: '2330' })
 // }
 ```
 
-### `stocks.marginTrades(options)`
+### `.stocks.marginTrades(options)`
 
-取得股票在特定日期的融資融券餘額
+取得股票在特定日期的融資融券餘額。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -350,9 +352,9 @@ twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' })
 // }
 ```
 
-### `stocks.shortSales(options)`
+### `.stocks.shortSales(options)`
 
-取得股票在特定日期的融券借券賣出餘額
+取得股票在特定日期的融券借券賣出餘額。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -400,9 +402,9 @@ twstock.stocks.shortSales({ date: '2023-01-30', symbol: '2330' })
 // }
 ```
 
-### `stocks.values(options)`
+### `.stocks.values(options)`
 
-取得股票在特定日期的本益比、殖利率及股價淨值比
+取得股票在特定日期的本益比、殖利率及股價淨值比。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -432,9 +434,9 @@ twstock.stocks.values({ date: '2023-01-30', symbol: '2330' })
 // }
 ```
 
-### `stocks.holders(options)`
+### `.stocks.holders(options)`
 
-取得股票在特定日期的集保分佈
+取得股票在特定日期的集保分佈。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -469,9 +471,9 @@ twstock.stocks.holders({ date: '2023-12-29', symbol: '2330' })
 // }
 ```
 
-### `stocks.eps(options)`
+### `.stocks.eps(options)`
 
-取得上市櫃股票在特定年度季度每股盈餘
+取得上市櫃股票在特定年度季度每股盈餘。
 
 * `options`: {Object}
   * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
@@ -498,9 +500,9 @@ twstock.stocks.eps({ symbol: '2330', year: 2023, quarter: 1 })
 // }
 ```
 
-### `stocks.revenue(options)`
+### `.stocks.revenue(options)`
 
-取得上市櫃股票在特定年度月份營業收入
+取得上市櫃股票在特定年度月份營業收入。
 
 * `options`: {Object}
   * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
@@ -528,18 +530,17 @@ twstock.stocks.revenue({ symbol: '2330', year: 2023, month: 1 })
 // }
 ```
 
-### `indices.list(options)`
+### `.indices.list([options])`
 
-取得指數列表
+取得上市櫃指數列表。
 
 * `options`: {Object}
-  * `market`: {string} 按市場別篩選指數 (`'TSE'` 或 `'OTC'`)
+  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
   * `symbol`: {string} 指數代號
   * `name`: {string} 指數名稱
   * `exchange`: {string} 交易所
   * `market`: {string} 市場別
-  * `alias`: {string} 代號別稱
 
 ```js
 twstock.indices.list({ market: 'TSE' })
@@ -557,9 +558,9 @@ twstock.indices.list({ market: 'TSE' })
 // ]
 ```
 
-### `indices.quote(options)`
+### `.indices.quote(options)`
 
-取得指數即時行情
+取得指數即時行情。
 
 * `options`: {Object}
   * `symbol`: {string} 指數代號
@@ -592,9 +593,9 @@ twstock.indices.quote({ symbol: 'IX0001' })
 // }
 ```
 
-### `indices.historical(options)`
+### `.indices.historical(options)`
 
-取得指數在特定日期的收盤行情
+取得指數在特定日期的收盤行情。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -626,9 +627,9 @@ twstock.indices.historical({ date: '2023-01-30', symbol: 'IX0001' })
 // }
 ```
 
-### `indices.trades(options)`
+### `.indices.trades(options)`
 
-取得指數在特定日期的成交量值
+取得指數在特定日期的成交量值。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -656,9 +657,9 @@ twstock.indices.trades({ date: '2023-01-30', symbol: 'IX0028' })
 // }
 ```
 
-### `market.trades(options)`
+### `.market.trades(options)`
 
-取得股票市場在特定日期的成交量值
+取得股票市場在特定日期的成交量值。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -685,9 +686,9 @@ twstock.market.trades({ date: '2023-01-30', market: 'TSE' })
 // }
 ```
 
-### `market.breadth(options)`
+### `.market.breadth(options)`
 
-取得股票市場在特定日期的上漲與下跌家數
+取得股票市場在特定日期的上漲與下跌家數。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -718,9 +719,9 @@ twstock.market.breadth({ date: '2023-01-30', market: 'TSE' })
 // }
 ```
 
-### `market.instTrades(options)`
+### `.market.instTrades(options)`
 
-取得股票市場在特定日期的三大法人買賣超
+取得股票市場在特定日期的三大法人買賣超。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -785,9 +786,9 @@ twstock.market.instTrades({ date: '2023-01-30', market: 'TSE' })
 // }
 ```
 
-### `market.marginTrades(options)`
+### `.market.marginTrades(options)`
 
-取得股票市場在特定日期的信用交易統計
+取得股票市場在特定日期的信用交易統計。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -834,9 +835,9 @@ twstock.market.marginTrades({ date: '2023-01-30', market: 'TSE' })
 // }
 ```
 
-### `futopt.txfInstTrades(options)`
+### `.futopt.txfInstTrades(options)`
 
-取得臺股期貨在特定日期的三大法人交易口數、契約金額與未平倉餘額
+取得臺股期貨在特定日期的三大法人交易口數、契約金額與未平倉餘額。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -928,9 +929,9 @@ twstock.futopt.txfInstTrades({ date: '2023-01-30' })
 // }
 ```
 
-### `futopt.txoInstTrades(options)`
+### `.futopt.txoInstTrades(options)`
 
-取得臺指選擇權在特定日期的三大法人交易口數、契約金額與未平倉餘額
+取得臺指選擇權在特定日期的三大法人交易口數、契約金額與未平倉餘額。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -1099,9 +1100,9 @@ twstock.futopt.txoInstTrades({ date: '2023-01-30' })
 // }
 ```
 
-### `futopt.txoPutCallRatio(options)`
+### `.futopt.txoPutCallRatio(options)`
 
-取得臺指選擇權在特定日期的 Put/Call Ratio
+取得臺指選擇權在特定日期的 Put/Call Ratio。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -1129,7 +1130,7 @@ twstock.futopt.txoPutCallRatio({ date: '2023-01-30' })
 // }
 ```
 
-### `futopt.mxfRetailPosition(options)`
+### `.futopt.mxfRetailPosition(options)`
 
 取得特定日期的散戶小台淨部位及散戶小台多空比
 
@@ -1155,9 +1156,9 @@ twstock.futopt.mxfRetailPosition({ date: '2023-01-30' })
 // }
 ```
 
-### `futopt.txfLargeTradersPosition(options)`
+### `.futopt.txfLargeTradersPosition(options)`
 
-取得臺股期貨在特定日期的大額交易人未沖銷部位
+取得臺股期貨在特定日期的大額交易人未沖銷部位。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -1282,9 +1283,9 @@ twstock.futopt.txfLargeTradersPosition({ date: '2023-01-30' })
 // }
 ```
 
-### `futopt.txoLargeTradersPosition(options)`
+### `.futopt.txoLargeTradersPosition(options)`
 
-取得臺指選擇權在特定日期的大額交易人未沖銷部位
+取得臺指選擇權在特定日期的大額交易人未沖銷部位。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -1526,9 +1527,9 @@ twstock.futopt.txoLargeTradersPosition({ date: '2023-01-30' })
 // }
 ```
 
-### `futopt.exchangeRates(options)`
+### `.futopt.exchangeRates(options)`
 
-取得特定日期的外幣參考匯率
+取得特定日期的外幣參考匯率。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
@@ -1563,6 +1564,15 @@ twstock.futopt.exchangeRates({ date: '2023-01-30' })
 //   nzdusd: 0.64805
 // }
 ```
+
+## Data Sources
+
+* [臺灣證券交易所](https://www.twse.com.tw)
+* [證券櫃檯買賣中心](https://www.tpex.org.tw)
+* [臺灣期貨交易所](https://www.taifex.com.tw)
+* [臺灣集中保管結算所](https://www.tdcc.com.tw)
+* [公開資訊觀測站](https://mops.twse.com.tw)
+* [基本市況報導網站](https://mis.twse.com.tw)
 
 ## Changelog
 
