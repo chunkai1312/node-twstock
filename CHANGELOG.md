@@ -1,5 +1,13 @@
 # Changelog
 
+# [0.13.0](https://github.com/chunkai1312/node-twstock/compare/v0.12.0...v0.13.0) (2023-12-31)
+
+
+### Features
+
+* support for fetching OTC stocks short sales ([5f60d09](https://github.com/chunkai1312/node-twstock/commit/5f60d098cdc4a1afa7b4b93cb67434946b5186e8))
+* support for fetching TSE stocks short sales ([27c6cd1](https://github.com/chunkai1312/node-twstock/commit/27c6cd1963b4b8bdb785cd4e425fc4fcd247439b))
+
 # [0.12.0](https://github.com/chunkai1312/node-twstock/compare/v0.11.0...v0.12.0) (2023-12-24)
 
 
