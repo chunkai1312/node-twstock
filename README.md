@@ -17,6 +17,7 @@
   * [stocks.instTrades(options)](#stocksinsttradesoptions)
   * [stocks.finiHoldings(options)](#stocksfiniholdingsoptions)
   * [stocks.marginTrades(options)](#stocksmargintradesoptions)
+  * [stocks.shortSales(options)](#stocksshortsalesoptions)
   * [stocks.values(options)](#stocksvaluesoptions)
   * [stocks.holders(options)](#stocksholdersoptions)
   * [stocks.eps(options)](#stocksepsoptions)
@@ -60,6 +61,9 @@ const indices = twstock.indices;
 
 // To retrieve market data
 const market = twstock.market;
+
+// To retrieve futopt data
+const futopt = twstock.futopt;
 ```
 
 ## API
@@ -126,23 +130,23 @@ twstock.stocks.quote({ symbol: '2330' })
   .then(data => console.log(data));
 // Prints:
 // {
-//   date: '2023-12-08',
+//   date: '2023-12-29',
 //   symbol: '2330',
 //   name: '台積電',
-//   referencePrice: 566,
-//   limitUpPrice: 622,
-//   limitDownPrice: 510,
-//   openPrice: 574,
-//   highPrice: 577,
-//   lowPrice: 570,
-//   lastPrice: 570,
-//   lastSize: 4395,
-//   totalVoluem: 33424,
-//   bidPrice: [ 570, 569, 568, 567, 566 ],
-//   askPrice: [ 571, 572, 573, 574, 575 ],
-//   bidSize: [ 656, 859, 735, 546, 715 ],
-//   askSize: [ 332, 156, 427, 596, 707 ],
-//   lastUpdated: 1702013400000
+//   referencePrice: 593,
+//   limitUpPrice: 652,
+//   limitDownPrice: 534,
+//   openPrice: 589,
+//   highPrice: 593,
+//   lowPrice: 589,
+//   lastPrice: 593,
+//   lastSize: 4174,
+//   totalVoluem: 18323,
+//   bidPrice: [ 592, 591, 590, 589, 588 ],
+//   askPrice: [ 593, 594, 595, 596, 597 ],
+//   bidSize: [ 827, 768, 1137, 554, 446 ],
+//   askSize: [ 1938, 1465, 2925, 2407, 921 ],
+//   lastUpdated: 1703831400000
 // }
 ```
 
@@ -156,8 +160,6 @@ twstock.stocks.quote({ symbol: '2330' })
   * `symbol` (optional): {string} 股票代號
 * Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
-  * `exchange`: {string} 交易所
-  * `market`: {string} 市場別
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
   * `open`: {number} 開盤價
@@ -175,8 +177,6 @@ twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' })
 // Prints:
 // {
 //   date: '2023-01-30',
-//   exchange: 'TWSE',
-//   market: 'TSE',
 //   symbol: '2330',
 //   name: '台積電',
 //   open: 542,
@@ -200,8 +200,6 @@ twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' })
   * `symbol` (optional): {string} 股票代號
 * Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
-  * `exchange`: {string} 交易所
-  * `market`: {string} 市場別
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
   * `finiWithoutDealersBuy`: {number} 外資及陸資(不含外資自營商)買進金額
@@ -235,8 +233,6 @@ twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' })
 // Prints:
 // {
 //   date: '2023-01-30',
-//   exchange: 'TWSE',
-//   market: 'TSE',
 //   symbol: '2330',
 //   name: '台積電',
 //   finiWithoutDealersBuy: 133236588,
@@ -276,8 +272,6 @@ twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' })
   * `symbol` (optional): {string} 股票代號
 * Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
-  * `exchange`: {string} 交易所
-  * `market`: {string} 市場別
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
   * `issuedShares`: {number} 發行股數
@@ -293,8 +287,6 @@ twstock.stocks.finiHoldings({ date: '2023-01-30', symbol: '2330' })
 // Prints:
 // {
 //   date: '2023-01-30',
-//   exchange: 'TWSE',
-//   market: 'TSE',
 //   symbol: '2330',
 //   name: '台積電',
 //   issuedShares: 25930380458,
@@ -316,8 +308,6 @@ twstock.stocks.finiHoldings({ date: '2023-01-30', symbol: '2330' })
   * `symbol` (optional): {string} 股票代號
 * Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
-  * `exchange`: {string} 交易所
-  * `market`: {string} 市場別
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
   * `marginBuy`: {number} 融資買進
@@ -341,8 +331,6 @@ twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' })
 // Prints:
 // {
 //   date: '2023-01-30',
-//   exchange: 'TWSE',
-//   market: 'TSE',
 //   symbol: '2330',
 //   name: '台積電',
 //   marginBuy: 1209,
@@ -362,6 +350,56 @@ twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' })
 // }
 ```
 
+### `stocks.shortSales(options)`
+
+取得股票在特定日期的融券借券賣出餘額
+
+* `options`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `symbol` (optional): {string} 股票代號
+* Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
+  * `date`: {string} 日期
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `marginShortBalancePrev`: {number} 融券前日餘額
+  * `marginShortSell`: {number} 融券賣出
+  * `marginShortBuy`: {number} 融券買進
+  * `marginShortRedeem`: {number} 現券償還
+  * `marginShortBalance`: {number} 融券當日餘額
+  * `marginShortQuota`: {number} 融資限額
+  * `sblShortBalancePrev`: {number} 借券賣出前日餘額
+  * `sblShortSale`: {number} 借券賣出當日賣出
+  * `sblShortReturn`: {number} 借券賣出當日還券
+  * `sblShortAdjustment`: {number} 借券賣出當日調整
+  * `sblShortBalance`: {number} 借券賣出當日餘額
+  * `sblShortQuota`: {number} 次一營業日可借券賣出限額
+  * `note`: {string} 備註
+
+```js
+twstock.stocks.shortSales({ date: '2023-01-30', symbol: '2330' })
+  .then(data => console.log(data));
+// Prints:
+// {
+//   date: '2023-01-30',
+//   symbol: '2330',
+//   name: '台積電',
+//   marginShortBalancePrev: 1506000,
+//   marginShortSell: 284000,
+//   marginShortBuy: 56000,
+//   marginShortRedeem: 101000,
+//   marginShortBalance: 1633000,
+//   marginShortQuota: 6482595114,
+//   sblShortBalancePrev: 30846988,
+//   sblShortSale: 286000,
+//   sblShortReturn: 742000,
+//   sblShortAdjustment: 0,
+//   sblShortBalance: 30390988,
+//   sblShortQuota: 3399967,
+//   note: ''
+// }
+```
+
 ### `stocks.values(options)`
 
 取得股票在特定日期的本益比、殖利率及股價淨值比
@@ -372,8 +410,6 @@ twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' })
   * `symbol` (optional): {string} 股票代號
 * Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
-  * `exchange`: {string} 交易所
-  * `market`: {string} 市場別
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
   * `peRatio`: {number} 本益比
@@ -387,8 +423,6 @@ twstock.stocks.values({ date: '2023-01-30', symbol: '2330' })
 // Prints:
 // {
   // date: '2023-01-30',
-  // exchange: 'TWSE',
-  // market: 'TSE',
   // symbol: '2330',
   // name: '台積電',
   // peRatio: 15.88,
@@ -416,19 +450,19 @@ twstock.stocks.values({ date: '2023-01-30', symbol: '2330' })
     * `proportion`: {number} 持股比例
 
 ```js
-twstock.stocks.holders({ date: '2022-12-30', symbol: '2330' })
+twstock.stocks.holders({ date: '2023-12-29', symbol: '2330' })
   .then(data => console.log(data));
 // Prints:
 // {
-//   date: '2022-12-30',
+//   date: '2023-12-29',
 //   symbol: '2330',
 //   name: '台積電',
 //   data: [
 //     {
 //       level: '1-999',
-//       holders: 891264,
-//       shares: 166263025,
-//       proportion: 0.64
+//       holders: 731332,
+//       shares: 136341404,
+//       proportion: 0.52
 //     },
 //     ... more items
 //   ]
@@ -440,7 +474,8 @@ twstock.stocks.holders({ date: '2022-12-30', symbol: '2330' })
 取得上市櫃股票在特定年度季度每股盈餘
 
 * `options`: {Object}
-  * `market`: {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `symbol` (optional): {string} 股票代號
   * `year`: {number} 年度
   * `quarter`: {number} 季度
 * Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
@@ -451,19 +486,16 @@ twstock.stocks.holders({ date: '2022-12-30', symbol: '2330' })
   * `quarter`: {number} 季度
 
 ```js
-twstock.stocks.eps({ market: 'TSE', year: 2023, quarter: 1 })
+twstock.stocks.eps({ symbol: '2330', year: 2023, quarter: 1 })
   .then(data => console.log(data));
 // Prints:
-// [
-//   {
-//     symbol: '1101',
-//     name: '台泥',
-//     eps: 0.2,
-//     year: 2023,
-//     quarter: 1
-//   },
-//   ... more items
-// ]
+// {
+//   symbol: '2330',
+//   name: '台積電',
+//   eps: 7.98,
+//   year: 2023,
+//   quarter: 1
+// }
 ```
 
 ### `stocks.revenue(options)`
@@ -471,7 +503,8 @@ twstock.stocks.eps({ market: 'TSE', year: 2023, quarter: 1 })
 取得上市櫃股票在特定年度月份營業收入
 
 * `options`: {Object}
-  * `market`: {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `symbol` (optional): {string} 股票代號
   * `year`: {number} 年度
   * `month`: {number} 月份
   * `foreign` (optional): {boolean} 外國公司股票
@@ -483,19 +516,16 @@ twstock.stocks.eps({ market: 'TSE', year: 2023, quarter: 1 })
   * `month`: {number} 月份
 
 ```js
-twstock.stocks.revenue({ market: 'TSE', year: 2023, month: 1 })
+twstock.stocks.revenue({ symbol: '2330', year: 2023, month: 1 })
   .then(data => console.log(data));
 // Prints:
-// [
-//   {
-//     symbol: '1101',
-//     name: '台泥',
-//     revenue: 7325221,
-//     year: 2023,
-//     month: 1
-//   },
-//   ... more items
-// ]
+// {
+//   symbol: '2330',
+//   name: '台積電',
+//   revenue: 200050544,
+//   year: 2023,
+//   month: 1
+// }
 ```
 
 ### `indices.list(options)`
@@ -532,7 +562,7 @@ twstock.indices.list({ market: 'TSE' })
 取得指數即時行情
 
 * `options`: {Object}
-  * `market`: {string} 按市場別篩選指數 (`'TSE'` 或 `'OTC'`)
+  * `symbol`: {string} 指數代號
 * Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
   * `date`: {string} 日期
   * `symbol`: {string} 指數代號
@@ -549,16 +579,16 @@ twstock.indices.quote({ symbol: 'IX0001' })
   .then(data => console.log(data));
 // Prints:
 // {
-//   date: '2023-12-08',
-//   symbol: 'IX0001',
-//   name: '發行量加權股價指數',
-//   previousClose: 17278.74,
-//   open: 17309.36,
-//   high: 17465.35,
-//   low: 17309.36,
-//   close: 17383.99,
-//   volume: 306114,
-//   lastUpdated: 1702013580000
+  // date: '2023-12-29',
+  // symbol: 'IX0001',
+  // name: '發行量加權股價指數',
+  // previousClose: 17910.37,
+  // open: 17893.63,
+  // high: 17945.7,
+  // low: 17864.23,
+  // close: 17930.81,
+  // volume: 267204,
+  // lastUpdated: 1703827980000,
 // }
 ```
 
@@ -586,8 +616,6 @@ twstock.indices.historical({ date: '2023-01-30', symbol: 'IX0001' })
 // Prints:
 // {
 //   date: '2023-01-30',
-//   exchange: 'TWSE',
-//   market: 'TSE',
 //   symbol: 'IX0001',
 //   name: '發行量加權股價指數',
 //   open: 15291.53,
@@ -608,8 +636,6 @@ twstock.indices.historical({ date: '2023-01-30', symbol: 'IX0001' })
   * `symbol` (optional): {string} 指數代號
 * Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
   * `date`: {string} 日期
-  * `exchange`: {string} 交易所
-  * `market`: {string} 市場別
   * `symbol`: {string} 指數代號
   * `name`: {string} 指數名稱
   * `tradeVolume`: {number} 成交股數
@@ -622,8 +648,6 @@ twstock.indices.trades({ date: '2023-01-30', symbol: 'IX0028' })
 // Prints:
 // {
 //   date: '2023-01-30',
-//   exchange: 'TWSE',
-//   market: 'TSE',
 //   symbol: 'IX0028',
 //   name: '半導體類指數',
 //   tradeVolume: 770856550,
@@ -641,8 +665,6 @@ twstock.indices.trades({ date: '2023-01-30', symbol: 'IX0028' })
   * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
-  * `exchange`: {string} 交易所
-  * `market`: {string} 市場別
   * `tradeVolume`: {number} 成交股數
   * `tradeValue`: {number} 成交金額
   * `transaction`: {number} 成交筆數
@@ -655,8 +677,6 @@ twstock.market.trades({ date: '2023-01-30', market: 'TSE' })
 // Prints:
 // {
 //   date: '2023-01-30',
-//   exchange: 'TWSE',
-//   market: 'TSE',
 //   tradeVolume: 6919326963,
 //   tradeValue: 354872347181,
 //   transaction: 2330770,
@@ -674,8 +694,6 @@ twstock.market.trades({ date: '2023-01-30', market: 'TSE' })
   * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
-  * `exchange`: {string} 交易所
-  * `market`: {string} 市場別
   * `up`: {number} 上漲家數
   * `limitUp`: {number} 漲停家數
   * `down`: {number} 下跌家數
@@ -690,8 +708,6 @@ twstock.market.breadth({ date: '2023-01-30', market: 'TSE' })
 // Prints:
 // {
 //   date: '2023-01-30',
-//   exchange: 'TWSE',
-//   market: 'TSE',
 //   up: 764,
 //   limitUp: 14,
 //   down: 132,
@@ -711,8 +727,6 @@ twstock.market.breadth({ date: '2023-01-30', market: 'TSE' })
   * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
-  * `exchange`: {string} 交易所
-  * `market`: {string} 市場別
   * `finiWithoutDealersBuy`: {number} 外資及陸資(不含外資自營商)買進金額
   * `finiWithoutDealersSell`: {number} 外資及陸資(不含外資自營商)賣出金額
   * `finiWithoutDealersNetBuySell`: {number} 外資及陸資(不含外資自營商)買賣差額
@@ -744,8 +758,6 @@ twstock.market.instTrades({ date: '2023-01-30', market: 'TSE' })
 // Prints:
 // {
 //   date: '2023-01-30',
-//   exchange: 'TWSE',
-//   market: 'TSE',
 //   finiWithoutDealersBuy: 203744063563,
 //   finiWithoutDealersSell: 131488377272,
 //   finiWithoutDealersNetBuySell: 72255686291,
@@ -782,8 +794,6 @@ twstock.market.instTrades({ date: '2023-01-30', market: 'TSE' })
   * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
   * `date`: {string} 日期
-  * `exchange`: {string} 交易所
-  * `market`: {string} 市場別
   * `marginBuy`: {number} 融資買進(張)
   * `marginSell`: {number} 融資賣出(張)
   * `marginRedeem`: {number} 現金償還(張)
@@ -806,8 +816,6 @@ twstock.market.marginTrades({ date: '2023-01-30', market: 'TSE' })
 // Prints:
 // {
 //   date: '2023-01-30',
-//   exchange: 'TWSE',
-//   market: 'TSE',
 //   marginBuy: 264023,
 //   marginSell: 282873,
 //   marginRedeem: 10127,

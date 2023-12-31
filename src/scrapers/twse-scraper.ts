@@ -167,7 +167,6 @@ export class TwseScraper extends Scraper {
 
     const response = await this.httpService.get(url);
     const json = (response.data.stat === 'OK') && response.data;
-    if (!json) return null;
     if (!json.data.length) return null;
 
     const data = json.data.map((row: string[]) => {

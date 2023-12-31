@@ -20,6 +20,7 @@ export class TwStock {
       instTrades: this.getStocksInstTrades.bind(this),
       finiHoldings: this.getStocksFiniHoldings.bind(this),
       marginTrades: this.getStocksMarginTrades.bind(this),
+      shortSales: this.getStocksShortSales.bind(this),
       values: this.getStocksValues.bind(this),
       holders: this.getStocksHolders.bind(this),
       eps: this.getStocksEps.bind(this),
@@ -172,6 +173,22 @@ export class TwStock {
     return (market === Market.OTC)
       ? await this._scraper.getTpexScraper().fetchStocksMarginTrades({ date, symbol })
       : await this._scraper.getTwseScraper().fetchStocksMarginTrades({ date, symbol });
+  }
+
+  private async getStocksShortSales(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+    const { date, symbol } = options;
+
+    if (symbol && !this._stocks.has(symbol)) {
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
+    }
+
+    const ticker = this._stocks.get(symbol as string) as Ticker;
+    const market = symbol ? ticker.market : options.market;
+
+    return (market === Market.OTC)
+      ? await this._scraper.getTpexScraper().fetchStocksShortSales({ date, symbol })
+      : await this._scraper.getTwseScraper().fetchStocksShortSales({ date, symbol });
   }
 
   private async getStocksValues(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {

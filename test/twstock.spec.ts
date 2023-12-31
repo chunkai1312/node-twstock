@@ -6,7 +6,6 @@ import { TdccScraper } from '../src/scrapers/tdcc-scraper';
 import { MisScraper } from '../src/scrapers/mis-scraper';
 import { MopsScraper } from '../src/scrapers/mops-scraper';
 import { IsinScraper } from '../src/scrapers/isin-scraper';
-import { ScraperFactory } from '../src/scrapers/scraper-factory';
 
 jest.mock('../src/scrapers/isin-scraper', () => {
   return {
@@ -185,6 +184,32 @@ describe('TwStock', () => {
 
       it('should throw an error if the symbol is not found', async () => {
         await expect(() => twstock.stocks.marginTrades({ date: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+    });
+
+    describe('.shortSales()', () => {
+      it('should fetch TSE stocks short sales', async () => {
+        await twstock.stocks.shortSales({ date: '2023-01-30', market: 'TSE' });
+        expect(TwseScraper.prototype.fetchStocksShortSales).toBeCalledWith({ date: '2023-01-30' });
+      });
+
+      it('should fetch TSE stocks short sales for the symbol', async () => {
+        await twstock.stocks.shortSales({ date: '2023-01-30', symbol: '2330' });
+        expect(TwseScraper.prototype.fetchStocksShortSales).toBeCalledWith({ date: '2023-01-30', symbol: '2330' });
+      });
+
+      it('should fetch OTC stocks short sales', async () => {
+        await twstock.stocks.shortSales({ date: '2023-01-30', market: 'OTC' });
+        expect(TpexScraper.prototype.fetchStocksShortSales).toBeCalledWith({ date: '2023-01-30' });
+      });
+
+      it('should fetch OTC stocks short sales for the symbol', async () => {
+        await twstock.stocks.shortSales({ date: '2023-01-30', symbol: '6488' });
+        expect(TpexScraper.prototype.fetchStocksShortSales).toBeCalledWith({ date: '2023-01-30', symbol: '6488' });
+      });
+
+      it('should throw an error if the symbol is not found', async () => {
+        await expect(() => twstock.stocks.shortSales({ date: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
       });
     });
 

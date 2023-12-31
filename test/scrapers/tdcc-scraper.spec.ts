@@ -33,117 +33,117 @@ describe('TdccScraper', () => {
         SYNCHRONIZER_URI: $('#SYNCHRONIZER_URI').attr('value') as string,
         method: $('#method').attr('value') as string,
         firDate: $('#firDate').attr('value') as string,
-        scaDate: '20221230',
+        scaDate: '20231229',
         sqlMethod: 'StockNo',
         stockNo: '2330',
         stockName: '',
       });
-      const data = await scraper.fetchStocksHolders({ date: '2022-12-30', symbol: '2330' });
+      const data = await scraper.fetchStocksHolders({ date: '2023-12-29', symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(url);
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { headers: { 'Cookie': 'foobar' } });
       expect(data).toBeDefined();
       expect(data).toEqual({
-        date: '2022-12-30',
+        date: '2023-12-29',
         symbol: '2330',
         name: '台積電',
         data: [
           {
             level: '1-999',
-            holders: 891264,
-            shares: 166263025,
-            proportion: 0.64
+            holders: 731332,
+            shares: 136341404,
+            proportion: 0.52,
           },
           {
             level: '1,000-5,000',
-            holders: 474847,
-            shares: 908747643,
-            proportion: 3.5
+            holders: 369064,
+            shares: 708844322,
+            proportion: 2.73,
           },
           {
             level: '5,001-10,000',
-            holders: 53563,
-            shares: 388466934,
-            proportion: 1.49
+            holders: 44353,
+            shares: 321629635,
+            proportion: 1.24,
           },
           {
             level: '10,001-15,000',
-            holders: 17291,
-            shares: 213713625,
-            proportion: 0.82
+            holders: 14786,
+            shares: 182609499,
+            proportion: 0.7,
           },
           {
             level: '15,001-20,000',
-            holders: 8087,
-            shares: 143283211,
-            proportion: 0.55
+            holders: 7023,
+            shares: 124658113,
+            proportion: 0.48,
           },
           {
             level: '20,001-30,000',
-            holders: 7573,
-            shares: 185964113,
-            proportion: 0.71
+            holders: 6851,
+            shares: 168231335,
+            proportion: 0.64,
           },
           {
             level: '30,001-40,000',
-            holders: 3510,
-            shares: 122286105,
-            proportion: 0.47
+            holders: 3201,
+            shares: 111283681,
+            proportion: 0.42,
           },
           {
             level: '40,001-50,000',
-            holders: 2014,
-            shares: 91016746,
-            proportion: 0.35
+            holders: 1917,
+            shares: 86557380,
+            proportion: 0.33,
           },
           {
             level: '50,001-100,000',
-            holders: 3868,
-            shares: 269893313,
-            proportion: 1.04
+            holders: 3639,
+            shares: 254768395,
+            proportion: 0.98,
           },
           {
             level: '100,001-200,000',
-            holders: 1969,
-            shares: 273285995,
-            proportion: 1.05
+            holders: 1832,
+            shares: 255478566,
+            proportion: 0.98,
           },
           {
             level: '200,001-400,000',
-            holders: 1151,
-            shares: 323991208,
-            proportion: 1.24
+            holders: 1187,
+            shares: 332874484,
+            proportion: 1.28,
           },
           {
             level: '400,001-600,000',
-            holders: 478,
-            shares: 230533243,
-            proportion: 0.88
+            holders: 470,
+            shares: 229494783,
+            proportion: 0.88,
           },
           {
             level: '600,001-800,000',
-            holders: 302,
-            shares: 208633842,
-            proportion: 0.8
+            holders: 284,
+            shares: 197512833,
+            proportion: 0.76,
           },
           {
             level: '800,001-1,000,000',
-            holders: 225,
-            shares: 202876066,
-            proportion: 0.78
+            holders: 222,
+            shares: 198593262,
+            proportion: 0.76,
           },
           {
             level: '1,000,001以上',
-            holders: 1458,
-            shares: 22201425389,
-            proportion: 85.61
+            holders: 1545,
+            shares: 22623193300,
+            proportion: 87.24,
           },
           {
             level: '合　計',
-            holders: 1467600,
-            shares: 25930380458,
-            proportion: 100
-          }
-        ]
+            holders: 1187706,
+            shares: 25932070992,
+            proportion: 100,
+          },
+        ],
       });
     });
 

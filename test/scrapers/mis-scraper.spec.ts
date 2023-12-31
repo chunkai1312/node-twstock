@@ -73,23 +73,23 @@ describe('MisScraper', () => {
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
-        date: '2023-12-22',
+        date: '2023-12-29',
         symbol: '2330',
         name: '台積電',
-        referencePrice: 577,
-        limitUpPrice: 634,
-        limitDownPrice: 520,
-        openPrice: 582,
-        highPrice: 582,
-        lowPrice: 579,
-        lastPrice: 582,
-        lastSize: 2767,
-        totalVoluem: 18668,
-        bidPrice: [ 581, 580, 579, 578, 577 ],
-        askPrice: [ 582, 583, 584, 585, 586 ],
-        bidSize: [ 66, 450, 793, 485, 531 ],
-        askSize: [ 1923, 1158, 980, 1884, 806 ],
-        lastUpdated: 1703226600000,
+        referencePrice: 593,
+        limitUpPrice: 652,
+        limitDownPrice: 534,
+        openPrice: 589,
+        highPrice: 593,
+        lowPrice: 589,
+        lastPrice: 593,
+        lastSize: 4174,
+        totalVoluem: 18323,
+        bidPrice: [ 592, 591, 590, 589, 588 ],
+        askPrice: [ 593, 594, 595, 596, 597 ],
+        bidSize: [ 827, 768, 1137, 554, 446 ],
+        askSize: [ 1938, 1465, 2925, 2407, 921 ],
+        lastUpdated: 1703831400000,
       });
     });
 
@@ -105,23 +105,23 @@ describe('MisScraper', () => {
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
-        date: '2023-12-22',
+        date: '2023-12-29',
         symbol: '2330',
         name: '台積電',
-        referencePrice: 577,
-        limitUpPrice: 634,
-        limitDownPrice: 520,
-        openPrice: 579,
-        highPrice: 581,
-        lowPrice: 579,
-        lastPrice: 581,
-        lastSize: 1635,
-        totalVoluem: 345088,
-        bidPrice: [ 580, 579, 578, 577, 576 ],
-        askPrice: [ 581, 582, 583, 584, 585 ],
-        bidSize: [ 1974, 10072, 10187, 18238, 8493 ],
-        askSize: [ 97522, 87416, 37287, 28424, 131012 ],
-        lastUpdated: 1703223000000,
+        referencePrice: 593,
+        limitUpPrice: 652,
+        limitDownPrice: 534,
+        openPrice: 591,
+        highPrice: 592,
+        lowPrice: 590,
+        lastPrice: 592,
+        lastSize: 4071,
+        totalVoluem: 691301,
+        bidPrice: [ 591, 590, 589, 588, 587 ],
+        askPrice: [ 592, 593, 594, 595, 596 ],
+        bidSize: [ 24250, 50380, 24188, 19587, 6608 ],
+        askSize: [ 2084, 309022, 104913, 214679, 61672 ],
+        lastUpdated: 1703827800000,
       });
     });
 
@@ -143,23 +143,23 @@ describe('MisScraper', () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/indices-quote.json') });
 
       const data = await scraper.fetchIndicesQuote({
-        ticker: { symbol: 'IX0001', market: 'TSE', alias: 't00' } as Ticker,
+        ticker: { symbol: 'IX0001', exchange: 'TWSE', market: 'TSE', ex_ch: 'tse_t00.tw' } as Ticker,
       });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_t00.tw',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
-        date: '2023-12-22',
+        date: '2023-12-29',
         symbol: 'IX0001',
         name: '發行量加權股價指數',
-        previousClose: 17543.74,
-        open: 17586.16,
-        high: 17618.17,
-        low: 17567.55,
-        close: 17596.63,
-        volume: 288289,
-        lastUpdated: 1703223180000,
+        previousClose: 17910.37,
+        open: 17893.63,
+        high: 17945.7,
+        low: 17864.23,
+        close: 17930.81,
+        volume: 267204,
+        lastUpdated: 1703827980000,
       });
     });
 
@@ -167,7 +167,7 @@ describe('MisScraper', () => {
       mockAxios.get.mockResolvedValueOnce({ data: {} });
 
       const data = await scraper.fetchIndicesQuote({
-        ticker: { symbol: 'IX0001', market: 'TSE', alias: 't00' } as Ticker,
+        ticker: { symbol: 'IX0001', exchange: 'TWSE', market: 'TSE', ex_ch: 'tse_t00.tw' } as Ticker,
       });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_t00.tw',

@@ -178,7 +178,7 @@ describe('TpexScraper', () => {
   });
 
   describe('.fetchStocksMarginTrades()', () => {
-    it('should fetch stocks values for the given date', async () => {
+    it('should fetch stocks margin trades for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-margin-trades.json') });
 
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30' });
@@ -189,7 +189,7 @@ describe('TpexScraper', () => {
       expect(data?.length).toBeGreaterThan(0);
     });
 
-    it('should fetch stocks values for the specified stock on the given date', async () => {
+    it('should fetch stocks margin trades for the specified stock on the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-margin-trades.json') });
 
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30', symbol: '6488' });
@@ -226,6 +226,59 @@ describe('TpexScraper', () => {
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?d=112%2F01%2F01&o=json',
+      );
+      expect(data).toBe(null);
+    });
+  });
+
+  describe('.fetchStocksShortSales()', () => {
+    it('should fetch stocks short sales for the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-short-sales.json') });
+
+      const data = await scraper.fetchStocksShortSales({ date: '2023-01-30' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/margin_trading/margin_sbl/margin_sbl_result.php?d=112%2F01%2F30&o=json',
+      );
+      expect(data).toBeDefined();
+      expect(data?.length).toBeGreaterThan(0);
+    });
+
+    it('should fetch stocks short sales for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-short-sales.json') });
+
+      const data = await scraper.fetchStocksShortSales({ date: '2023-01-30', symbol: '6488' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/margin_trading/margin_sbl/margin_sbl_result.php?d=112%2F01%2F30&o=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual({
+        date: '2023-01-30',
+        exchange: 'TPEx',
+        market: 'OTC',
+        symbol: '6488',
+        name: '環球晶',
+        marginShortBalancePrev: 159000,
+        marginShortSell: 49000,
+        marginShortBuy: 8000,
+        marginShortRedeem: 0,
+        marginShortBalance: 200000,
+        marginShortQuota: 108809250,
+        sblShortBalancePrev: 2946682,
+        sblShortSale: 132000,
+        sblShortReturn: 43000,
+        sblShortAdjustment: 0,
+        sblShortBalance: 3035682,
+        sblShortQuota: 189646,
+        note: '',
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-short-sales-no-data.json') });
+
+      const data = await scraper.fetchStocksShortSales({ date: '2023-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/margin_trading/margin_sbl/margin_sbl_result.php?d=112%2F01%2F01&o=json',
       );
       expect(data).toBe(null);
     });

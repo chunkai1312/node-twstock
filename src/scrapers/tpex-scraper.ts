@@ -176,6 +176,46 @@ export class TpexScraper extends Scraper {
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
+  async fetchStocksShortSales(options: { date: string, symbol?: string }) {
+    const { date, symbol } = options;
+    const [year, month, day] = date.split('-');
+    const query = new URLSearchParams({
+      d: `${+year - 1911}/${month}/${day}`,
+      o: 'json',
+    });
+    const url = `https://www.tpex.org.tw/web/stock/margin_trading/margin_sbl/margin_sbl_result.php?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.iTotalRecords > 0 && response.data;
+    if (!json) return null;
+
+    const data = json.aaData.map((row: string[]) => {
+      const [symbol, name, ...values] = row;
+      const data: Record<string, any> = {};
+      data.date = date;
+      data.exchange = Exchange.TPEx;
+      data.market = Market.OTC;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.marginShortBalancePrev = numeral(values[0]).value();
+      data.marginShortSell = numeral(values[1]).value();
+      data.marginShortBuy = numeral(values[2]).value();
+      data.marginShortRedeem = numeral(values[3]).value();
+      data.marginShortBalance = numeral(values[4]).value();
+      data.marginShortQuota = numeral(values[5]).value();
+      data.sblShortBalancePrev = numeral(values[6]).value();
+      data.sblShortSale = numeral(values[7]).value();
+      data.sblShortReturn = numeral(values[8]).value();
+      data.sblShortAdjustment = numeral(values[9]).value();
+      data.sblShortBalance = numeral(values[10]).value();
+      data.sblShortQuota = numeral(values[11]).value();
+      data.note = values[12].trim();
+      return data;
+    }) as Record<string, any>[];
+
+    return symbol ? data.find(data => data.symbol === symbol) : data;
+  }
+
   async fetchStocksValues(options: { date: string, symbol?: string }) {
     const { date, symbol } = options;
     const [year, month, day] = date.split('-');

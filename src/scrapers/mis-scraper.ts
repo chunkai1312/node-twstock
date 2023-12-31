@@ -95,9 +95,9 @@ export class MisScraper extends Scraper {
   }
 
   private extractExChFromTicker(ticker: Ticker) {
-    const { symbol, market, alias } = ticker;
+    const { symbol, market, ex_ch } = ticker;
     const ex = market.toLowerCase();
-    const ch = (alias ? alias : symbol) + '.tw';
-    return `${ex}_${ch}`;
+    const ch = `${symbol}.tw`;
+    return ex_ch ? ex_ch : `${ex}_${ch}`;
   }
 }
