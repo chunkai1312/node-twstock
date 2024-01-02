@@ -31,6 +31,8 @@
   * [.market.breadth(options)](#marketbreadthoptions)
   * [.market.instTrades(options)](#marketinsttradesoptions)
   * [.market.marginTrades(options)](#marketmargintradesoptions)
+  * [.futopt.list(options)](#futoptlist)
+  * [.futopt.quote(options)](#futoptquoteoptions)
   * [.futopt.txfInstTrades(options)](#futopttxfinsttradesoptions)
   * [.futopt.txoInstTrades(options)](#futopttxoinsttradesoptions)
   * [.futopt.txoPutCallRatio(options)](#futopttxoputcallratiooptions)
@@ -121,10 +123,10 @@ twstock.stocks.list({ market: 'TSE' })
   * `lastPrice`: {number} 最後成交價格
   * `lastSize`: {number} 最後成交數量
   * `totalVoluem`: {number} 總成交量
-  * `bidPrice`: {number[]} 最佳委託買進價格
-  * `askPrice`: {number[]} 最佳委託賣出價格
-  * `bidSize`: {number[]} 最佳委託買進數量
-  * `askSize`: {number[]} 最佳委託賣出數量
+  * `bidPrice`: {number[]} 最佳委買價格
+  * `askPrice`: {number[]} 最佳委賣價格
+  * `bidSize`: {number[]} 最佳委買數量
+  * `askSize`: {number[]} 最佳委賣數量
   * `lastUpdated`: {number} 最後更新時間
 
 ```js
@@ -835,6 +837,109 @@ twstock.market.marginTrades({ date: '2023-01-30', market: 'TSE' })
 // }
 ```
 
+### `.futopt.list()`
+
+取得期貨與選擇權契約列表。
+
+* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+  * `symbol`: {string} 契約代號
+  * `name`: {string} 契約名稱
+  * `exchange`: {string} 交易所
+  * `market`: {string} 市場別
+  * `industry`: {string} 產業別
+  * `listedDate`: {string} 上市日期
+
+```js
+twstock.futopt.list()
+  .then(data => console.log(data));
+// Prints:
+// [
+//   {
+//     symbol: 'BRFC4',
+//     name: '布蘭特原油期貨2024/03',
+//     exchange: 'TAIFEX',
+//     market: 'FUTOPT',
+//     type: '原油期貨',
+//     industry: '00',
+//     listedDate: '2023-11-01'
+//   },
+//   ... more items
+// ]
+```
+
+### `.futopt.quote(options)`
+
+取得期貨與選擇權契約即時行情。
+
+* `options`: {Object}
+  * `symbol`: {string} 契約代號
+  * `afterhours` (optional): {boolean} 盤後交易
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `symbol`: {string} 契約代號
+  * `name`: {string} 契約名稱
+  * `referencePrice`: {number} 參考價
+  * `limitUpPrice`: {number} 漲停價
+  * `limitDownPrice`: {number} 跌停價
+  * `openPrice`: {number} 開盤價
+  * `highPrice`: {number} 最高價
+  * `lowPrice`: {number} 最低價
+  * `lastPrice`: {number} 成交價
+  * `lastSize`: {number} 單量
+  * `testPrice`: {number} 試撮價
+  * `testSize`: {number} 試撮量
+  * `testTime`: {number} 試撮時間
+  * `totalVoluem`: {number} 成交量
+  * `openInterest`: {number} 未平倉量
+  * `bidOrders`: {number} 委買筆數
+  * `askOrders`: {number} 委賣筆數
+  * `bidVolume`: {number} 委買口數
+  * `askVolume`: {number} 委賣口數
+  * `bidPrice`: {number[]} 最佳委買價格
+  * `askPrice`: {number[]} 最佳委賣價格
+  * `bidSize`: {number[]} 最佳委買數量
+  * `askSize`: {number[]} 最佳委賣數量
+  * `extBidPrice`: {number} 最佳衍生一檔買價
+  * `extAskPrice`: {number} 最佳衍生一檔賣價
+  * `extBidSize`: {number} 最佳衍生一檔買量
+  * `extAskSize`: {number} 最佳衍生一檔賣量
+  * `lastUpdated`: {number} 最後更新時間
+
+```js
+twstock.futopt.quote({ symbol: 'TXFA4' })
+  .then(data => console.log(data));
+// Prints:
+// {
+//   symbol: 'TXFA4',
+//   name: '臺股期貨2024/01',
+//   referencePrice: 17870,
+//   limitUpPrice: 19657,
+//   limitDownPrice: 16083,
+//   openPrice: 17838,
+//   highPrice: 17920,
+//   lowPrice: 17751,
+//   lastPrice: 17798,
+//   lastSize: 3,
+//   testPrice: 17831,
+//   testSize: 256,
+//   testTime: 1704156295000,
+//   totalVoluem: 116498,
+//   openInterest: 103404,
+//   bidOrders: 67979,
+//   askOrders: 66456,
+//   bidVolume: 124038,
+//   askVolume: 124080,
+//   bidPrice: [ 17798, 17797, 17796, 17795, 17794 ],
+//   askPrice: [ 17800, 17801, 17802, 17803, 17804 ],
+//   bidSize: [ 31, 26, 38, 24, 18 ],
+//   askSize: [ 6, 16, 30, 18, 22 ],
+//   extBidPrice: 17795,
+//   extAskPrice: 0,
+//   extBidSize: 2,
+//   extAskSize: 0,
+//   lastUpdated: 1704174299000
+// }
+```
+
 ### `.futopt.txfInstTrades(options)`
 
 取得臺股期貨在特定日期的三大法人交易口數、契約金額與未平倉餘額。
@@ -880,7 +985,6 @@ twstock.market.marginTrades({ date: '2023-01-30', market: 'TSE' })
   * `dealersShortOiValue`: {number} 自營商-空方未平倉契約金額(千元)
   * `dealersNetOiVolume`: {number} 自營商-多空未平倉口數淨額
   * `dealersNetOiValue`: {number} 自營商-多空未平倉契約金額淨額(千元)
-
 
 ```js
 twstock.futopt.txfInstTrades({ date: '2023-01-30' })

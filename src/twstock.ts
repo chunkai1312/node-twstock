@@ -50,6 +50,7 @@ export class TwStock {
   get futopt() {
     return {
       list: this.getFutOptList.bind(this),
+      quote: this.getFutOptQuote.bind(this),
       txfInstTrades: this.getFutOptTxfInstTrades.bind(this),
       txoInstTrades: this.getFutOptTxoInstTrades.bind(this),
       txoPutCallRatio: this.getFutOptTxoPutCallRatio.bind(this),
@@ -353,6 +354,18 @@ export class TwStock {
   private async getFutOptList() {
     const data = await this.loadFutOpt();
     return data;
+  }
+
+  private async getFutOptQuote(options: { symbol: string, afterhours?: boolean }) {
+    const { symbol, afterhours } = options;
+
+    if (!this._futopt.has(symbol)) {
+      const futopt = await this.loadFutOpt({ symbol });
+      if (!futopt.length) throw new Error('symbol not found');
+    }
+
+    const ticker = this._futopt.get(symbol) as Ticker;
+    return this._scraper.getMisTaifexScraper().fetchFutOptQuote({ ticker, afterhours });
   }
 
   private async getFutOptTxfInstTrades(options: { date: string }) {

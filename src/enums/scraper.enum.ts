@@ -4,6 +4,7 @@ export enum Scraper {
   Taifex = 'taifex',
   Tdcc = 'tdcc',
   MisTwse = 'mis-twse',
+  MisTaifex = 'mis-taifex',
   Mops = 'mops',
   Isin = 'isin',
 }

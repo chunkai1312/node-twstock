@@ -4,6 +4,7 @@ export * from './tpex-scraper';
 export * from './taifex-scraper';
 export * from './tdcc-scraper';
 export * from './mis-twse-scraper';
+export * from './mis-taifex-scraper';
 export * from './mops-scraper';
 export * from './isin-scraper';
 export * from './scraper-factory';

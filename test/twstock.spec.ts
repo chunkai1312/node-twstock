@@ -4,6 +4,7 @@ import { TpexScraper } from '../src/scrapers/tpex-scraper';
 import { TaifexScraper } from '../src/scrapers/taifex-scraper';
 import { TdccScraper } from '../src/scrapers/tdcc-scraper';
 import { MisTwseScraper } from '../src/scrapers/mis-twse-scraper';
+import { MisTaifexScraper } from '../src/scrapers/mis-taifex-scraper';
 import { MopsScraper } from '../src/scrapers/mops-scraper';
 import { IsinScraper } from '../src/scrapers/isin-scraper';
 
@@ -14,12 +15,16 @@ jest.mock('../src/scrapers/isin-scraper', () => {
         fetchStocksInfo: jest.fn(({ symbol }) => {
           if (symbol.split(',').includes('2330')) return require('./fixtures/fetched-stocks-info.json');
           if (symbol.split(',').includes('6488')) return require('./fixtures/fetched-stocks-info.json');
+          if (symbol.split(',').includes('TXFA4')) return require('./fixtures/fetched-stocks-info.json');
           return [];
         }),
         fetchListedStocks: jest.fn(({ market }) => {
           if (market === 'TSE') return require('./fixtures/fetched-tse-stocks-list.json');
           if (market === 'OTC') return require('./fixtures/fetched-otc-stocks-list.json');
           return [];
+        }),
+        fetchListedFutOpt: jest.fn(() => {
+          return require('./fixtures/fetched-taifex-futopt-list.json');
         }),
       }
     }
@@ -36,6 +41,7 @@ jest.mock('../src/scrapers/mis-twse-scraper', () => {
   MisTwseScraper.prototype.fetchIndicesQuote = jest.fn();
   return { MisTwseScraper };
 });
+jest.mock('../src/scrapers/mis-taifex-scraper');
 jest.mock('../src/scrapers/twse-scraper');
 jest.mock('../src/scrapers/tpex-scraper');
 jest.mock('../src/scrapers/taifex-scraper');
@@ -429,6 +435,25 @@ describe('TwStock', () => {
   });
 
   describe('.futopt', () => {
+    describe('.list()', () => {
+      it('should load stocks and return the list', async () => {
+        const futopt = await twstock.futopt.list();
+        expect(futopt).toBeDefined();
+        expect(futopt?.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe('.quote()', () => {
+      it('should fetch futopt realtime quote', async () => {
+        await twstock.futopt.quote({ symbol: 'TXFA4' });
+        expect(MisTaifexScraper.prototype.fetchFutOptQuote).toHaveBeenCalled();
+      });
+
+      it('should throw an error if the symbol is not found', async () => {
+        await expect(() => twstock.futopt.quote({ symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+    });
+
     describe('.txfInstTrades()', () => {
       it('should fetch TXF institutional investors\' trades', async () => {
         await twstock.futopt.txfInstTrades({ date: '2023-01-30' });

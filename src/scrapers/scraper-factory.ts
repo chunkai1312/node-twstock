@@ -3,6 +3,7 @@ import { TpexScraper } from './tpex-scraper';
 import { TaifexScraper } from './taifex-scraper';
 import { TdccScraper } from './tdcc-scraper';
 import { MisTwseScraper } from './mis-twse-scraper';
+import { MisTaifexScraper } from './mis-taifex-scraper';
 import { MopsScraper } from './mops-scraper';
 import { IsinScraper } from './isin-scraper';
 import { Scraper } from './scraper';
@@ -24,6 +25,7 @@ export class ScraperFactory {
         [ScraperType.Taifex]: TaifexScraper,
         [ScraperType.Tdcc]: TdccScraper,
         [ScraperType.MisTwse]: MisTwseScraper,
+        [ScraperType.MisTaifex]: MisTaifexScraper,
         [ScraperType.Mops]: MopsScraper,
         [ScraperType.Isin]: IsinScraper,
       };
@@ -54,6 +56,10 @@ export class ScraperFactory {
 
   getMisTwseScraper() {
     return this.get(ScraperType.MisTwse) as MisTwseScraper;
+  }
+
+  getMisTaifexScraper() {
+    return this.get(ScraperType.MisTaifex) as MisTaifexScraper;
   }
 
   getMopsScraper() {
