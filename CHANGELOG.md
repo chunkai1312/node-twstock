@@ -1,5 +1,13 @@
 # Changelog
 
+# [0.14.0](https://github.com/chunkai1312/node-twstock/compare/v0.13.0...v0.14.0) (2024-01-02)
+
+
+### Features
+
+* support for fetching futures & options realtime quote ([fc5e37f](https://github.com/chunkai1312/node-twstock/commit/fc5e37f45f9a32a8a6dea2db52e8c57c87db3c55))
+* support for fetching listed futures & options ([20bb9d7](https://github.com/chunkai1312/node-twstock/commit/20bb9d7a40be1e541c6543dfb849129a2423e891))
+
 # [0.13.0](https://github.com/chunkai1312/node-twstock/compare/v0.12.0...v0.13.0) (2023-12-31)
 
 
