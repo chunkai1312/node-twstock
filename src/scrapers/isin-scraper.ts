@@ -20,6 +20,7 @@ export class IsinScraper extends Scraper {
         name: td.eq(3).text().trim(),
         exchange: asExchange(td.eq(4).text().trim()),
         market: asMarket(td.eq(4).text().trim()),
+        type: td.eq(5).text().trim(),
         industry: asIndustry(td.eq(6).text().trim()),
         listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate(),
       } as Record<string, any>;
@@ -45,6 +46,29 @@ export class IsinScraper extends Scraper {
         name: td.eq(3).text().trim(),
         exchange: asExchange(td.eq(4).text().trim()),
         market: asMarket(td.eq(4).text().trim()),
+        type: td.eq(5).text().trim(),
+        industry: asIndustry(td.eq(6).text().trim()),
+        listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate(),
+      } as Record<string, any>;
+    }).toArray();
+
+    return data;
+  }
+
+  async fetchListedFutOpt() {
+    const url = 'https://isin.twse.com.tw/isin/class_main.jsp?market=7';
+    const response = await this.httpService.get(url, { responseType: 'arraybuffer' });
+    const page = iconv.decode(response.data, 'big5');
+    const $ = cheerio.load(page);
+
+    const data = $('.h4 tr').slice(1).map((_, el) => {
+      const td = $(el).find('td');
+      return {
+        symbol: td.eq(2).text().trim(),
+        name: td.eq(3).text().trim(),
+        exchange: asExchange(td.eq(4).text().trim()),
+        market: asMarket(td.eq(4).text().trim()),
+        type: td.eq(5).text().trim(),
         industry: asIndustry(td.eq(6).text().trim()),
         listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate(),
       } as Record<string, any>;

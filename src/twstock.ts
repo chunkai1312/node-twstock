@@ -7,6 +7,7 @@ export class TwStock {
   private readonly _scraper: ScraperFactory;
   private readonly _stocks = new Map<string, Ticker>();
   private readonly _indices = new Map<string, Ticker>();
+  private readonly _futopt = new Map<string, Ticker>();
 
   constructor(options?: RateLimitOptions) {
     this._scraper = new ScraperFactory(options);
@@ -48,6 +49,7 @@ export class TwStock {
 
   get futopt() {
     return {
+      list: this.getFutOptList.bind(this),
       txfInstTrades: this.getFutOptTxfInstTrades.bind(this),
       txoInstTrades: this.getFutOptTxoInstTrades.bind(this),
       txoPutCallRatio: this.getFutOptTxoPutCallRatio.bind(this),
@@ -91,6 +93,19 @@ export class TwStock {
       .map(ticker => omit(ticker, 'ex_ch'));
 
     return indices;
+  }
+
+  private async loadFutOpt(options?: { symbol?: string }) {
+    const { symbol } = options ?? {};
+    const isinScraper = this._scraper.getIsinScraper();
+
+    const futopt = (symbol)
+      ? await isinScraper.fetchStocksInfo({ symbol })
+      : await isinScraper.fetchListedFutOpt();
+
+    futopt.forEach(({ symbol, ...ticker }) => this._futopt.set(symbol, { symbol, ...ticker }));
+
+    return futopt;
   }
 
   private async getStocksList(options?: { market: 'TSE' | 'OTC' }) {
@@ -333,6 +348,11 @@ export class TwStock {
     return (market === Market.OTC)
       ? await this._scraper.getTpexScraper().fetchMarketMarginTrades({ date })
       : await this._scraper.getTwseScraper().fetchMarketMarginTrades({ date });
+  }
+
+  private async getFutOptList() {
+    const data = await this.loadFutOpt();
+    return data;
   }
 
   private async getFutOptTxfInstTrades(options: { date: string }) {

@@ -1,5 +1,5 @@
 export enum Market {
-  TSE = 'TSE',    // 上市
-  OTC = 'OTC',    // 上櫃
-  None = 'none',  // 未上市上櫃
+  TSE = 'TSE',        // 上市
+  OTC = 'OTC',        // 上櫃
+  FUTOPT = 'FUTOPT',  // 期貨及選擇權
 }

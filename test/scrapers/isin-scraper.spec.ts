@@ -29,6 +29,7 @@ describe('IsinScraper', () => {
         name: '台積電',
         exchange: 'TWSE',
         market: 'TSE',
+        type: '股票',
         industry: '24',
         listedDate: '1994-09-05',
       });
@@ -62,6 +63,7 @@ describe('IsinScraper', () => {
         name: '元大台灣50',
         exchange: 'TWSE',
         market: 'TSE',
+        type: 'ETF',
         industry: '00',
         listedDate: '2003-06-30',
       });
@@ -82,8 +84,32 @@ describe('IsinScraper', () => {
         name: '元大富櫃50',
         exchange: 'TPEx',
         market: 'OTC',
+        type: 'ETF',
         industry: '00',
         listedDate: '2011-01-27',
+      });
+    });
+  });
+
+  describe('.fetchListedFutOpt()', () => {
+    it('should fetch listed stocks for TSE market', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-listed-futopt.html') });
+
+      const data = await scraper.fetchListedFutOpt();
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://isin.twse.com.tw/isin/class_main.jsp?market=7',
+        { responseType: 'arraybuffer' },
+      );
+      expect(data).toBeDefined();
+      expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
+        symbol: 'BRFC4',
+        name: '布蘭特原油期貨2024/03',
+        exchange: 'TAIFEX',
+        market: 'FUTOPT',
+        type: '原油期貨',
+        industry: '00',
+        listedDate: '2023-11-01',
       });
     });
   });
