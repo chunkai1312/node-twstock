@@ -3,7 +3,7 @@ import { TwseScraper } from '../src/scrapers/twse-scraper';
 import { TpexScraper } from '../src/scrapers/tpex-scraper';
 import { TaifexScraper } from '../src/scrapers/taifex-scraper';
 import { TdccScraper } from '../src/scrapers/tdcc-scraper';
-import { MisScraper } from '../src/scrapers/mis-scraper';
+import { MisTwseScraper } from '../src/scrapers/mis-twse-scraper';
 import { MopsScraper } from '../src/scrapers/mops-scraper';
 import { IsinScraper } from '../src/scrapers/isin-scraper';
 
@@ -25,16 +25,16 @@ jest.mock('../src/scrapers/isin-scraper', () => {
     }
   }
 });
-jest.mock('../src/scrapers/mis-scraper', () => {
-  function MisScraper() {}
-  MisScraper.prototype.fetchListedIndices = jest.fn(({ market }) => {
+jest.mock('../src/scrapers/mis-twse-scraper', () => {
+  function MisTwseScraper() {}
+  MisTwseScraper.prototype.fetchListedIndices = jest.fn(({ market }) => {
     if (market === 'TSE') return require('./fixtures/fetched-tse-indices-list.json');
     if (market === 'OTC') return require('./fixtures/fetched-otc-indices-list.json');
     return [];
   });
-  MisScraper.prototype.fetchStocksQuote = jest.fn();
-  MisScraper.prototype.fetchIndicesQuote = jest.fn();
-  return { MisScraper };
+  MisTwseScraper.prototype.fetchStocksQuote = jest.fn();
+  MisTwseScraper.prototype.fetchIndicesQuote = jest.fn();
+  return { MisTwseScraper };
 });
 jest.mock('../src/scrapers/twse-scraper');
 jest.mock('../src/scrapers/tpex-scraper');
@@ -75,7 +75,7 @@ describe('TwStock', () => {
     describe('.quote()', () => {
       it('should fetch stocks realtime quote', async () => {
         await twstock.stocks.quote({ symbol: '2330' });
-        expect(MisScraper.prototype.fetchStocksQuote).toHaveBeenCalled();
+        expect(MisTwseScraper.prototype.fetchStocksQuote).toHaveBeenCalled();
       });
 
       it('should throw an error if the symbol is not found', async () => {
@@ -317,7 +317,7 @@ describe('TwStock', () => {
     describe('.quote()', () => {
       it('should fetch indices realtime quote', async () => {
         await twstock.indices.quote({ symbol: 'IX0001' });
-        expect(MisScraper.prototype.fetchIndicesQuote).toHaveBeenCalled();
+        expect(MisTwseScraper.prototype.fetchIndicesQuote).toHaveBeenCalled();
       });
 
       it('should throw an error if the symbol is not found', async () => {

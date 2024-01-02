@@ -3,7 +3,7 @@ export enum Scraper {
   Tpex = 'tpex',
   Taifex = 'taifex',
   Tdcc = 'tdcc',
-  Mis = 'mis',
+  MisTwse = 'mis-twse',
   Mops = 'mops',
   Isin = 'isin',
 }

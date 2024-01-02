@@ -75,7 +75,7 @@ export class TwStock {
   }
 
   private async loadIndices() {
-    const misScraper = this._scraper.getMisScraper();
+    const misScraper = this._scraper.getMisTwseScraper();
 
     const data = await Promise.all([
       misScraper.fetchListedIndices({ market: Market.TSE }),
@@ -108,7 +108,7 @@ export class TwStock {
     }
 
     const ticker = this._stocks.get(symbol) as Ticker;
-    return this._scraper.getMisScraper().fetchStocksQuote({ ticker, odd });
+    return this._scraper.getMisTwseScraper().fetchStocksQuote({ ticker, odd });
   }
 
   private async getStocksHistorical(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
@@ -267,7 +267,7 @@ export class TwStock {
     }
 
     const ticker = this._indices.get(symbol) as Ticker;
-    return this._scraper.getMisScraper().fetchIndicesQuote({ ticker });
+    return this._scraper.getMisTwseScraper().fetchIndicesQuote({ ticker });
   }
 
   private async getIndicesHistorical(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {

@@ -2,7 +2,7 @@ import { TwseScraper } from '../../src/scrapers/twse-scraper';
 import { TpexScraper } from '../../src/scrapers/tpex-scraper';
 import { TaifexScraper } from '../../src/scrapers/taifex-scraper';
 import { TdccScraper } from '../../src/scrapers/tdcc-scraper';
-import { MisScraper } from '../../src/scrapers/mis-scraper';
+import { MisTwseScraper } from '../../src/scrapers/mis-twse-scraper';
 import { MopsScraper } from '../../src/scrapers/mops-scraper';
 import { IsinScraper } from '../../src/scrapers/isin-scraper';
 import { ScraperFactory } from '../../src/scrapers/scraper-factory';
@@ -37,8 +37,8 @@ describe('ScraperFactory', () => {
     });
 
     it('should return a MisScraper instance when type is ScraperType.Mis', () => {
-      const scraper = factory.get(ScraperType.Mis);
-      expect(scraper).toBeInstanceOf(MisScraper);
+      const scraper = factory.get(ScraperType.MisTwse);
+      expect(scraper).toBeInstanceOf(MisTwseScraper);
     });
 
     it('should return a MopsScraper instance when type is ScraperType.Mops', () => {
@@ -92,10 +92,10 @@ describe('ScraperFactory', () => {
     });
   });
 
-  describe('.getMisScraper()', () => {
+  describe('.getMisTwseScraper()', () => {
     it('should create a MisScraper instance when calling getMisScraper', () => {
-      const scraper = factory.getMisScraper();
-      expect(scraper).toBeInstanceOf(MisScraper);
+      const scraper = factory.getMisTwseScraper();
+      expect(scraper).toBeInstanceOf(MisTwseScraper);
     });
   });
 
