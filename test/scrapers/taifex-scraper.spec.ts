@@ -13,6 +13,59 @@ describe('TaifexScraper', () => {
     mockAxios.reset();
   });
 
+  describe('.fetchFuturesHistorical()', () => {
+    it('should fetch futures historical data for the given date of regular trading', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical.csv') });
+
+      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30', symbol: 'MXF' });
+      const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
+      const form = new URLSearchParams({
+        down_type: '1',
+        queryStartDate: '2023/01/30',
+        queryEndDate: '2023/01/30',
+        commodity_id: 'MTX',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBeDefined();
+      expect(data?.length).toBeGreaterThan(0);
+    });
+
+    it('should fetch futures historical data for the given date of after-hours trading', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical.csv') });
+
+      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30', symbol: 'MXF', afterhours: true });
+      const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
+      const form = new URLSearchParams({
+        down_type: '1',
+        queryStartDate: '2023/01/30',
+        queryEndDate: '2023/01/30',
+        commodity_id: 'MTX',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBeDefined();
+      expect(data?.length).toBeGreaterThan(0);
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical-no-data.csv') });
+
+      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-01', symbol: 'MXF' });
+      const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
+      const form = new URLSearchParams({
+        down_type: '1',
+        queryStartDate: '2023/01/01',
+        queryEndDate: '2023/01/01',
+        commodity_id: 'MTX',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBe(null);
+    });
+  });
+
+
+
+
+
   describe('.fetchTxfInstTrades()', () => {
     it('should fetch TXF institutional investors\' trades for the given date', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txf-inst-trades.csv') });

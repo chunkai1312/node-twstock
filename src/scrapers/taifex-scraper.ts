@@ -7,6 +7,59 @@ import { FutOpt } from '../enums';
 import { Scraper } from './scraper';
 
 export class TaifexScraper extends Scraper {
+  async fetchFuturesHistorical(options: { date: string, symbol: string, afterhours?: boolean }) {
+    const { date, symbol, afterhours } = options;
+
+    const alias: Record<string, string> = {
+      'TXF': 'TX',  // 臺股期貨
+      'EXF': 'TE',  // 電子期貨
+      'FXF': 'TF',  // 金融期貨
+      'MXF': 'MTX', // 小型臺指期貨
+    };
+
+    const queryDate = DateTime.fromISO(date).toFormat('yyyy/MM/dd');
+    const form = new URLSearchParams({
+      down_type: '1',
+      queryStartDate: queryDate,
+      queryEndDate: queryDate,
+      commodity_id: alias[symbol] ?? symbol,
+    });
+    const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
+
+    const response = await this.httpService.post(url, form, { responseType: 'arraybuffer' });
+    const csv = iconv.decode(response.data, 'big5');
+    const json = await csvtojson({ noheader: true, output: 'csv' }).fromString(csv);
+
+    const [_, ...rows] = json;
+    if (!rows.length) return null;
+
+    const data = rows.map(row => {
+      const [date, contract, month, ...values] = row;
+      const data: Record<string, any> = {};
+      data.date = DateTime.fromFormat(date, 'yyyy/MM/dd').toISODate();
+      data.symbol = this.buildFutOptContractSymbol(contract, month);
+      data.month = month;
+      data.open = numeral(values[0]).value();
+      data.high = numeral(values[1]).value();
+      data.low = numeral(values[2]).value();
+      data.close = numeral(values[3]).value();
+      data.change = numeral(values[4]).value();
+      data.changePercent = (numeral(values[5]).value() as number) * 100;
+      data.volume = numeral(values[6]).value();
+      data.settlementPrice = numeral(values[7]).value();
+      data.openInterest = numeral(values[8]).value();
+      data.bestBid = numeral(values[9]).value();
+      data.bestAsk = numeral(values[10]).value();8
+      data.historicalHigh = numeral(values[11]).value();
+      data.historicalLow = numeral(values[12]).value();
+      data.session = values[14];
+      data.volumeSpread = numeral(values[15]).value();
+      return data;
+    }) as Record<string, any>[];
+
+    return data.filter(row => afterhours ? row.session === '盤後' : row.session === '一般');
+  }
+
   async fetchTxfInstTrades(options: { date: string }) {
     const { date } = options;
     const queryDate = DateTime.fromISO(date).toFormat('yyyy/MM/dd');
@@ -516,5 +569,26 @@ export class TaifexScraper extends Scraper {
     data.usdzar = numeral(row[9]).value();
     data.nzdusd = numeral(row[10]).value();
     return data
+  }
+
+  private buildFutOptContractSymbol(symbol: string, contractMonth: string, options?: { strikePrice: number, type: 'call' | 'put' }) {
+    const alias: Record<string, string> = {
+      'TX': 'TXF',  // 臺股期貨
+      'TE': 'EXF',  // 電子期貨
+      'TF': 'FXF',  // 金融期貨
+      'MTX': 'MXF', // 小型臺指期貨
+    };
+    symbol = alias[symbol] ?? symbol;
+
+    return contractMonth.split('/')
+      .map(yearMonth => {
+        const isWeekly = yearMonth.includes('W');
+        const contract = isWeekly ? symbol.slice(0, -1) + yearMonth.slice(-1) : symbol;
+        const month = (options?.type === 'put')
+        ? String.fromCharCode(+yearMonth.slice(4, 6) + 76)
+        : String.fromCharCode(+yearMonth.slice(4, 6) + 64);
+        const year = yearMonth.slice(3, 4);
+        return `${contract}${month}${year}`;
+      }).join('/');
   }
 }
