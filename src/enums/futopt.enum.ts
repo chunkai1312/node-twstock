@@ -1,5 +1,34 @@
 export enum FutOpt {
-  TXF = 'TXF',   // 臺股期貨
-  TXO = 'TXO',   // 臺指選擇權
-  MXF = 'MXF',   // 小型台指
+  TXF = 'TXF',  // 臺股期貨
+  MXF = 'MXF',  // 小型臺指期貨
+  E4F = 'E4F',  // 臺灣永續期貨
+  EXF = 'EXF',  // 電子期貨
+  ZEF = 'ZEF',  // 小型電子期貨
+  FXF = 'FXF',  // 金融期貨
+  ZFF = 'ZFF',  // 小型金融期貨
+  XIF = 'XIF',  // 非金電期貨
+  SHF = 'SHF',  // 航運期貨
+  SOF = 'SOF',  // 半導體30期貨
+  BTF = 'BTF',  // 臺灣生技期貨
+  GTF = 'GTF',  // 櫃買期貨
+  G2F = 'G2F',  // 富櫃200期貨
+  TJF = 'TJF',  // 東證期貨
+  UDF = 'UDF',  // 美國道瓊期貨
+  SPF = 'SPF',  // 美國標普500期貨
+  UNF = 'UNF',  // 美國那斯達克100期貨
+  SXF = 'SXF',  // 美國費城半導體期貨
+  F1F = 'F1F',  // 英國富時100期貨
+  GDF = 'GDF',  // 黃金期貨
+  TGF = 'TGF',  // 臺幣黃金期貨
+  BRF = 'BRF',  // 布蘭特原油期貨
+  RTF = 'RTF',  // 小型美元兌人民幣期貨
+  RHF = 'RHF',  // 美元兌人民幣期貨
+  XEF = 'XEF',  // 歐元兌美元期貨
+  XJF = 'XJF',  // 美元兌日圓期貨
+  XBF = 'XBF',  // 英鎊兌美元期貨
+  XAF = 'XAF',  // 澳幣兌美元期貨
+  TXO = 'TXO',  // 臺指選擇權
+  TEO = 'TEO',  // 電子選擇權
+  TFO = 'TFO',  // 金融選擇權
+  TGO = 'TGO',  // 黃金選擇權
 }
