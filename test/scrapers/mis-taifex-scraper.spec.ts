@@ -13,6 +13,47 @@ describe('MisTaifexScraper', () => {
     mockAxios.reset();
   });
 
+  describe('.fetchListedFutOpt()', () => {
+    it('should fetch listed futures & options', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/taifex-listed-futopt.json') });
+
+      const data = await scraper.fetchListedFutOpt();
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://mis.taifex.com.tw/futures/api/getCmdyDDLItemByKind',
+        JSON.stringify({ SymbolType: undefined }),
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+      expect(data).toBeDefined();
+      expect(data.length).toBeGreaterThan(0);
+    });
+
+    it('should fetch listed futures', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/taifex-listed-futures.json') });
+
+      const data = await scraper.fetchListedFutOpt({ type: 'F' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://mis.taifex.com.tw/futures/api/getCmdyDDLItemByKind',
+        JSON.stringify({ SymbolType: 'F' }),
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+      expect(data).toBeDefined();
+      expect(data.length).toBeGreaterThan(0);
+    });
+
+    it('should fetch listed options', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/taifex-listed-options.json') });
+
+      const data = await scraper.fetchListedFutOpt({ type: 'O' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://mis.taifex.com.tw/futures/api/getCmdyDDLItemByKind',
+        JSON.stringify({ SymbolType: 'O' }),
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+      expect(data).toBeDefined();
+      expect(data.length).toBeGreaterThan(0);
+    });
+  });
+
   describe('.fetchFutOptQuote()', () => {
     it('should fetch futures realtime quote', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/futures-quote.json') });

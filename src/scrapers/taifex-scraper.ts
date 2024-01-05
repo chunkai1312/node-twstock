@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import * as cheerio from 'cheerio';
 import * as csvtojson from 'csvtojson';
 import * as iconv from 'iconv-lite';
 import * as numeral from 'numeral';
@@ -7,6 +8,52 @@ import { FutOpt } from '../enums';
 import { Scraper } from './scraper';
 
 export class TaifexScraper extends Scraper {
+  async fetchListedStockFutOpt() {
+    const url = 'https://www.taifex.com.tw/cht/2/stockLists';
+    const response = await this.httpService.get(url);
+    const $ = cheerio.load(response.data);
+
+    const list = $('#myTable tbody tr').map((_, el) => {
+      const td = $(el).find('td');
+      return {
+        symbol: td.eq(0).text().trim(),
+        underlyingStock: td.eq(1).text().trim(),
+        underlyingSymbol: td.eq(2).text().trim(),
+        underlyingName: td.eq(3).text().trim(),
+        hasFutures: td.eq(4).text().includes('是股票期貨標的'),
+        hasOptions: td.eq(5).text().includes('是股票選擇權標的'),
+        isTwseStock: td.eq(6).text().includes('是上市普通股標的證券'),
+        isTpexStock: td.eq(7).text().includes('是上櫃普通股標的證券'),
+        isTwseETF: td.eq(8).text().includes('是上市ETF標的證券'),
+        isTpexETF: td.eq(9).text().includes('是上櫃ETF標的證券'),
+        shares: numeral(td.eq(10).text()).value(),
+      } as Record<string, any>;
+    }).toArray();
+
+    const data = list.reduce((data, row) => {
+      const isMicro = (row.shares === 100);
+      const futures = {
+        symbol: `${row.symbol}F`,
+        name: `${isMicro ? '小型': ''}${row.underlyingName}期貨`,
+        underlyingSymbol: row.underlyingSymbol,
+        underlyingName: row.underlyingName,
+        type: '股票期貨',
+      };
+      const options = {
+        symbol: `${row.symbol}O`,
+        name: `${isMicro ? '小型': ''}${row.underlyingName}選擇權`,
+        underlyingName: row.underlyingName,
+        underlying: row.underlyingSymbol,
+        type: '股票選擇權',
+      };
+      if (row.hasFutures) data.push(futures);
+      if (row.hasOptions) data.push(options);
+      return data;
+    }, []);
+
+    return data;
+  }
+
   async fetchFuturesHistorical(options: { date: string, symbol: string, afterhours?: boolean }) {
     const { date, symbol, afterhours } = options;
 

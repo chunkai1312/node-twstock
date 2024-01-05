@@ -13,6 +13,25 @@ describe('TaifexScraper', () => {
     mockAxios.reset();
   });
 
+  describe('.fetchListedStockFutOpt()', () => {
+    it('should fetch listed stock futures & options', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-listed-stock-futopt.html') });
+
+      const data = await scraper.fetchListedStockFutOpt();
+      expect(mockAxios.get).toHaveBeenCalledWith('https://www.taifex.com.tw/cht/2/stockLists');
+      expect(data).toBeDefined();
+      expect(data?.length).toBeGreaterThan(0);
+    });
+
+    it('should return empty array when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: {} });
+
+      const data = await scraper.fetchListedStockFutOpt();
+      expect(mockAxios.get).toHaveBeenCalledWith('https://www.taifex.com.tw/cht/2/stockLists');
+      expect(data?.length).toBe(0);
+    });
+  });
+
   describe('.fetchFuturesHistorical()', () => {
     it('should fetch futures historical data for the given date of regular trading', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical.csv') });

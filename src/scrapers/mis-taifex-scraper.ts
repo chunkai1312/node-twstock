@@ -5,6 +5,26 @@ import { Scraper } from './scraper';
 import { Ticker } from '../interfaces';
 
 export class MisTaifexScraper extends Scraper {
+  async fetchListedFutOpt(options?: { type?: 'F' | 'O' }) {
+    const { type } = options ?? {};
+    const url ='https://mis.taifex.com.tw/futures/api/getCmdyDDLItemByKind';
+    const body = JSON.stringify({
+      SymbolType: type,
+    });
+
+    const response = await this.httpService.post(url, body, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const json = response.data;
+    const data = json.RtData.Items.map((row: any) => ({
+      symbol: row.CID,
+      name: row.DispCName,
+      ...(row.SpotID && { underlying: row.SpotID }),
+    }));
+
+    return data;
+  }
+
   async fetchFutOptQuote(options: { ticker: Ticker, afterhours?: boolean }) {
     const { ticker, afterhours } = options;
     const body = JSON.stringify({ SymbolID: [this.extractSymbolIdFromTicker(ticker, { afterhours })] });
