@@ -454,6 +454,18 @@ describe('TwStock', () => {
       });
     });
 
+    describe('.historical()', () => {
+      it('should fetch futopt historical data', async () => {
+        await twstock.futopt.historical({ date: '2023-01-30', symbol: 'TXF' });
+        expect(TaifexScraper.prototype.fetchFuturesHistorical).toBeCalledWith({ date: '2023-01-30', symbol: 'TXF' });
+      });
+
+      it('should fetch options historical data', async () => {
+        await twstock.futopt.historical({ date: '2023-01-30', symbol: 'TXO' });
+        expect(TaifexScraper.prototype.fetchOptionsHistorical).toBeCalledWith({ date: '2023-01-30', symbol: 'TXO' });
+      });
+    });
+
     describe('.txfInstTrades()', () => {
       it('should fetch TXF institutional investors\' trades', async () => {
         await twstock.futopt.txfInstTrades({ date: '2023-01-30' });
