@@ -401,8 +401,15 @@ export class TaifexScraper extends Scraper {
     return data;
   }
 
-  async fetchTxfLargeTradersPosition(options: { date: string }) {
-    const date = options.date;
+  async fetchFuturesLargeTradersPosition(options: { date: string, symbol: string }) {
+    const { date, symbol } = options;
+
+    const alias: Record<string, string> = {
+      'TXF': 'TX',  // 臺股期貨
+      'EXF': 'TE',  // 電子期貨
+      'FXF': 'TF',  // 金融期貨
+    };
+
     const queryDate = DateTime.fromISO(date).toFormat('yyyy/MM/dd');
     const form = new URLSearchParams({
       queryStartDate: queryDate,
@@ -417,7 +424,7 @@ export class TaifexScraper extends Scraper {
     const json = await csvtojson({ noheader: true, output: 'csv' }).fromString(csv);
     const [_, ...rows] = json;
 
-    const txRows = rows.filter(row => row[1] === 'TX');
+    const txRows = rows.filter(row => row[1] === (alias[symbol] ?? symbol));
 
     const data: Record<string, any> = {};
     data.frontMonth = {};
@@ -469,6 +476,11 @@ export class TaifexScraper extends Scraper {
     data.backMonths.topTenSpecificNetOi = data.allMonths.topTenSpecificNetOi - data.frontMonth.topTenSpecificNetOi;
     data.backMonths.marketOi = data.allMonths.marketOi - data.frontMonth.marketOi;
     return data;
+  }
+
+  async fetchTxfLargeTradersPosition(options: { date: string }) {
+    const { date } = options;
+    return this.fetchFuturesLargeTradersPosition({ date, symbol: 'TXF' });
   }
 
   async fetchTxoLargeTradersPosition(options: { date: string }) {
