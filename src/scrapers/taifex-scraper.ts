@@ -223,13 +223,13 @@ export class TaifexScraper extends Scraper {
     return this.fetchFuturesInstTrades({ date, symbol: 'MXF' })
   }
 
-  async fetchTxoInstTrades(options: { date: string }) {
-    const { date } = options;
+  async fetchOptionsInstTrades(options: { date: string, symbol: string }) {
+    const { date, symbol } = options;
     const queryDate = DateTime.fromISO(date).toFormat('yyyy/MM/dd');
     const form = new URLSearchParams({
       queryStartDate: queryDate,
       queryEndDate: queryDate,
-      commodityId: 'TXO',
+      commodityId: symbol,
     });
     const url = 'https://www.taifex.com.tw/cht/3/callsAndPutsDateDown';
     const response = await this.httpService.post(url, form, { responseType: 'arraybuffer' });
@@ -318,6 +318,11 @@ export class TaifexScraper extends Scraper {
     data.puts.dealersNetOiVolume = numeral(dealersPuts[14]).value();
     data.puts.dealersNetOiValue = numeral(dealersPuts[15]).value();
     return data;
+  }
+
+  async fetchTxoInstTrades(options: { date: string }) {
+    const { date } = options;
+    return this.fetchOptionsInstTrades({ date, symbol: 'TXO' });
   }
 
   async fetchTxoPutCallRatio(options: { date: string }) {
