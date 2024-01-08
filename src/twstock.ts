@@ -51,6 +51,7 @@ export class TwStock {
     return {
       list: this.getFutOptList.bind(this),
       quote: this.getFutOptQuote.bind(this),
+      contracts: this.getFutOptContracts.bind(this),
       historical: this.getFutOptHistorical.bind(this),
       txfInstTrades: this.getFutOptTxfInstTrades.bind(this),
       txoInstTrades: this.getFutOptTxoInstTrades.bind(this),
@@ -67,7 +68,7 @@ export class TwStock {
     const isinScraper = this._scraper.getIsinScraper();
 
     const stocks = (symbol)
-      ? await isinScraper.fetchStocksInfo({ symbol })
+      ? await isinScraper.fetchListed({ symbol })
       : await Promise.all([
           isinScraper.fetchListedStocks({ market: Market.TSE }),
           isinScraper.fetchListedStocks({ market: Market.OTC }),
@@ -97,13 +98,30 @@ export class TwStock {
     return indices;
   }
 
-  private async loadFutOpt(options?: { symbol?: string }) {
-    const { symbol } = options ?? {};
+  private async loadFutOpt(options?: { type?: 'F' | 'O' }) {
+    const { type } = options ?? {};
+    const misTaifexScraper = this._scraper.getMisTaifexScraper();
+
+    const futopt = await (() => {
+      switch (type) {
+        case 'F': return misTaifexScraper.fetchListedFutOpt({ type: 'F' });
+        case 'O': return misTaifexScraper.fetchListedFutOpt({ type: 'O' });
+        default: return misTaifexScraper.fetchListedFutOpt();
+      }
+    })() as Ticker[];
+
+    futopt.forEach(({ symbol, ...ticker }) => this._futopt.set(symbol, { symbol, ...ticker }));
+
+    return futopt;
+  }
+
+  private async loadFutOptContracts(options?: { symbol?: string, type?: 'F' | 'O' }) {
+    const { symbol, type } = options ?? {};
     const isinScraper = this._scraper.getIsinScraper();
 
     const futopt = (symbol)
-      ? await isinScraper.fetchStocksInfo({ symbol })
-      : await isinScraper.fetchListedFutOpt();
+      ? await isinScraper.fetchListed({ symbol })
+      : await isinScraper.fetchListedFutOpt({ type });
 
     futopt.forEach(({ symbol, ...ticker }) => this._futopt.set(symbol, { symbol, ...ticker }));
 
@@ -352,8 +370,15 @@ export class TwStock {
       : await this._scraper.getTwseScraper().fetchMarketMarginTrades({ date });
   }
 
-  private async getFutOptList() {
-    const data = await this.loadFutOpt();
+  private async getFutOptList(options?: { type?: 'F' | 'O' }) {
+    const { type } = options ?? {};
+    const data = await this.loadFutOpt({ type });
+    return data;
+  }
+
+  private async getFutOptContracts(options?: { type?: 'F' | 'O' }) {
+    const { type } = options ?? {};
+    const data = await this.loadFutOptContracts({ type });
     return data;
   }
 
@@ -361,12 +386,18 @@ export class TwStock {
     const { symbol, afterhours } = options;
 
     if (!this._futopt.has(symbol)) {
-      const futopt = await this.loadFutOpt({ symbol });
-      if (!futopt.length) throw new Error('symbol not found');
+      const futopt = (symbol.length === 3)
+        ? await this.loadFutOpt()
+        : await this.loadFutOptContracts({ symbol });
+
+      if (!map(futopt, 'symbol').includes(symbol)) throw new Error('symbol not found');
     }
 
     const ticker = this._futopt.get(symbol) as Ticker;
-    return this._scraper.getMisTaifexScraper().fetchFutOptQuote({ ticker, afterhours });
+
+    return (ticker.symbol.length === 3)
+      ? this._scraper.getMisTaifexScraper().fetchFutOptQuoteList({ ticker, afterhours })
+      : this._scraper.getMisTaifexScraper().fetchFutOptQuoteDetail({ ticker, afterhours });
   }
 
   private async getFutOptHistorical(options: { date: string, symbol: string, afterhours?: boolean }) {

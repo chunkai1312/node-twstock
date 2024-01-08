@@ -12,7 +12,7 @@ jest.mock('../src/scrapers/isin-scraper', () => {
   return {
     IsinScraper: function() {
       return {
-        fetchStocksInfo: jest.fn(({ symbol }) => {
+        fetchListed: jest.fn(({ symbol }) => {
           if (symbol.split(',').includes('2330')) return require('./fixtures/fetched-stocks-info.json');
           if (symbol.split(',').includes('6488')) return require('./fixtures/fetched-stocks-info.json');
           if (symbol.split(',').includes('TXFA4')) return require('./fixtures/fetched-stocks-info.json');
@@ -23,8 +23,10 @@ jest.mock('../src/scrapers/isin-scraper', () => {
           if (market === 'OTC') return require('./fixtures/fetched-otc-stocks-list.json');
           return [];
         }),
-        fetchListedFutOpt: jest.fn(() => {
-          return require('./fixtures/fetched-taifex-futopt-list.json');
+        fetchListedFutOpt: jest.fn(options => {
+          if (options?.type === 'F') return require('./fixtures/fetched-taifex-futures-contracts.json');
+          if (options?.type === 'O') return require('./fixtures/fetched-taifex-options-contracts.json');
+          return require('./fixtures/fetched-taifex-futopt-contracts.json');
         }),
       }
     }
@@ -41,7 +43,17 @@ jest.mock('../src/scrapers/mis-twse-scraper', () => {
   MisTwseScraper.prototype.fetchIndicesQuote = jest.fn();
   return { MisTwseScraper };
 });
-jest.mock('../src/scrapers/mis-taifex-scraper');
+jest.mock('../src/scrapers/mis-taifex-scraper', () => {
+  function MisTaifexScraper() {}
+  MisTaifexScraper.prototype.fetchListedFutOpt = jest.fn((options) => {
+    if (options?.type === 'F') return require('./fixtures/fetched-taifex-futures-list.json');
+    if (options?.type === 'O') return require('./fixtures/fetched-taifex-options-list.json');
+    return require('./fixtures/fetched-taifex-futopt-list.json');;
+  });
+  MisTaifexScraper.prototype.fetchFutOptQuoteList = jest.fn();
+  MisTaifexScraper.prototype.fetchFutOptQuoteDetail = jest.fn();
+  return { MisTaifexScraper };
+});
 jest.mock('../src/scrapers/twse-scraper');
 jest.mock('../src/scrapers/tpex-scraper');
 jest.mock('../src/scrapers/taifex-scraper');
@@ -436,17 +448,54 @@ describe('TwStock', () => {
 
   describe('.futopt', () => {
     describe('.list()', () => {
-      it('should load stocks and return the list', async () => {
+      it('should load futures & options and return the list', async () => {
         const futopt = await twstock.futopt.list();
+        expect(futopt).toBeDefined();
+        expect(futopt?.length).toBeGreaterThan(0);
+      });
+
+      it('should load futures and return the list', async () => {
+        const futopt = await twstock.futopt.list({ type: 'F' });
+        expect(futopt).toBeDefined();
+        expect(futopt?.length).toBeGreaterThan(0);
+      });
+
+      it('should load options and return the list', async () => {
+        const futopt = await twstock.futopt.list({ type: 'O' });
+        expect(futopt).toBeDefined();
+        expect(futopt?.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe('.contracts()', () => {
+      it('should load futures & options contracts and return the list', async () => {
+        const futopt = await twstock.futopt.contracts();
+        expect(futopt).toBeDefined();
+        expect(futopt?.length).toBeGreaterThan(0);
+      });
+
+      it('should load futures contracts and return the list', async () => {
+        const futopt = await twstock.futopt.contracts({ type: 'F' });
+        expect(futopt).toBeDefined();
+        expect(futopt?.length).toBeGreaterThan(0);
+      });
+
+      it('should load options contracts and return the list', async () => {
+        const futopt = await twstock.futopt.contracts({ type: 'O' });
         expect(futopt).toBeDefined();
         expect(futopt?.length).toBeGreaterThan(0);
       });
     });
 
     describe('.quote()', () => {
-      it('should fetch futopt realtime quote', async () => {
+      it('should fetch futopt realtime quote list', async () => {
+        await twstock.futopt.quote({ symbol: 'TXF' });
+        expect(MisTaifexScraper.prototype.fetchFutOptQuoteList).toHaveBeenCalled();
+      });
+
+      it('should fetch futopt realtime quote detail', async () => {
         await twstock.futopt.quote({ symbol: 'TXFA4' });
-        expect(MisTaifexScraper.prototype.fetchFutOptQuote).toHaveBeenCalled();
+        expect(MisTaifexScraper.prototype.fetchFutOptQuoteDetail).toHaveBeenCalled();
       });
 
       it('should throw an error if the symbol is not found', async () => {

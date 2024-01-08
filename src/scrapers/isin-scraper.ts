@@ -6,7 +6,7 @@ import { Scraper } from './scraper';
 import { asExchange, asMarket, asIndustry } from '../utils';
 
 export class IsinScraper extends Scraper {
-  async fetchStocksInfo(options: { symbol: string }) {
+  async fetchListed(options: { symbol: string }) {
     const { symbol } = options;
     const url = `https://isin.twse.com.tw/isin/single_main.jsp?owncode=${symbol}`;
     const response = await this.httpService.get(url, { responseType: 'arraybuffer' });
@@ -55,7 +55,7 @@ export class IsinScraper extends Scraper {
     return data;
   }
 
-  async fetchListedFutOpt() {
+  async fetchListedFutOpt(options?: { type?: 'F' | 'O'}) {
     const url = 'https://isin.twse.com.tw/isin/class_main.jsp?market=7';
     const response = await this.httpService.get(url, { responseType: 'arraybuffer' });
     const page = iconv.decode(response.data, 'big5');
@@ -74,6 +74,10 @@ export class IsinScraper extends Scraper {
       } as Record<string, any>;
     }).toArray();
 
-    return data;
+    return data.filter(row => {
+      if (options?.type === 'F') return row.type.includes('期貨');
+      if (options?.type === 'O') return row.type.includes('選擇權');
+      return true;
+    });
   }
 }

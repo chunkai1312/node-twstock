@@ -13,11 +13,11 @@ describe('IsinScraper', () => {
     mockAxios.reset();
   });
 
-  describe('.fetchStocksInfo()', () => {
-    it('should fetch stocks info', async () => {
+  describe('.fetchListed()', () => {
+    it('should fetch listed by symbol', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/stocks-info.html') });
 
-      const data = await scraper.fetchStocksInfo({ symbol: '2330' });
+      const data = await scraper.fetchListed({ symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://isin.twse.com.tw/isin/single_main.jsp?owncode=2330',
         { responseType: 'arraybuffer' },
@@ -38,7 +38,7 @@ describe('IsinScraper', () => {
     it('should return empty array when no data is available', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/stocks-info-no-data.html') });
 
-      const data = await scraper.fetchStocksInfo({ symbol: 'foobar' });
+      const data = await scraper.fetchListed({ symbol: 'foobar' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://isin.twse.com.tw/isin/single_main.jsp?owncode=foobar',
         { responseType: 'arraybuffer' },
@@ -92,7 +92,7 @@ describe('IsinScraper', () => {
   });
 
   describe('.fetchListedFutOpt()', () => {
-    it('should fetch listed stocks for TSE market', async () => {
+    it('should fetch listed futures & options', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-listed-futopt.html') });
 
       const data = await scraper.fetchListedFutOpt();
@@ -110,6 +110,48 @@ describe('IsinScraper', () => {
         type: '原油期貨',
         industry: '00',
         listedDate: '2023-11-01',
+      });
+    });
+
+    it('should fetch listed futures', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-listed-futopt.html') });
+
+      const data = await scraper.fetchListedFutOpt({ type: 'F' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://isin.twse.com.tw/isin/class_main.jsp?market=7',
+        { responseType: 'arraybuffer' },
+      );
+      expect(data).toBeDefined();
+      expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
+        symbol: 'BRFC4',
+        name: '布蘭特原油期貨2024/03',
+        exchange: 'TAIFEX',
+        market: 'FUTOPT',
+        type: '原油期貨',
+        industry: '00',
+        listedDate: '2023-11-01',
+      });
+    });
+
+    it('should fetch listed options', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-listed-futopt.html') });
+
+      const data = await scraper.fetchListedFutOpt({ type: 'O' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://isin.twse.com.tw/isin/class_main.jsp?market=7',
+        { responseType: 'arraybuffer' },
+      );
+      expect(data).toBeDefined();
+      expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
+        symbol: 'CAO00500C4',
+        name: '南亞股票選擇權,2024/03,履約價50.0,買權',
+        exchange: 'TAIFEX',
+        market: 'FUTOPT',
+        type: '股票選擇權買權',
+        industry: '00',
+        listedDate: '2023-10-23'
       });
     });
   });
