@@ -15,7 +15,7 @@ describe('MisTaifexScraper', () => {
 
   describe('.fetchListedFutOpt()', () => {
     it('should fetch listed futures & options', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/taifex-listed-futopt.json') });
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/mis-taifex-listed-futures-and-options.json') });
 
       const data = await scraper.fetchListedFutOpt();
       expect(mockAxios.post).toHaveBeenCalledWith(
@@ -25,10 +25,16 @@ describe('MisTaifexScraper', () => {
       );
       expect(data).toBeDefined();
       expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
+        symbol: 'TXF',
+        name: '臺指期',
+        exchange: 'TAIFEX',
+        type: 'F',
+      });
     });
 
     it('should fetch listed futures', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/taifex-listed-futures.json') });
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/mis-taifex-listed-futures.json') });
 
       const data = await scraper.fetchListedFutOpt({ type: 'F' });
       expect(mockAxios.post).toHaveBeenCalledWith(
@@ -38,10 +44,16 @@ describe('MisTaifexScraper', () => {
       );
       expect(data).toBeDefined();
       expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
+        symbol: 'TXF',
+        name: '臺指期',
+        exchange: 'TAIFEX',
+        type: 'F',
+      });
     });
 
     it('should fetch listed options', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/taifex-listed-options.json') });
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/mis-taifex-listed-options.json') });
 
       const data = await scraper.fetchListedFutOpt({ type: 'O' });
       expect(mockAxios.post).toHaveBeenCalledWith(
@@ -51,14 +63,118 @@ describe('MisTaifexScraper', () => {
       );
       expect(data).toBeDefined();
       expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
+        symbol: 'TXO',
+        name: '臺指選',
+        exchange: 'TAIFEX',
+        type: 'O',
+      });
     });
   });
 
-  describe('.fetchFutOptQuote()', () => {
+  describe('.fetchFutOptQuoteList()', () => {
     it('should fetch futures realtime quote', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/futures-quote.json') });
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/mis-taifex-futures-quote-list.json') });
 
-      const data = await scraper.fetchFutOptQuote({
+      const data = await scraper.fetchFutOptQuoteList({
+        ticker: { symbol: 'TXF', type: 'F' } as Ticker,
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://mis.taifex.com.tw/futures/api/getQuoteList',
+        JSON.stringify({
+          CID: 'TXF',
+          SymbolType: 'F',
+          MarketType: 0,
+        }),
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+      expect(data).toBeDefined();
+      expect(data?.length).toBeGreaterThan(0);
+    });
+
+    it('should fetch futures realtime quote for afterhours trading', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/mis-taifex-futures-quote-list-afterhours.json') });
+
+      const data = await scraper.fetchFutOptQuoteList({
+        ticker: { symbol: 'TXF', type: 'F' } as Ticker,
+        afterhours: true,
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://mis.taifex.com.tw/futures/api/getQuoteList',
+        JSON.stringify({
+          CID: 'TXF',
+          SymbolType: 'F',
+          MarketType: 1,
+        }),
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+      expect(data).toBeDefined();
+      expect(data?.length).toBeGreaterThan(0);
+    });
+
+    it('should fetch options realtime quote', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/mis-taifex-options-quote-list.json') });
+
+      const data = await scraper.fetchFutOptQuoteList({
+        ticker: { symbol: 'TXO', type: 'O' } as Ticker,
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://mis.taifex.com.tw/futures/api/getQuoteList',
+        JSON.stringify({
+          CID: 'TXO',
+          SymbolType: 'O',
+          MarketType: 0,
+        }),
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+      expect(data).toBeDefined();
+      expect(data?.length).toBeGreaterThan(0);
+    });
+
+    it('should fetch options realtime quote for afterhours trading', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/mis-taifex-options-quote-detail-afterhours.json') });
+
+      const data = await scraper.fetchFutOptQuoteList({
+        ticker: { symbol: 'TXO', type: 'O' } as Ticker,
+        afterhours: true,
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://mis.taifex.com.tw/futures/api/getQuoteList',
+        JSON.stringify({
+          CID: 'TXO',
+          SymbolType: 'O',
+          MarketType: 1,
+        }),
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+      expect(data).toBeDefined();
+      expect(data?.length).toBeGreaterThan(0);
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: {} });
+
+      const data = await scraper.fetchFutOptQuoteList({
+        ticker: { symbol: 'TXF', type: 'F' } as Ticker,
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://mis.taifex.com.tw/futures/api/getQuoteList',
+        JSON.stringify({
+          CID: 'TXF',
+          SymbolType: 'F',
+          MarketType: 0,
+        }),
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+      expect(data).toBe(null);
+    });
+  });
+
+  describe('.fetchFutOptQuoteDetail()', () => {
+    it('should fetch futures realtime quote detail', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/mis-taifex-futures-quote-detail.json') });
+
+      const data = await scraper.fetchFutOptQuoteDetail({
         ticker: {
           symbol: 'TXFA4',
           name: '臺股期貨2024/01',
@@ -77,7 +193,8 @@ describe('MisTaifexScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         symbol: 'TXFA4',
-        name: '臺股期貨2024/01',
+        name: '臺指期014',
+        status: 'TC',
         referencePrice: 17870,
         limitUpPrice: 19657,
         limitDownPrice: 16083,
@@ -107,10 +224,10 @@ describe('MisTaifexScraper', () => {
       });
     });
 
-    it('should fetch futures realtime quote for afterhours trading', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/futures-quote-afterhours.json') });
+    it('should fetch futures realtime quote detail for afterhours trading', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/mis-taifex-futures-quote-detail-afterhours.json') });
 
-      const data = await scraper.fetchFutOptQuote({
+      const data = await scraper.fetchFutOptQuoteDetail({
         ticker: {
           symbol: 'TXFA4',
           name: '臺股期貨2024/01',
@@ -130,7 +247,8 @@ describe('MisTaifexScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         symbol: 'TXFA4',
-        name: '臺股期貨2024/01',
+        name: '臺指期014',
+        status: '',
         referencePrice: 17800,
         limitUpPrice: 19580,
         limitDownPrice: 16020,
@@ -160,10 +278,10 @@ describe('MisTaifexScraper', () => {
       });
     });
 
-    it('should fetch options realtime quote', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/options-quote.json') });
+    it('should fetch options realtime quote detail', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/mis-taifex-options-quote-detail.json') });
 
-      const data = await scraper.fetchFutOptQuote({
+      const data = await scraper.fetchFutOptQuoteDetail({
         ticker: {
           symbol: 'TX118000A4',
           name: '臺指選擇權,2024/01,履約價18000,買權',
@@ -182,7 +300,8 @@ describe('MisTaifexScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         symbol: 'TX118000A4',
-        name: '臺指選擇權,2024/01,履約價18000,買權',
+        name: '臺指選W1014;18000買權',
+        status: 'TC',
         referencePrice: 30.5,
         limitUpPrice: 1820,
         limitDownPrice: 0.1,
@@ -212,10 +331,10 @@ describe('MisTaifexScraper', () => {
       });
     });
 
-    it('should fetch options realtime quote for afterhours trading', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/options-quote-afterhours.json') });
+    it('should fetch options realtime quote detail for afterhours trading', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/mis-taifex-options-quote-detail-afterhours.json') });
 
-      const data = await scraper.fetchFutOptQuote({
+      const data = await scraper.fetchFutOptQuoteDetail({
         ticker: {
           symbol: 'TX118000A4',
           name: '臺指選擇權,2024/01,履約價18000,買權',
@@ -235,7 +354,8 @@ describe('MisTaifexScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         symbol: 'TX118000A4',
-        name: '臺指選擇權,2024/01,履約價18000,買權',
+        name: '臺指選W1014;18000買權',
+        status: '',
         referencePrice: 2.6,
         limitUpPrice: 1780,
         limitDownPrice: 0.1,
@@ -268,7 +388,7 @@ describe('MisTaifexScraper', () => {
     it('should return null when no data is available', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: {} });
 
-      const data = await scraper.fetchFutOptQuote({
+      const data = await scraper.fetchFutOptQuoteDetail({
         ticker: {
           symbol: 'TXFA4',
           name: '臺股期貨2024/01',

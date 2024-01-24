@@ -5,7 +5,7 @@ import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
 
 export class TdccScraper extends Scraper {
-  async fetchStocksHolders(options: { date: string, symbol: string }) {
+  async fetchStocksShareholders(options: { date: string, symbol: string }) {
     const { date, symbol } = options;
 
     const url = 'https://www.tdcc.com.tw/portal/zh/smWeb/qryStock';
@@ -42,7 +42,7 @@ export class TdccScraper extends Scraper {
     data.date = date;
     data.symbol = (info.match(/證券代號：(\S+)/) as string[])[1];
     data.name = (info.match(/證券名稱：(.+)/) as string[])[1];
-    data.data = $response('.table tr').slice(1).map((_, el) => {
+    data.shareholders = $response('.table tr').slice(1).map((_, el) => {
       const td = $response(el).find('td');
       return {
         level: td.eq(1).text().trim(),
@@ -54,6 +54,3 @@ export class TdccScraper extends Scraper {
     return data;
   }
 }
-
-
-

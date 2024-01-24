@@ -21,6 +21,14 @@ describe('TaifexScraper', () => {
       expect(mockAxios.get).toHaveBeenCalledWith('https://www.taifex.com.tw/cht/2/stockLists');
       expect(data).toBeDefined();
       expect(data?.length).toBeGreaterThan(0);
+      expect(data?.[0]).toEqual({
+        symbol: 'CAF',
+        name: '南亞期貨',
+        exchange: 'TAIFEX',
+        type: '股票期貨',
+        underlyingSymbol: '1303',
+        underlyingName: '南亞',
+      });
     });
 
     it('should return empty array when no data is available', async () => {
@@ -47,6 +55,27 @@ describe('TaifexScraper', () => {
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
       expect(data?.length).toBeGreaterThan(0);
+      expect(data?.[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TAIFEX',
+        symbol: 'MXF',
+        contractMonth: '202301',
+        open: 15568,
+        high: 15568,
+        low: 15364,
+        close: 15452,
+        change: 527,
+        changePercent: 3.53,
+        volume: 70861,
+        settlementPrice: 0,
+        openInterest: 11638,
+        bestBid: 15450,
+        bestAsk: 15452,
+        historicalHigh: 15568,
+        historicalLow: 12625,
+        session: '一般',
+        volumeSpread: null,
+      });
     });
 
     it('should fetch futures historical data for the given date of after-hours trading', async () => {
@@ -63,6 +92,27 @@ describe('TaifexScraper', () => {
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
       expect(data?.length).toBeGreaterThan(0);
+      expect(data?.[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TAIFEX',
+        symbol: 'MXF',
+        contractMonth: '202301',
+        open: 14920,
+        high: 15051,
+        low: 14820,
+        close: 15051,
+        change: 126,
+        changePercent: 0.84,
+        volume: 63455,
+        settlementPrice: null,
+        openInterest: null,
+        bestBid: 15046,
+        bestAsk: 15049,
+        historicalHigh: 15086,
+        historicalLow: 12625,
+        session: '盤後',
+        volumeSpread: null,
+      });
     });
 
     it('should return null when no data is available', async () => {
@@ -96,6 +146,28 @@ describe('TaifexScraper', () => {
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
       expect(data?.length).toBeGreaterThan(0);
+      expect(data?.[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TAIFEX',
+        symbol: 'TXO',
+        contractMonth: '202301',
+        strikePrice: 10700,
+        type: '買權',
+        open: null,
+        high: null,
+        low: null,
+        close: null,
+        volume: 0,
+        settlementPrice: 0,
+        openInterest: 0,
+        bestBid: null,
+        bestAsk: null,
+        historicalHigh: null,
+        historicalLow: null,
+        session: '一般',
+        change: null,
+        changePercent: 0,
+      });
     });
 
     it('should fetch options historical data for the given date of after-hours trading', async () => {
@@ -112,6 +184,28 @@ describe('TaifexScraper', () => {
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
       expect(data?.length).toBeGreaterThan(0);
+      expect(data?.[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TAIFEX',
+        symbol: 'TXO',
+        contractMonth: '202301',
+        strikePrice: 10700,
+        type: '買權',
+        open: null,
+        high: null,
+        low: null,
+        close: null,
+        volume: 0,
+        settlementPrice: null,
+        openInterest: null,
+        bestBid: null,
+        bestAsk: null,
+        historicalHigh: null,
+        historicalLow: null,
+        session: '盤後',
+        change: null,
+        changePercent: 0,
+      });
     });
 
     it('should return null when no data is available', async () => {
@@ -130,153 +224,11 @@ describe('TaifexScraper', () => {
     });
   });
 
-  describe('.fetchFuturesInstTrades()', () => {
-    it('should fetch TXF institutional investors\' trades for the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-inst-trades.csv') });
+  describe('.fetchFuturesInstitutional()', () => {
+    it('should fetch futures institutional investors\' trades for the given date', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-institutional.csv') });
 
-      const data = await scraper.fetchFuturesInstTrades({ date: '2023-01-30', symbol: 'TXF' });
-      const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
-      const form = new URLSearchParams({
-        queryStartDate: '2023/01/30',
-        queryEndDate: '2023/01/30',
-        commodityId: 'TXF',
-      });
-      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(data).toBeDefined();
-      expect(data).toEqual({
-        date: '2023-01-30',
-        symbol: 'TXF',
-        name: '臺股期貨',
-        finiLongTradeVolume: 61232,
-        finiLongTradeValue: 187462698,
-        finiShortTradeVolume: 60146,
-        finiShortTradeValue: 184303292,
-        finiNetTradeVolume: 1086,
-        finiNetTradeValue: 3159406,
-        finiLongOiVolume: 32100,
-        finiLongOiValue: 99233073,
-        finiShortOiVolume: 24001,
-        finiShortOiValue: 74192341,
-        finiNetOiVolume: 8099,
-        finiNetOiValue: 25040732,
-        sitcLongTradeVolume: 2237,
-        sitcLongTradeValue: 6907887,
-        sitcShortTradeVolume: 449,
-        sitcShortTradeValue: 1384268,
-        sitcNetTradeVolume: 1788,
-        sitcNetTradeValue: 5523619,
-        sitcLongOiVolume: 10112,
-        sitcLongOiValue: 31260237,
-        sitcShortOiVolume: 15995,
-        sitcShortOiValue: 49446943,
-        sitcNetOiVolume: -5883,
-        sitcNetOiValue: -18186706,
-        dealersLongTradeVolume: 14205,
-        dealersLongTradeValue: 43588157,
-        dealersShortTradeVolume: 17049,
-        dealersShortTradeValue: 52346096,
-        dealersNetTradeVolume: -2844,
-        dealersNetTradeValue: -8757939,
-        dealersLongOiVolume: 10822,
-        dealersLongOiValue: 33446397,
-        dealersShortOiVolume: 5797,
-        dealersShortOiValue: 17917728,
-        dealersNetOiVolume: 5025,
-        dealersNetOiValue: 15528669,
-      });
-    });
-
-    it('should return null when no data is available', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-inst-trades-no-data.html') });
-
-      const data = await scraper.fetchFuturesInstTrades({ date: '2023-01-01', symbol: 'TXF' });
-      const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
-      const form = new URLSearchParams({
-        queryStartDate: '2023/01/01',
-        queryEndDate: '2023/01/01',
-        commodityId: 'TXF',
-      });
-      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(data).toBe(null);
-    });
-  });
-
-  describe('.fetchTxfInstTrades()', () => {
-    it('should fetch TXF institutional investors\' trades for the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txf-inst-trades.csv') });
-
-      const data = await scraper.fetchTxfInstTrades({ date: '2023-01-30' });
-      const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
-      const form = new URLSearchParams({
-        queryStartDate: '2023/01/30',
-        queryEndDate: '2023/01/30',
-        commodityId: 'TXF',
-      });
-      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(data).toBeDefined();
-      expect(data).toEqual({
-        date: '2023-01-30',
-        symbol: 'TXF',
-        name: '臺股期貨',
-        finiLongTradeVolume: 61232,
-        finiLongTradeValue: 187462698,
-        finiShortTradeVolume: 60146,
-        finiShortTradeValue: 184303292,
-        finiNetTradeVolume: 1086,
-        finiNetTradeValue: 3159406,
-        finiLongOiVolume: 32100,
-        finiLongOiValue: 99233073,
-        finiShortOiVolume: 24001,
-        finiShortOiValue: 74192341,
-        finiNetOiVolume: 8099,
-        finiNetOiValue: 25040732,
-        sitcLongTradeVolume: 2237,
-        sitcLongTradeValue: 6907887,
-        sitcShortTradeVolume: 449,
-        sitcShortTradeValue: 1384268,
-        sitcNetTradeVolume: 1788,
-        sitcNetTradeValue: 5523619,
-        sitcLongOiVolume: 10112,
-        sitcLongOiValue: 31260237,
-        sitcShortOiVolume: 15995,
-        sitcShortOiValue: 49446943,
-        sitcNetOiVolume: -5883,
-        sitcNetOiValue: -18186706,
-        dealersLongTradeVolume: 14205,
-        dealersLongTradeValue: 43588157,
-        dealersShortTradeVolume: 17049,
-        dealersShortTradeValue: 52346096,
-        dealersNetTradeVolume: -2844,
-        dealersNetTradeValue: -8757939,
-        dealersLongOiVolume: 10822,
-        dealersLongOiValue: 33446397,
-        dealersShortOiVolume: 5797,
-        dealersShortOiValue: 17917728,
-        dealersNetOiVolume: 5025,
-        dealersNetOiValue: 15528669,
-      });
-    });
-
-    it('should return null when no data is available', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txf-inst-trades-no-data.html') });
-
-      const data = await scraper.fetchTxfInstTrades({ date: '2023-01-01' });
-      const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
-      const form = new URLSearchParams({
-        queryStartDate: '2023/01/01',
-        queryEndDate: '2023/01/01',
-        commodityId: 'TXF',
-      });
-      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(data).toBe(null);
-    });
-  });
-
-  describe('.fetchMxfInstTrades()', () => {
-    it('should fetch MXF institutional investors\' trades for the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mxf-inst-trades.csv') });
-
-      const data = await scraper.fetchMxfInstTrades({ date: '2023-01-30' });
+      const data = await scraper.fetchFuturesInstitutional({ date: '2023-01-30', symbol: 'MXF' });
       const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
@@ -287,67 +239,79 @@ describe('TaifexScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TAIFEX',
         symbol: 'MXF',
         name: '小型臺指期貨',
-        finiLongTradeVolume: 76626,
-        finiLongTradeValue: 58456520,
-        finiShortTradeVolume: 71944,
-        finiShortTradeValue: 54942167,
-        finiNetTradeVolume: 4682,
-        finiNetTradeValue: 3514353,
-        finiLongOiVolume: 5383,
-        finiLongOiValue: 4159828,
-        finiShortOiVolume: 2406,
-        finiShortOiValue: 1859422,
-        finiNetOiVolume: 2977,
-        finiNetOiValue: 2300406,
-        sitcLongTradeVolume: 8,
-        sitcLongTradeValue: 6161,
-        sitcShortTradeVolume: 9,
-        sitcShortTradeValue: 6937,
-        sitcNetTradeVolume: -1,
-        sitcNetTradeValue: -776,
-        sitcLongOiVolume: 89,
-        sitcLongOiValue: 68784,
-        sitcShortOiVolume: 12,
-        sitcShortOiValue: 9274,
-        sitcNetOiVolume: 77,
-        sitcNetOiValue: 59510,
-        dealersLongTradeVolume: 16135,
-        dealersLongTradeValue: 12314862,
-        dealersShortTradeVolume: 16475,
-        dealersShortTradeValue: 12593227,
-        dealersNetTradeVolume: -340,
-        dealersNetTradeValue: -278365,
-        dealersLongOiVolume: 8469,
-        dealersLongOiValue: 6528692,
-        dealersShortOiVolume: 2690,
-        dealersShortOiValue: 2077468,
-        dealersNetOiVolume: 5779,
-        dealersNetOiValue: 4451224,
+        institutional: [
+          {
+            investors: '自營商',
+            longTradeVolume: 16135,
+            longTradeValue: 12314862,
+            shortTradeVolume: 16475,
+            shortTradeValue: 12593227,
+            netTradeVolume: -340,
+            netTradeValue: -278365,
+            longOiVolume: 8469,
+            longOiValue: 6528692,
+            shortOiVolume: 2690,
+            shortOiValue: 2077468,
+            netOiVolume: 5779,
+            netOiValue: 4451224,
+          },
+          {
+            investors: '投信',
+            longTradeVolume: 8,
+            longTradeValue: 6161,
+            shortTradeVolume: 9,
+            shortTradeValue: 6937,
+            netTradeVolume: -1,
+            netTradeValue: -776,
+            longOiVolume: 89,
+            longOiValue: 68784,
+            shortOiVolume: 12,
+            shortOiValue: 9274,
+            netOiVolume: 77,
+            netOiValue: 59510,
+          },
+          {
+            investors: '外資及陸資',
+            longTradeVolume: 76626,
+            longTradeValue: 58456520,
+            shortTradeVolume: 71944,
+            shortTradeValue: 54942167,
+            netTradeVolume: 4682,
+            netTradeValue: 3514353,
+            longOiVolume: 5383,
+            longOiValue: 4159828,
+            shortOiVolume: 2406,
+            shortOiValue: 1859422,
+            netOiVolume: 2977,
+            netOiValue: 2300406,
+          },
+        ],
       });
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mxf-inst-trades-no-data.html') });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-institutional-no-data.html') });
 
-      const data = await scraper.fetchMxfInstTrades({ date: '2023-01-01' });
+      const data = await scraper.fetchFuturesInstitutional({ date: '2023-01-01', symbol: 'TXF' });
       const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/01',
         queryEndDate: '2023/01/01',
-        commodityId: 'MXF',
+        commodityId: 'TXF',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBe(null);
     });
   });
 
-  describe('.fetchOptionsInstTrades()', () => {
-    it('should fetch TXO institutional investors\' trades for the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-inst-trades.csv') });
+  describe('.fetchOptionsInstitutional()', () => {
+    it('should fetch options institutional investors\' trades for the given date', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-institutional.csv') });
 
-      const data = await scraper.fetchOptionsInstTrades({ date: '2023-01-30', symbol: 'TXO' });
+      const data = await scraper.fetchOptionsInstitutional({ date: '2023-01-30', symbol: 'TXO' });
       const url = 'https://www.taifex.com.tw/cht/3/callsAndPutsDateDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
@@ -358,91 +322,114 @@ describe('TaifexScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TAIFEX',
         symbol: 'TXO',
         name: '臺指選擇權',
-        calls: {
-          finiLongTradeVolume: 58909,
-          finiLongTradeValue: 277781,
-          finiShortTradeVolume: 49665,
-          finiShortTradeValue: 282059,
-          finiNetTradeVolume: 9244,
-          finiNetTradeValue: -4278,
-          finiLongOiVolume: 11735,
-          finiLongOiValue: 333628,
-          finiShortOiVolume: 7956,
-          finiShortOiValue: 182152,
-          finiNetOiVolume: 3779,
-          finiNetOiValue: 151476,
-          sitcLongTradeVolume: 0,
-          sitcLongTradeValue: 0,
-          sitcShortTradeVolume: 0,
-          sitcShortTradeValue: 0,
-          sitcNetTradeVolume: 0,
-          sitcNetTradeValue: 0,
-          sitcLongOiVolume: 0,
-          sitcLongOiValue: 0,
-          sitcShortOiVolume: 0,
-          sitcShortOiValue: 0,
-          sitcNetOiVolume: 0,
-          sitcNetOiValue: 0,
-          dealersLongTradeVolume: 146455,
-          dealersLongTradeValue: 790595,
-          dealersShortTradeVolume: 150228,
-          dealersShortTradeValue: 678924,
-          dealersNetTradeVolume: -3773,
-          dealersNetTradeValue: 111671,
-          dealersLongOiVolume: 33450,
-          dealersLongOiValue: 537454,
-          dealersShortOiVolume: 37665,
-          dealersShortOiValue: 377511,
-          dealersNetOiVolume: -4215,
-          dealersNetOiValue: 159943,
-        },
-        puts: {
-          finiLongTradeVolume: 29719,
-          finiLongTradeValue: 88059,
-          finiShortTradeVolume: 27070,
-          finiShortTradeValue: 87819,
-          finiNetTradeVolume: 2649,
-          finiNetTradeValue: 240,
-          finiLongOiVolume: 7147,
-          finiLongOiValue: 8210,
-          finiShortOiVolume: 9383,
-          finiShortOiValue: 24009,
-          finiNetOiVolume: -2236,
-          finiNetOiValue: -15799,
-          sitcLongTradeVolume: 141,
-          sitcLongTradeValue: 1,
-          sitcShortTradeVolume: 111,
-          sitcShortTradeValue: 1152,
-          sitcNetTradeVolume: 30,
-          sitcNetTradeValue: -1151,
-          sitcLongOiVolume: 0,
-          sitcLongOiValue: 0,
-          sitcShortOiVolume: 111,
-          sitcShortOiValue: 1027,
-          sitcNetOiVolume: -111,
-          sitcNetOiValue: -1027,
-          dealersLongTradeVolume: 118685,
-          dealersLongTradeValue: 324370,
-          dealersShortTradeVolume: 152013,
-          dealersShortTradeValue: 332610,
-          dealersNetTradeVolume: -33328,
-          dealersNetTradeValue: -8240,
-          dealersLongOiVolume: 24355,
-          dealersLongOiValue: 126801,
-          dealersShortOiVolume: 32667,
-          dealersShortOiValue: 71726,
-          dealersNetOiVolume: -8312,
-          dealersNetOiValue: 55075,
-        },
+        institutional: [
+          {
+            type: 'CALL',
+            investors: '自營商',
+            longTradeVolume: 146455,
+            longTradeValue: 790595,
+            shortTradeVolume: 150228,
+            shortTradeValue: 678924,
+            netTradeVolume: -3773,
+            netTradeValue: 111671,
+            longOiVolume: 33450,
+            longOiValue: 537454,
+            shortOiVolume: 37665,
+            shortOiValue: 377511,
+            netOiVolume: -4215,
+            netOiValue: 159943,
+          },
+          {
+            type: 'CALL',
+            investors: '投信',
+            longTradeVolume: 0,
+            longTradeValue: 0,
+            shortTradeVolume: 0,
+            shortTradeValue: 0,
+            netTradeVolume: 0,
+            netTradeValue: 0,
+            longOiVolume: 0,
+            longOiValue: 0,
+            shortOiVolume: 0,
+            shortOiValue: 0,
+            netOiVolume: 0,
+            netOiValue: 0,
+          },
+          {
+            type: 'CALL',
+            investors: '外資及陸資',
+            longTradeVolume: 58909,
+            longTradeValue: 277781,
+            shortTradeVolume: 49665,
+            shortTradeValue: 282059,
+            netTradeVolume: 9244,
+            netTradeValue: -4278,
+            longOiVolume: 11735,
+            longOiValue: 333628,
+            shortOiVolume: 7956,
+            shortOiValue: 182152,
+            netOiVolume: 3779,
+            netOiValue: 151476,
+          },
+          {
+            type: 'PUT',
+            investors: '自營商',
+            longTradeVolume: 118685,
+            longTradeValue: 324370,
+            shortTradeVolume: 152013,
+            shortTradeValue: 332610,
+            netTradeVolume: -33328,
+            netTradeValue: -8240,
+            longOiVolume: 24355,
+            longOiValue: 126801,
+            shortOiVolume: 32667,
+            shortOiValue: 71726,
+            netOiVolume: -8312,
+            netOiValue: 55075,
+          },
+          {
+            type: 'PUT',
+            investors: '投信',
+            longTradeVolume: 141,
+            longTradeValue: 1,
+            shortTradeVolume: 111,
+            shortTradeValue: 1152,
+            netTradeVolume: 30,
+            netTradeValue: -1151,
+            longOiVolume: 0,
+            longOiValue: 0,
+            shortOiVolume: 111,
+            shortOiValue: 1027,
+            netOiVolume: -111,
+            netOiValue: -1027,
+          },
+          {
+            type: 'PUT',
+            investors: '外資及陸資',
+            longTradeVolume: 29719,
+            longTradeValue: 88059,
+            shortTradeVolume: 27070,
+            shortTradeValue: 87819,
+            netTradeVolume: 2649,
+            netTradeValue: 240,
+            longOiVolume: 7147,
+            longOiValue: 8210,
+            shortOiVolume: 9383,
+            shortOiValue: 24009,
+            netOiVolume: -2236,
+            netOiValue: -15799,
+          },
+        ],
       });
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-inst-trades-no-data.html') });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-institutional-no-data.html') });
 
-      const data = await scraper.fetchOptionsInstTrades({ date: '2023-01-30', symbol: 'TXO' });
+      const data = await scraper.fetchOptionsInstitutional({ date: '2023-01-30', symbol: 'TXO' });
       const url = 'https://www.taifex.com.tw/cht/3/callsAndPutsDateDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
@@ -454,145 +441,357 @@ describe('TaifexScraper', () => {
     });
   });
 
-  describe('.fetchTxoInstTrades()', () => {
-    it('should fetch TXO institutional investors\' trades for the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txo-inst-trades.csv') });
+  describe('.fetchFuturesLargeTraders()', () => {
+    it('should fetch TXF large traders position for the given date', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-large-traders-position.csv') });
 
-      const data = await scraper.fetchTxoInstTrades({ date: '2023-01-30' });
-      const url = 'https://www.taifex.com.tw/cht/3/callsAndPutsDateDown';
+      const data = await scraper.fetchFuturesLargeTraders({ date: '2023-01-30', symbol: 'TXF' });
+      const url = 'https://www.taifex.com.tw/cht/3/largeTraderFutDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
         queryEndDate: '2023/01/30',
-        commodityId: 'TXO',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TAIFEX',
+        symbol: 'TXF',
+        name: '臺股期貨(TX+MTX/4)',
+        largeTraders: [
+          {
+            contractMonth: '666666',
+            traderType: '0',
+            topFiveLongOi: 33,
+            topFiveShortOi: 40,
+            topTenLongOi: 43,
+            topTenShortOi: 42,
+            marketOi: 48,
+          },
+          {
+            contractMonth: '666666',
+            traderType: '1',
+            topFiveLongOi: 5,
+            topFiveShortOi: 2,
+            topTenLongOi: 5,
+            topTenShortOi: 2,
+            marketOi: 48,
+          },
+          {
+            contractMonth: '202302',
+            traderType: '0',
+            topFiveLongOi: 30643,
+            topFiveShortOi: 29456,
+            topTenLongOi: 40363,
+            topTenShortOi: 36869,
+            marketOi: 68173,
+          },
+          {
+            contractMonth: '202302',
+            traderType: '1',
+            topFiveLongOi: 30643,
+            topFiveShortOi: 29456,
+            topTenLongOi: 38860,
+            topTenShortOi: 34209,
+            marketOi: 68173,
+          },
+          {
+            contractMonth: '999999',
+            traderType: '0',
+            topFiveLongOi: 30828,
+            topFiveShortOi: 29523,
+            topTenLongOi: 40572,
+            topTenShortOi: 37209,
+            marketOi: 72437,
+          },
+          {
+            contractMonth: '999999',
+            traderType: '1',
+            topFiveLongOi: 30828,
+            topFiveShortOi: 29523,
+            topTenLongOi: 39045,
+            topTenShortOi: 34493,
+            marketOi: 72437,
+          },
+        ],
+      });
+    });
+
+    it('should fetch GTF large traders position for the given date', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-large-traders-position.csv') });
+
+      const data = await scraper.fetchFuturesLargeTraders({ date: '2023-01-30', symbol: 'GTF' });
+      const url = 'https://www.taifex.com.tw/cht/3/largeTraderFutDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2023/01/30',
+        queryEndDate: '2023/01/30',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBeDefined();
+      expect(data).toEqual({
+        date: '2023-01-30',
+        exchange: 'TAIFEX',
+        symbol: 'GTF',
+        name: '櫃買期貨',
+        largeTraders: [
+          {
+            contractMonth: '202302',
+            traderType: '0',
+            topFiveLongOi: 79,
+            topFiveShortOi: 81,
+            topTenLongOi: 89,
+            topTenShortOi: 87,
+            marketOi: 89,
+          },
+          {
+            contractMonth: '202302',
+            traderType: '1',
+            topFiveLongOi: 0,
+            topFiveShortOi: 0,
+            topTenLongOi: 0,
+            topTenShortOi: 0,
+            marketOi: 89,
+          },
+          {
+            contractMonth: '999999',
+            traderType: '0',
+            topFiveLongOi: 79,
+            topFiveShortOi: 81,
+            topTenLongOi: 89,
+            topTenShortOi: 87,
+            marketOi: 89,
+          },
+          {
+            contractMonth: '999999',
+            traderType: '1',
+            topFiveLongOi: 0,
+            topFiveShortOi: 0,
+            topTenLongOi: 0,
+            topTenShortOi: 0,
+            marketOi: 89,
+          },
+        ],
+      });
+    });
+
+    it('should fetch CDF large traders position for the given date', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-large-traders-position.csv') });
+
+      const data = await scraper.fetchFuturesLargeTraders({ date: '2023-01-30', symbol: 'CDF' });
+      const url = 'https://www.taifex.com.tw/cht/3/largeTraderFutDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2023/01/30',
+        queryEndDate: '2023/01/30',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBeDefined();
+      expect(data).toEqual({
+        date: '2023-01-30',
+        exchange: 'TAIFEX',
+        symbol: 'CDF',
+        name: '台積電期貨',
+        largeTraders: [
+          {
+            contractMonth: '202302',
+            traderType: '0',
+            topFiveLongOi: 14099,
+            topFiveShortOi: 14910,
+            topTenLongOi: 16817,
+            topTenShortOi: 18233,
+            marketOi: 21166,
+          },
+          {
+            contractMonth: '202302',
+            traderType: '1',
+            topFiveLongOi: 11648,
+            topFiveShortOi: 14910,
+            topTenLongOi: 13866,
+            topTenShortOi: 18233,
+            marketOi: 21166,
+          },
+          {
+            contractMonth: '999999',
+            traderType: '0',
+            topFiveLongOi: 17661,
+            topFiveShortOi: 20549,
+            topTenLongOi: 20677,
+            topTenShortOi: 24702,
+            marketOi: 28401,
+          },
+          {
+            contractMonth: '999999',
+            traderType: '1',
+            topFiveLongOi: 15210,
+            topFiveShortOi: 20549,
+            topTenLongOi: 17110,
+            topTenShortOi: 24702,
+            marketOi: 28401,
+          },
+        ],
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-large-traders-position-no-data.html') });
+
+      const data = await scraper.fetchFuturesLargeTraders({ date: '2023-01-01', symbol: 'TXF' });
+      const url = 'https://www.taifex.com.tw/cht/3/largeTraderFutDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2023/01/01',
+        queryEndDate: '2023/01/01',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBe(null);
+    });
+  });
+
+  describe('.fetchOptionsLargeTraders()', () => {
+    it('should fetch options large traders position for the given date', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-large-traders-position.csv') });
+
+      const data = await scraper.fetchOptionsLargeTraders({ date: '2023-01-30', symbol: 'TXO' });
+      const url = 'https://www.taifex.com.tw/cht/3/largeTraderOptDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2023/01/30',
+        queryEndDate: '2023/01/30',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBeDefined();
+      expect(data).toEqual({
+        date: '2023-01-30',
+        exchange: 'TAIFEX',
         symbol: 'TXO',
-        name: '臺指選擇權',
-        calls: {
-          finiLongTradeVolume: 58909,
-          finiLongTradeValue: 277781,
-          finiShortTradeVolume: 49665,
-          finiShortTradeValue: 282059,
-          finiNetTradeVolume: 9244,
-          finiNetTradeValue: -4278,
-          finiLongOiVolume: 11735,
-          finiLongOiValue: 333628,
-          finiShortOiVolume: 7956,
-          finiShortOiValue: 182152,
-          finiNetOiVolume: 3779,
-          finiNetOiValue: 151476,
-          sitcLongTradeVolume: 0,
-          sitcLongTradeValue: 0,
-          sitcShortTradeVolume: 0,
-          sitcShortTradeValue: 0,
-          sitcNetTradeVolume: 0,
-          sitcNetTradeValue: 0,
-          sitcLongOiVolume: 0,
-          sitcLongOiValue: 0,
-          sitcShortOiVolume: 0,
-          sitcShortOiValue: 0,
-          sitcNetOiVolume: 0,
-          sitcNetOiValue: 0,
-          dealersLongTradeVolume: 146455,
-          dealersLongTradeValue: 790595,
-          dealersShortTradeVolume: 150228,
-          dealersShortTradeValue: 678924,
-          dealersNetTradeVolume: -3773,
-          dealersNetTradeValue: 111671,
-          dealersLongOiVolume: 33450,
-          dealersLongOiValue: 537454,
-          dealersShortOiVolume: 37665,
-          dealersShortOiValue: 377511,
-          dealersNetOiVolume: -4215,
-          dealersNetOiValue: 159943,
-        },
-        puts: {
-          finiLongTradeVolume: 29719,
-          finiLongTradeValue: 88059,
-          finiShortTradeVolume: 27070,
-          finiShortTradeValue: 87819,
-          finiNetTradeVolume: 2649,
-          finiNetTradeValue: 240,
-          finiLongOiVolume: 7147,
-          finiLongOiValue: 8210,
-          finiShortOiVolume: 9383,
-          finiShortOiValue: 24009,
-          finiNetOiVolume: -2236,
-          finiNetOiValue: -15799,
-          sitcLongTradeVolume: 141,
-          sitcLongTradeValue: 1,
-          sitcShortTradeVolume: 111,
-          sitcShortTradeValue: 1152,
-          sitcNetTradeVolume: 30,
-          sitcNetTradeValue: -1151,
-          sitcLongOiVolume: 0,
-          sitcLongOiValue: 0,
-          sitcShortOiVolume: 111,
-          sitcShortOiValue: 1027,
-          sitcNetOiVolume: -111,
-          sitcNetOiValue: -1027,
-          dealersLongTradeVolume: 118685,
-          dealersLongTradeValue: 324370,
-          dealersShortTradeVolume: 152013,
-          dealersShortTradeValue: 332610,
-          dealersNetTradeVolume: -33328,
-          dealersNetTradeValue: -8240,
-          dealersLongOiVolume: 24355,
-          dealersLongOiValue: 126801,
-          dealersShortOiVolume: 32667,
-          dealersShortOiValue: 71726,
-          dealersNetOiVolume: -8312,
-          dealersNetOiValue: 55075,
-        },
+        name: '臺指',
+        largeTraders: [
+          {
+            type: '買權',
+            contractMonth: '666666',
+            traderType: '0',
+            topFiveLongOi: 6025,
+            topFiveShortOi: 9114,
+            topTenLongOi: 8186,
+            topTenShortOi: 12264,
+            marketOi: 21650,
+          },
+          {
+            type: '買權',
+            contractMonth: '666666',
+            traderType: '1',
+            topFiveLongOi: 0,
+            topFiveShortOi: 0,
+            topTenLongOi: 0,
+            topTenShortOi: 0,
+            marketOi: 21650,
+          },
+          {
+            type: '買權',
+            contractMonth: '202302',
+            traderType: '0',
+            topFiveLongOi: 16007,
+            topFiveShortOi: 11593,
+            topTenLongOi: 19936,
+            topTenShortOi: 17255,
+            marketOi: 37196,
+          },
+          {
+            type: '買權',
+            contractMonth: '202302',
+            traderType: '1',
+            topFiveLongOi: 2636,
+            topFiveShortOi: 5158,
+            topTenLongOi: 5237,
+            topTenShortOi: 6533,
+            marketOi: 37196,
+          },
+          {
+            type: '買權',
+            contractMonth: '999999',
+            traderType: '0',
+            topFiveLongOi: 32966,
+            topFiveShortOi: 33968,
+            topTenLongOi: 43496,
+            topTenShortOi: 43773,
+            marketOi: 87502,
+          },
+          {
+            type: '買權',
+            contractMonth: '999999',
+            traderType: '1',
+            topFiveLongOi: 0,
+            topFiveShortOi: 3000,
+            topTenLongOi: 7195,
+            topTenShortOi: 5160,
+            marketOi: 87502,
+          },
+          {
+            type: '賣權',
+            contractMonth: '666666',
+            traderType: '0',
+            topFiveLongOi: 9716,
+            topFiveShortOi: 4483,
+            topTenLongOi: 11749,
+            topTenShortOi: 6670,
+            marketOi: 23838,
+          },
+          {
+            type: '賣權',
+            contractMonth: '666666',
+            traderType: '1',
+            topFiveLongOi: 0,
+            topFiveShortOi: 570,
+            topTenLongOi: 0,
+            topTenShortOi: 930,
+            marketOi: 23838,
+          },
+          {
+            type: '賣權',
+            contractMonth: '202302',
+            traderType: '0',
+            topFiveLongOi: 13841,
+            topFiveShortOi: 9469,
+            topTenLongOi: 17629,
+            topTenShortOi: 11668,
+            marketOi: 34848,
+          },
+          {
+            type: '賣權',
+            contractMonth: '202302',
+            traderType: '1',
+            topFiveLongOi: 3474,
+            topFiveShortOi: 1837,
+            topTenLongOi: 3474,
+            topTenShortOi: 2208,
+            marketOi: 34848,
+          },
+          {
+            type: '賣權',
+            contractMonth: '999999',
+            traderType: '0',
+            topFiveLongOi: 35939,
+            topFiveShortOi: 23080,
+            topTenLongOi: 48027,
+            topTenShortOi: 28460,
+            marketOi: 89495,
+          },
+          {
+            type: '賣權',
+            contractMonth: '999999',
+            traderType: '1',
+            topFiveLongOi: 0,
+            topFiveShortOi: 2470,
+            topTenLongOi: 7762,
+            topTenShortOi: 4531,
+            marketOi: 89495,
+          },
+        ],
       });
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txo-inst-trades-no-data.html') });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-large-traders-position-no-data.html') });
 
-      const data = await scraper.fetchTxoInstTrades({ date: '2023-01-30' });
-      const url = 'https://www.taifex.com.tw/cht/3/callsAndPutsDateDown';
-      const form = new URLSearchParams({
-        queryStartDate: '2023/01/30',
-        queryEndDate: '2023/01/30',
-        commodityId: 'TXO',
-      });
-      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(data).toBe(null);
-    });
-  });
-
-  describe('.fetchTxoPutCallRatio()', () => {
-    it('should fetch TXO Put/Call ratio for the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txo-put-call-ratio.csv') });
-
-      const data = await scraper.fetchTxoPutCallRatio({ date: '2023-01-30' });
-      const url = 'https://www.taifex.com.tw/cht/3/pcRatioDown';
-      const form = new URLSearchParams({
-        queryStartDate: '2023/01/30',
-        queryEndDate: '2023/01/30',
-      });
-      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(data).toBeDefined();
-      expect(data).toEqual({
-        date: '2023-01-30',
-        txoPutVolume: 349525,
-        txoCallVolume: 410532,
-        txoPutCallVolumeRatio: 0.8514,
-        txoPutOi: 89495,
-        txoCallOi: 87502,
-        txoPutCallOiRatio: 1.0228,
-      });
-    });
-
-    it('should return null when no data is available', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txo-put-call-ratio-no-data.csv') });
-
-      const data = await scraper.fetchTxoPutCallRatio({ date: '2023-01-01' });
-      const url = 'https://www.taifex.com.tw/cht/3/pcRatioDown';
+      const data = await scraper.fetchOptionsLargeTraders({ date: '2023-01-01', symbol: 'TXO' });
+      const url = 'https://www.taifex.com.tw/cht/3/largeTraderOptDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/01',
         queryEndDate: '2023/01/01',
@@ -609,9 +808,9 @@ describe('TaifexScraper', () => {
         return new Promise((resolve, reject) => {
           switch (url) {
             case 'https://www.taifex.com.tw/cht/3/futDataDown':
-              return resolve({ data: fs.readFileSync('./test/fixtures/mxf-market-trades.csv') });
+              return resolve({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical.csv') });
             case 'https://www.taifex.com.tw/cht/3/futContractsDateDown':
-              return resolve({ data: fs.readFileSync('./test/fixtures/mxf-inst-trades.csv') });
+              return resolve({ data: fs.readFileSync('./test/fixtures/taifex-futures-institutional.csv') });
             default: return reject();
           }
         });
@@ -642,9 +841,9 @@ describe('TaifexScraper', () => {
         return new Promise((resolve, reject) => {
           switch (url) {
             case 'https://www.taifex.com.tw/cht/3/futDataDown':
-              return resolve({ data: fs.readFileSync('./test/fixtures/mxf-market-trades-no-data.csv') });
+              return resolve({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical-no-data.csv') });
             case 'https://www.taifex.com.tw/cht/3/futContractsDateDown':
-              return resolve({ data: fs.readFileSync('./test/fixtures/mxf-inst-trades-no-data.html') });
+              return resolve({ data: fs.readFileSync('./test/fixtures/taifex-futures-institutional-no-data.html') });
             default: return reject();
           }
         });
@@ -663,12 +862,12 @@ describe('TaifexScraper', () => {
     });
   });
 
-  describe('.fetchFuturesLargeTradersPosition()', () => {
-    it('should fetch futures large traders position for the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-large-traders-position.csv') });
+  describe('.fetchTxoPutCallRatio()', () => {
+    it('should fetch TXO Put/Call ratio for the given date', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-txo-put-call-ratio.csv') });
 
-      const data = await scraper.fetchFuturesLargeTradersPosition({ date: '2023-01-30', symbol: 'TXF' });
-      const url = 'https://www.taifex.com.tw/cht/3/largeTraderFutDown';
+      const data = await scraper.fetchTxoPutCallRatio({ date: '2023-01-30' });
+      const url = 'https://www.taifex.com.tw/cht/3/pcRatioDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/30',
         queryEndDate: '2023/01/30',
@@ -676,418 +875,21 @@ describe('TaifexScraper', () => {
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
       expect(data).toEqual({
-        frontMonth: {
-          topFiveLongOi: 30643,
-          topFiveShortOi: 29456,
-          topFiveNetOi: 1187,
-          topTenLongOi: 40363,
-          topTenShortOi: 36869,
-          topTenNetOi: 3494,
-          topFiveSpecificLongOi: 30643,
-          topFiveSpecificShortOi: 29456,
-          topFiveSpecificNetOi: 1187,
-          topTenSpecificLongOi: 38860,
-          topTenSpecificShortOi: 34209,
-          topTenSpecificNetOi: 4651,
-          topFiveNonspecificLongOi: 0,
-          topFiveNonspecificShortOi: 0,
-          topFiveNonspecificNetOi: 0,
-          topTenNonspecificLongOi: 1503,
-          topTenNonspecificShortOi: 2660,
-          topTenNonspecificNetOi: -1157,
-          marketOi: 68173,
-        },
-        allMonths: {
-          topFiveLongOi: 30828,
-          topFiveShortOi: 29523,
-          topFiveNetOi: 1305,
-          topTenLongOi: 40572,
-          topTenShortOi: 37209,
-          topTenNetOi: 3363,
-          topFiveSpecificLongOi: 30828,
-          topFiveSpecificShortOi: 29523,
-          topFiveSpecificNetOi: 1305,
-          topTenSpecificLongOi: 39045,
-          topTenSpecificShortOi: 34493,
-          topTenSpecificNetOi: 4552,
-          marketOi: 72437,
-        },
-        backMonths: {
-          topFiveLongOi: 185,
-          topFiveShortOi: 67,
-          topFiveNetOi: 118,
-          topTenLongOi: 209,
-          topTenShortOi: 340,
-          topTenNetOi: -131,
-          topFiveSpecificLongOi: 185,
-          topFiveSpecificShortOi: 67,
-          topFiveSpecificNetOi: 118,
-          topTenSpecificLongOi: 185,
-          topTenSpecificShortOi: 284,
-          topTenSpecificNetOi: -99,
-          marketOi: 4264,
-        },
+        date: '2023-01-30',
+        txoPutVolume: 349525,
+        txoCallVolume: 410532,
+        txoPutCallVolumeRatio: 0.8514,
+        txoPutOi: 89495,
+        txoCallOi: 87502,
+        txoPutCallOiRatio: 1.0228,
       });
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-large-traders-position-no-data.html') });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-txo-put-call-ratio-no-data.csv') });
 
-      const data = await scraper.fetchFuturesLargeTradersPosition({ date: '2023-01-01', symbol: 'TXF' });
-      const url = 'https://www.taifex.com.tw/cht/3/largeTraderFutDown';
-      const form = new URLSearchParams({
-        queryStartDate: '2023/01/01',
-        queryEndDate: '2023/01/01',
-      });
-      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(data).toBe(null);
-    });
-  });
-
-  describe('.fetchTxfLargeTradersPosition()', () => {
-    it('should fetch TXF large traders position for the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txf-large-traders-position.csv') });
-
-      const data = await scraper.fetchTxfLargeTradersPosition({ date: '2023-01-30' });
-      const url = 'https://www.taifex.com.tw/cht/3/largeTraderFutDown';
-      const form = new URLSearchParams({
-        queryStartDate: '2023/01/30',
-        queryEndDate: '2023/01/30',
-      });
-      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(data).toBeDefined();
-      expect(data).toEqual({
-        frontMonth: {
-          topFiveLongOi: 30643,
-          topFiveShortOi: 29456,
-          topFiveNetOi: 1187,
-          topTenLongOi: 40363,
-          topTenShortOi: 36869,
-          topTenNetOi: 3494,
-          topFiveSpecificLongOi: 30643,
-          topFiveSpecificShortOi: 29456,
-          topFiveSpecificNetOi: 1187,
-          topTenSpecificLongOi: 38860,
-          topTenSpecificShortOi: 34209,
-          topTenSpecificNetOi: 4651,
-          topFiveNonspecificLongOi: 0,
-          topFiveNonspecificShortOi: 0,
-          topFiveNonspecificNetOi: 0,
-          topTenNonspecificLongOi: 1503,
-          topTenNonspecificShortOi: 2660,
-          topTenNonspecificNetOi: -1157,
-          marketOi: 68173,
-        },
-        allMonths: {
-          topFiveLongOi: 30828,
-          topFiveShortOi: 29523,
-          topFiveNetOi: 1305,
-          topTenLongOi: 40572,
-          topTenShortOi: 37209,
-          topTenNetOi: 3363,
-          topFiveSpecificLongOi: 30828,
-          topFiveSpecificShortOi: 29523,
-          topFiveSpecificNetOi: 1305,
-          topTenSpecificLongOi: 39045,
-          topTenSpecificShortOi: 34493,
-          topTenSpecificNetOi: 4552,
-          marketOi: 72437,
-        },
-        backMonths: {
-          topFiveLongOi: 185,
-          topFiveShortOi: 67,
-          topFiveNetOi: 118,
-          topTenLongOi: 209,
-          topTenShortOi: 340,
-          topTenNetOi: -131,
-          topFiveSpecificLongOi: 185,
-          topFiveSpecificShortOi: 67,
-          topFiveSpecificNetOi: 118,
-          topTenSpecificLongOi: 185,
-          topTenSpecificShortOi: 284,
-          topTenSpecificNetOi: -99,
-          marketOi: 4264,
-        },
-      });
-    });
-
-    it('should return null when no data is available', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txf-large-traders-position-no-data.html') });
-
-      const data = await scraper.fetchTxfLargeTradersPosition({ date: '2023-01-01' });
-      const url = 'https://www.taifex.com.tw/cht/3/largeTraderFutDown';
-      const form = new URLSearchParams({
-        queryStartDate: '2023/01/01',
-        queryEndDate: '2023/01/01',
-      });
-      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(data).toBe(null);
-    });
-  });
-
-  describe('.fetchOptionsLargeTradersPosition()', () => {
-    it('should fetch options large traders position for the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-large-traders-position.csv') });
-
-      const data = await scraper.fetchOptionsLargeTradersPosition({ date: '2023-01-30', symbol: 'TXO' });
-      const url = 'https://www.taifex.com.tw/cht/3/largeTraderOptDown';
-      const form = new URLSearchParams({
-        queryStartDate: '2023/01/30',
-        queryEndDate: '2023/01/30',
-      });
-      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(data).toBeDefined();
-      expect(data).toEqual({
-        calls: {
-          frontMonth: {
-            topFiveLongOi: 16007,
-            topFiveShortOi: 11593,
-            topFiveNetOi: 4414,
-            topTenLongOi: 19936,
-            topTenShortOi: 17255,
-            topTenNetOi: 2681,
-            topFiveSpecificLongOi: 2636,
-            topFiveSpecificShortOi: 5158,
-            topFiveSpecificNetOi: -2522,
-            topTenSpecificLongOi: 5237,
-            topTenSpecificShortOi: 6533,
-            topTenSpecificNetOi: -1296,
-            topFiveNonspecificLongOi: 13371,
-            topFiveNonspecificShortOi: 6435,
-            topFiveNonspecificNetOi: 6936,
-            topTenNonspecificLongOi: 14699,
-            topTenNonspecificShortOi: 10722,
-            topTenNonspecificNetOi: 3977,
-            marketOi: 37196,
-          },
-          allMonths: {
-            topFiveLongOi: 32966,
-            topFiveShortOi: 33968,
-            topFiveNetOi: -1002,
-            topTenLongOi: 43496,
-            topTenShortOi: 43773,
-            topTenNetOi: -277,
-            topFiveSpecificLongOi: 0,
-            topFiveSpecificShortOi: 3000,
-            topFiveSpecificNetOi: -3000,
-            topTenSpecificLongOi: 7195,
-            topTenSpecificShortOi: 5160,
-            topTenSpecificNetOi: 2035,
-            marketOi: 87502,
-          },
-          backMonths: {
-            topFiveLongOi: 16959,
-            topFiveShortOi: 22375,
-            topFiveNetOi: -5416,
-            topTenLongOi: 23560,
-            topTenShortOi: 26518,
-            topTenNetOi: -2958,
-            topFiveSpecificLongOi: -2636,
-            topFiveSpecificShortOi: -2158,
-            topFiveSpecificNetOi: -478,
-            topTenSpecificLongOi: 1958,
-            topTenSpecificShortOi: -1373,
-            topTenSpecificNetOi: 3331,
-            marketOi: 50306,
-          },
-        },
-        puts: {
-          frontMonth: {
-            topFiveLongOi: 9716,
-            topFiveShortOi: 4483,
-            topFiveNetOi: 5233,
-            topTenLongOi: 11749,
-            topTenShortOi: 6670,
-            topTenNetOi: 5079,
-            topFiveSpecificLongOi: 0,
-            topFiveSpecificShortOi: 570,
-            topFiveSpecificNetOi: -570,
-            topTenSpecificLongOi: 0,
-            topTenSpecificShortOi: 930,
-            topTenSpecificNetOi: -930,
-            topFiveNonspecificLongOi: 9716,
-            topFiveNonspecificShortOi: 3913,
-            topFiveNonspecificNetOi: 5803,
-            topTenNonspecificLongOi: 11749,
-            topTenNonspecificShortOi: 5740,
-            topTenNonspecificNetOi: 6009,
-            marketOi: 23838,
-          },
-          allMonths: {
-            topFiveLongOi: 13841,
-            topFiveShortOi: 9469,
-            topFiveNetOi: 4372,
-            topTenLongOi: 17629,
-            topTenShortOi: 11668,
-            topTenNetOi: 5961,
-            topFiveSpecificLongOi: 3474,
-            topFiveSpecificShortOi: 1837,
-            topFiveSpecificNetOi: 1637,
-            topTenSpecificLongOi: 3474,
-            topTenSpecificShortOi: 2208,
-            topTenSpecificNetOi: 1266,
-            marketOi: 34848,
-          },
-          backMonths: {
-            topFiveLongOi: 4125,
-            topFiveShortOi: 4986,
-            topFiveNetOi: -861,
-            topTenLongOi: 5880,
-            topTenShortOi: 4998,
-            topTenNetOi: 882,
-            topFiveSpecificLongOi: 3474,
-            topFiveSpecificShortOi: 1267,
-            topFiveSpecificNetOi: 2207,
-            topTenSpecificLongOi: 3474,
-            topTenSpecificShortOi: 1278,
-            topTenSpecificNetOi: 2196,
-            marketOi: 11010,
-          },
-        },
-      });
-    });
-
-    it('should return null when no data is available', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-large-traders-position-no-data.html') });
-
-      const data = await scraper.fetchOptionsLargeTradersPosition({ date: '2023-01-01', symbol: 'TXO' });
-      const url = 'https://www.taifex.com.tw/cht/3/largeTraderOptDown';
-      const form = new URLSearchParams({
-        queryStartDate: '2023/01/01',
-        queryEndDate: '2023/01/01',
-      });
-      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(data).toBe(null);
-    });
-  });
-
-  describe('.fetchTxoLargeTradersPosition()', () => {
-    it('should fetch TXO large traders position for the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txo-large-traders-position.csv') });
-
-      const data = await scraper.fetchTxoLargeTradersPosition({ date: '2023-01-30' });
-      const url = 'https://www.taifex.com.tw/cht/3/largeTraderOptDown';
-      const form = new URLSearchParams({
-        queryStartDate: '2023/01/30',
-        queryEndDate: '2023/01/30',
-      });
-      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
-      expect(data).toBeDefined();
-      expect(data).toEqual({
-        calls: {
-          frontMonth: {
-            topFiveLongOi: 16007,
-            topFiveShortOi: 11593,
-            topFiveNetOi: 4414,
-            topTenLongOi: 19936,
-            topTenShortOi: 17255,
-            topTenNetOi: 2681,
-            topFiveSpecificLongOi: 2636,
-            topFiveSpecificShortOi: 5158,
-            topFiveSpecificNetOi: -2522,
-            topTenSpecificLongOi: 5237,
-            topTenSpecificShortOi: 6533,
-            topTenSpecificNetOi: -1296,
-            topFiveNonspecificLongOi: 13371,
-            topFiveNonspecificShortOi: 6435,
-            topFiveNonspecificNetOi: 6936,
-            topTenNonspecificLongOi: 14699,
-            topTenNonspecificShortOi: 10722,
-            topTenNonspecificNetOi: 3977,
-            marketOi: 37196,
-          },
-          allMonths: {
-            topFiveLongOi: 32966,
-            topFiveShortOi: 33968,
-            topFiveNetOi: -1002,
-            topTenLongOi: 43496,
-            topTenShortOi: 43773,
-            topTenNetOi: -277,
-            topFiveSpecificLongOi: 0,
-            topFiveSpecificShortOi: 3000,
-            topFiveSpecificNetOi: -3000,
-            topTenSpecificLongOi: 7195,
-            topTenSpecificShortOi: 5160,
-            topTenSpecificNetOi: 2035,
-            marketOi: 87502,
-          },
-          backMonths: {
-            topFiveLongOi: 16959,
-            topFiveShortOi: 22375,
-            topFiveNetOi: -5416,
-            topTenLongOi: 23560,
-            topTenShortOi: 26518,
-            topTenNetOi: -2958,
-            topFiveSpecificLongOi: -2636,
-            topFiveSpecificShortOi: -2158,
-            topFiveSpecificNetOi: -478,
-            topTenSpecificLongOi: 1958,
-            topTenSpecificShortOi: -1373,
-            topTenSpecificNetOi: 3331,
-            marketOi: 50306,
-          },
-        },
-        puts: {
-          frontMonth: {
-            topFiveLongOi: 9716,
-            topFiveShortOi: 4483,
-            topFiveNetOi: 5233,
-            topTenLongOi: 11749,
-            topTenShortOi: 6670,
-            topTenNetOi: 5079,
-            topFiveSpecificLongOi: 0,
-            topFiveSpecificShortOi: 570,
-            topFiveSpecificNetOi: -570,
-            topTenSpecificLongOi: 0,
-            topTenSpecificShortOi: 930,
-            topTenSpecificNetOi: -930,
-            topFiveNonspecificLongOi: 9716,
-            topFiveNonspecificShortOi: 3913,
-            topFiveNonspecificNetOi: 5803,
-            topTenNonspecificLongOi: 11749,
-            topTenNonspecificShortOi: 5740,
-            topTenNonspecificNetOi: 6009,
-            marketOi: 23838,
-          },
-          allMonths: {
-            topFiveLongOi: 13841,
-            topFiveShortOi: 9469,
-            topFiveNetOi: 4372,
-            topTenLongOi: 17629,
-            topTenShortOi: 11668,
-            topTenNetOi: 5961,
-            topFiveSpecificLongOi: 3474,
-            topFiveSpecificShortOi: 1837,
-            topFiveSpecificNetOi: 1637,
-            topTenSpecificLongOi: 3474,
-            topTenSpecificShortOi: 2208,
-            topTenSpecificNetOi: 1266,
-            marketOi: 34848,
-          },
-          backMonths: {
-            topFiveLongOi: 4125,
-            topFiveShortOi: 4986,
-            topFiveNetOi: -861,
-            topTenLongOi: 5880,
-            topTenShortOi: 4998,
-            topTenNetOi: 882,
-            topFiveSpecificLongOi: 3474,
-            topFiveSpecificShortOi: 1267,
-            topFiveSpecificNetOi: 2207,
-            topTenSpecificLongOi: 3474,
-            topTenSpecificShortOi: 1278,
-            topTenSpecificNetOi: 2196,
-            marketOi: 11010,
-          },
-        },
-      });
-    });
-
-    it('should return null when no data is available', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/txo-large-traders-position-no-data.html') });
-
-      const data = await scraper.fetchTxoLargeTradersPosition({ date: '2023-01-01' });
-      const url = 'https://www.taifex.com.tw/cht/3/largeTraderOptDown';
+      const data = await scraper.fetchTxoPutCallRatio({ date: '2023-01-01' });
+      const url = 'https://www.taifex.com.tw/cht/3/pcRatioDown';
       const form = new URLSearchParams({
         queryStartDate: '2023/01/01',
         queryEndDate: '2023/01/01',
@@ -1099,7 +901,7 @@ describe('TaifexScraper', () => {
 
   describe('.fetchExchangeRates()', () => {
     it('should fetch exchange rates for the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/exchange-rates.csv') });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-exchange-rates.csv') });
 
       const data = await scraper.fetchExchangeRates({ date: '2023-01-30' });
       const url = 'https://www.taifex.com.tw/cht/3/dailyFXRateDown';
@@ -1125,7 +927,7 @@ describe('TaifexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/exchange-rates-no-data.csv') });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-exchange-rates-no-data.csv') });
 
       const data = await scraper.fetchExchangeRates({ date: '2023-01-01' });
       const url = 'https://www.taifex.com.tw/cht/3/dailyFXRateDown';

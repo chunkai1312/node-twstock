@@ -27,7 +27,6 @@ export class TpexScraper extends Scraper {
         const data: Record<string, any> = {};
         data.date = date,
         data.exchange = Exchange.TPEx;
-        data.market = Market.OTC;
         data.symbol = symbol,
         data.name = name.trim();
         data.open = numeral(values[2]).value();
@@ -44,7 +43,7 @@ export class TpexScraper extends Scraper {
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchStocksInstInvestorsTrades(options: { date: string, symbol?: string }) {
+  async fetchStocksInstitutional(options: { date: string, symbol?: string }) {
     const { date, symbol } = options;
     const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
@@ -64,33 +63,56 @@ export class TpexScraper extends Scraper {
       const data: Record<string, any> = {};
       data.date = date;
       data.exchange = Exchange.TPEx;
-      data.market = Market.OTC;
       data.symbol = symbol;
       data.name = name.trim();
-      data.finiWithoutDealersBuy = numeral(values[0]).value();
-      data.finiWithoutDealersSell = numeral(values[1]).value();
-      data.finiWithoutDealersNetBuySell = numeral(values[2]).value();
-      data.finiDealersBuy = numeral(values[3]).value();
-      data.finiDealersSell = numeral(values[4]).value();
-      data.finiDealersNetBuySell = numeral(values[5]).value();
-      data.finiBuy = numeral(values[6]).value();
-      data.finiSell = numeral(values[7]).value();
-      data.finiNetBuySell = numeral(values[8]).value();
-      data.sitcBuy = numeral(values[9]).value();
-      data.sitcSell = numeral(values[10]).value();
-      data.sitcNetBuySell = numeral(values[11]).value();
-      data.dealersForProprietaryBuy = numeral(values[12]).value();
-      data.dealersForProprietarySell = numeral(values[13]).value();
-      data.dealersForProprietaryNetBuySell = numeral(values[14]).value();
-      data.dealersForHedgingBuy = numeral(values[15]).value();
-      data.dealersForHedgingSell = numeral(values[16]).value();
-      data.dealersForHedgingNetBuySell = numeral(values[17]).value();
-      data.dealersBuy = numeral(values[18]).value();
-      data.dealersSell = numeral(values[19]).value();
-      data.dealersNetBuySell = numeral(values[20]).value();
-      data.totalInstInvestorsBuy = data.finiBuy + data.sitcBuy + data.dealersBuy;
-      data.totalInstInvestorsSell = data.finiSell + data.sitcSell + data.dealersSell;
-      data.totalInstInvestorsNetBuySell = numeral(values[21]).value();
+      data.institutional = [
+        {
+          investors: '外資及陸資(不含外資自營商)',
+          totalBuy: numeral(values[0]).value(),
+          totalSell: numeral(values[1]).value(),
+          difference: numeral(values[2]).value(),
+        },
+        {
+          investors: '外資自營商',
+          totalBuy: numeral(values[3]).value(),
+          totalSell: numeral(values[4]).value(),
+          difference: numeral(values[5]).value(),
+        },
+        {
+          investors: '外資及陸資合計',
+          totalBuy: numeral(values[6]).value(),
+          totalSell: numeral(values[7]).value(),
+          difference: numeral(values[8]).value(),
+        },
+        {
+          investors: '投信',
+          totalBuy: numeral(values[9]).value(),
+          totalSell: numeral(values[10]).value(),
+          difference: numeral(values[11]).value(),
+        },
+        {
+          investors: '自營商(自行買賣)',
+          totalBuy: numeral(values[12]).value(),
+          totalSell: numeral(values[13]).value(),
+          difference: numeral(values[14]).value(),
+        },
+        {
+          investors: '自營商(避險)',
+          totalBuy: numeral(values[15]).value(),
+          totalSell: numeral(values[16]).value(),
+          difference: numeral(values[17]).value(),
+        },
+        {
+          investors: '自營商合計',
+          totalBuy: numeral(values[18]).value(),
+          totalSell: numeral(values[19]).value(),
+          difference: numeral(values[20]).value(),
+        },
+        {
+          investors: '合計',
+          difference: numeral(values[21]).value(),
+        },
+      ];
       return data;
     }) as Record<string, any>[];
 
@@ -120,7 +142,6 @@ export class TpexScraper extends Scraper {
       return {
         date,
         exchange: Exchange.TPEx,
-        market: Market.OTC,
         symbol: td.eq(0).text().trim(),
         name: td.eq(1).text().trim().split('(')[0],
         issuedShares: numeral(td.eq(2).text()).value(),
@@ -153,7 +174,6 @@ export class TpexScraper extends Scraper {
       const data: Record<string, any> = {};
       data.date = date;
       data.exchange = Exchange.TPEx;
-      data.market = Market.OTC;
       data.symbol = symbol;
       data.name = name.trim();
       data.marginBuy = numeral(values[1]).value();
@@ -194,7 +214,6 @@ export class TpexScraper extends Scraper {
       const data: Record<string, any> = {};
       data.date = date;
       data.exchange = Exchange.TPEx;
-      data.market = Market.OTC;
       data.symbol = symbol;
       data.name = name.trim();
       data.marginShortBalancePrev = numeral(values[0]).value();
@@ -234,7 +253,6 @@ export class TpexScraper extends Scraper {
       const data: Record<string, any> = {};
       data.date = date;
       data.exchange = Exchange.TPEx;
-      data.market = Market.OTC;
       data.symbol = symbol;
       data.name = name.trim();
       data.peRatio = numeral(values[0]).value();
@@ -291,7 +309,6 @@ export class TpexScraper extends Scraper {
         const data: Record<string, any> = {};
         data.date = date,
         data.exchange = Exchange.TPEx;
-        data.market = Market.OTC;
         data.symbol = symbol,
         data.name = name.trim();
         data.open = _.minBy(rows, 'time').price;
@@ -323,7 +340,6 @@ export class TpexScraper extends Scraper {
       const data: Record<string, any> = {};
       data.date = date,
       data.exchange = Exchange.TPEx;
-      data.market = Market.OTC;
       data.symbol = asIndex(index);
       data.name = index;
       data.tradeVolume = numeral(values[3]).value();
@@ -343,7 +359,6 @@ export class TpexScraper extends Scraper {
       .map((data, symbol) => ({
         date,
         exchange: Exchange.TPEx,
-        market: Market.OTC,
         symbol,
         name: '櫃買電子類指數',
         tradeVolume: _.sumBy(data, 'tradeVolume'),
@@ -375,7 +390,6 @@ export class TpexScraper extends Scraper {
       return {
         date: `${+year + 1911}-${month}-${day}`,
         exchange: Exchange.TPEx,
-        market: Market.OTC,
         tradeVolume: numeral(row[1]).value(),
         tradeValue: numeral(row[2]).value(),
         transaction: numeral(row[3]).value(),
@@ -403,7 +417,6 @@ export class TpexScraper extends Scraper {
     const data: Record<string, any> = {};
     data.date = date;
     data.exchange = Exchange.TPEx;
-    data.market = Market.OTC;
     data.up = numeral(json.upNum).value();
     data.limitUp = numeral(json.upStopNum).value();
     data.down = numeral(json.downNum).value();
@@ -413,7 +426,7 @@ export class TpexScraper extends Scraper {
     return data;
   }
 
-  async fetchMarketInstInvestorsTrades(options: { date: string }) {
+  async fetchMarketInstitutional(options: { date: string }) {
     const { date } = options;
     const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
@@ -427,35 +440,16 @@ export class TpexScraper extends Scraper {
     const json = response.data.iTotalRecords > 0 && response.data;
     if (!json) return null;
 
-    const values = json.aaData.map((row: string []) => row.slice(1)).flat();
     const data: Record<string, any> = {};
     data.date = date;
-    data.exchange = Exchange.TPEx;
-    data.market = Market.OTC;
-    data.finiWithoutDealersBuy = numeral(values[3]).value();
-    data.finiWithoutDealersSell = numeral(values[4]).value();
-    data.finiWithoutDealersNetBuySell = numeral(values[5]).value();
-    data.finiDealersBuy = numeral(values[6]).value();
-    data.finiDealersSell = numeral(values[7]).value();
-    data.finiDealersNetBuySell = numeral(values[8]).value();
-    data.finiBuy = numeral(values[0]).value();
-    data.finiSell = numeral(values[1]).value();
-    data.finiNetBuySell = numeral(values[2]).value();
-    data.sitcBuy = numeral(values[9]).value();
-    data.sitcSell = numeral(values[10]).value();
-    data.sitcNetBuySell = numeral(values[11]).value();
-    data.dealersForProprietaryBuy = numeral(values[15]).value();
-    data.dealersForProprietarySell = numeral(values[16]).value();
-    data.dealersForProprietaryNetBuySell = numeral(values[17]).value();
-    data.dealersForHedgingBuy = numeral(values[18]).value();
-    data.dealersForHedgingSell = numeral(values[19]).value();
-    data.dealersForHedgingNetBuySell = numeral(values[20]).value();
-    data.dealersBuy = numeral(values[12]).value();
-    data.dealersSell = numeral(values[13]).value();
-    data.dealersNetBuySell = numeral(values[14]).value();
-    data.totalInstInvestorsBuy = numeral(values[21]).value();
-    data.totalInstInvestorsSell = numeral(values[22]).value();
-    data.totalInstInvestorsNetBuySell = numeral(values[23]).value();
+    data.exchange = Exchange.TPEx,
+    data.institutional = json.aaData.map((row: string[]) => ({
+      investors: row[0].trim(),
+      totalBuy: numeral(row[1]).value(),
+      totalSell: numeral(row[2]).value(),
+      difference: numeral(row[3]).value(),
+    }));
+
     return data;
   }
 
@@ -476,7 +470,6 @@ export class TpexScraper extends Scraper {
     const data: Record<string, any> = {};
     data.date = date;
     data.exchange = Exchange.TPEx;
-    data.market = Market.OTC;
     data.marginBuy = numeral(values[1]).value();
     data.marginSell = numeral(values[2]).value();
     data.marginRedeem = numeral(values[3]).value();

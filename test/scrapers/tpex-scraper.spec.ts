@@ -15,7 +15,7 @@ describe('TpexScraper', () => {
 
   describe('.fetchStocksHistorical()', () => {
     it('should fetch stocks historical data for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-historical.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-historical.json') });
 
       const data = await scraper.fetchStocksHistorical({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -26,7 +26,7 @@ describe('TpexScraper', () => {
     });
 
     it('should fetch stocks historical data for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-historical.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-historical.json') });
 
       const data = await scraper.fetchStocksHistorical({ date: '2023-01-30', symbol: '6488' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -36,7 +36,6 @@ describe('TpexScraper', () => {
       expect(data).toEqual({
         date: '2023-01-30',
         exchange: 'TPEx',
-        market: 'OTC',
         symbol: '6488',
         name: '環球晶',
         open: 505,
@@ -51,7 +50,7 @@ describe('TpexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-historical-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-historical-no-data.json') });
 
       const data = await scraper.fetchStocksHistorical({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -61,11 +60,11 @@ describe('TpexScraper', () => {
     });
   });
 
-  describe('.fetchStocksInstInvestorsTrades()', () => {
+  describe('.fetchStocksInstitutional()', () => {
     it('should fetch stocks institutional investors\' trades for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-inst-investors-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-institutional.json') });
 
-      const data = await scraper.fetchStocksInstInvestorsTrades({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksInstitutional({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?d=112%2F01%2F30&se=EW&t=D&o=json',
       );
@@ -74,9 +73,9 @@ describe('TpexScraper', () => {
     });
 
     it('should fetch stocks institutional investors\' trades for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-inst-investors-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-institutional.json') });
 
-      const data = await scraper.fetchStocksInstInvestorsTrades({ date: '2023-01-30', symbol: '6488' });
+      const data = await scraper.fetchStocksInstitutional({ date: '2023-01-30', symbol: '6488' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?d=112%2F01%2F30&se=EW&t=D&o=json',
       );
@@ -84,40 +83,63 @@ describe('TpexScraper', () => {
       expect(data).toEqual({
         date: '2023-01-30',
         exchange: 'TPEx',
-        market: 'OTC',
         symbol: '6488',
         name: '環球晶',
-        finiWithoutDealersBuy: 3059748,
-        finiWithoutDealersSell: 2331441,
-        finiWithoutDealersNetBuySell: 728307,
-        finiDealersBuy: 0,
-        finiDealersSell: 0,
-        finiDealersNetBuySell: 0,
-        finiBuy: 3059748,
-        finiSell: 2331441,
-        finiNetBuySell: 728307,
-        sitcBuy: 402000,
-        sitcSell: 3096,
-        sitcNetBuySell: 398904,
-        dealersForProprietaryBuy: 267600,
-        dealersForProprietarySell: 156000,
-        dealersForProprietaryNetBuySell: 111600,
-        dealersForHedgingBuy: 128167,
-        dealersForHedgingSell: 68000,
-        dealersForHedgingNetBuySell: 60167,
-        dealersBuy: 395767,
-        dealersSell: 224000,
-        dealersNetBuySell: 171767,
-        totalInstInvestorsBuy: 3857515,
-        totalInstInvestorsSell: 2558537,
-        totalInstInvestorsNetBuySell: 1298978,
+        institutional: [
+          {
+            investors: '外資及陸資(不含外資自營商)',
+            totalBuy: 3059748,
+            totalSell: 2331441,
+            difference: 728307,
+          },
+          {
+            investors: '外資自營商',
+            totalBuy: 0,
+            totalSell: 0,
+            difference: 0,
+          },
+          {
+            investors: '外資及陸資合計',
+            totalBuy: 3059748,
+            totalSell: 2331441,
+            difference: 728307,
+          },
+          {
+            investors: '投信',
+            totalBuy: 402000,
+            totalSell: 3096,
+            difference: 398904,
+          },
+          {
+            investors: '自營商(自行買賣)',
+            totalBuy: 267600,
+            totalSell: 156000,
+            difference: 111600,
+          },
+          {
+            investors: '自營商(避險)',
+            totalBuy: 128167,
+            totalSell: 68000,
+            difference: 60167,
+          },
+          {
+            investors: '自營商合計',
+            totalBuy: 395767,
+            totalSell: 224000,
+            difference: 171767,
+          },
+          {
+            investors: '合計',
+            difference: 1298978,
+          },
+        ],
       });
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-inst-investors-trades-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-institutional-no-data.json') });
 
-      const data = await scraper.fetchStocksInstInvestorsTrades({ date: '2023-01-01' });
+      const data = await scraper.fetchStocksInstitutional({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?d=112%2F01%2F01&se=EW&t=D&o=json',
       );
@@ -127,7 +149,7 @@ describe('TpexScraper', () => {
 
   describe('.fetchStocksFiniHoldings()', () => {
     it('should fetch stocks FINI holdings for the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/otc-stocks-fini-holdings.html') });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tpex-stocks-fini-holdings.html') });
 
       const data = await scraper.fetchStocksFiniHoldings({ date: '2023-01-30' });
       expect(mockAxios.post).toHaveBeenCalledWith(
@@ -140,7 +162,7 @@ describe('TpexScraper', () => {
     });
 
     it('should fetch stocks FINI holdings for the specified stock on the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/otc-stocks-fini-holdings.html') });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tpex-stocks-fini-holdings.html') });
 
       const data = await scraper.fetchStocksFiniHoldings({ date: '2023-01-30', symbol: '6488' });
       expect(mockAxios.post).toHaveBeenCalledWith(
@@ -152,7 +174,6 @@ describe('TpexScraper', () => {
       expect(data).toEqual({
         date: '2023-01-30',
         exchange: 'TPEx',
-        market: 'OTC',
         symbol: '6488',
         name: '環球晶',
         issuedShares: 435237000,
@@ -165,7 +186,7 @@ describe('TpexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/otc-stocks-fini-holdings-no-data.html') });
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tpex-stocks-fini-holdings-no-data.html') });
 
       const data = await scraper.fetchStocksFiniHoldings({ date: '2023-01-01' });
       expect(mockAxios.post).toHaveBeenCalledWith(
@@ -179,7 +200,7 @@ describe('TpexScraper', () => {
 
   describe('.fetchStocksMarginTrades()', () => {
     it('should fetch stocks margin trades for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-margin-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-margin-trades.json') });
 
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -190,7 +211,7 @@ describe('TpexScraper', () => {
     });
 
     it('should fetch stocks margin trades for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-margin-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-margin-trades.json') });
 
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30', symbol: '6488' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -200,7 +221,6 @@ describe('TpexScraper', () => {
       expect(data).toEqual({
         date: '2023-01-30',
         exchange: 'TPEx',
-        market: 'OTC',
         symbol: '6488',
         name: '環球晶',
         marginBuy: 278,
@@ -221,7 +241,7 @@ describe('TpexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-margin-trades-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-margin-trades-no-data.json') });
 
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -233,7 +253,7 @@ describe('TpexScraper', () => {
 
   describe('.fetchStocksShortSales()', () => {
     it('should fetch stocks short sales for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-short-sales.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-short-sales.json') });
 
       const data = await scraper.fetchStocksShortSales({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -244,7 +264,7 @@ describe('TpexScraper', () => {
     });
 
     it('should fetch stocks short sales for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-short-sales.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-short-sales.json') });
 
       const data = await scraper.fetchStocksShortSales({ date: '2023-01-30', symbol: '6488' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -254,7 +274,6 @@ describe('TpexScraper', () => {
       expect(data).toEqual({
         date: '2023-01-30',
         exchange: 'TPEx',
-        market: 'OTC',
         symbol: '6488',
         name: '環球晶',
         marginShortBalancePrev: 159000,
@@ -274,7 +293,7 @@ describe('TpexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-short-sales-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-short-sales-no-data.json') });
 
       const data = await scraper.fetchStocksShortSales({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -286,7 +305,7 @@ describe('TpexScraper', () => {
 
   describe('.fetchStocksValues()', () => {
     it('should fetch stocks values for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-values.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-values.json') });
 
       const data = await scraper.fetchStocksValues({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -297,7 +316,7 @@ describe('TpexScraper', () => {
     });
 
     it('should fetch stocks values for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-values.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-values.json') });
 
       const data = await scraper.fetchStocksValues({ date: '2023-01-30', symbol: '6488' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -307,7 +326,6 @@ describe('TpexScraper', () => {
       expect(data).toEqual({
         date: '2023-01-30',
         exchange: 'TPEx',
-        market: 'OTC',
         symbol: '6488',
         name: '環球晶',
         peRatio: 19.82,
@@ -318,7 +336,7 @@ describe('TpexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-stocks-values-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-values-no-data.json') });
 
       const data = await scraper.fetchStocksValues({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -330,7 +348,7 @@ describe('TpexScraper', () => {
 
   describe('.fetchIndicesHistorical()', () => {
     it('should fetch indices historical data for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/otc-indices-historical.html').toString() });
+      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tpex-indices-historical.html').toString() });
 
       const data = await scraper.fetchIndicesHistorical({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -341,7 +359,7 @@ describe('TpexScraper', () => {
     });
 
     it('should fetch indices historical data for the specified index on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/otc-indices-historical.html').toString() });
+      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tpex-indices-historical.html').toString() });
 
       const data = await scraper.fetchIndicesHistorical({ date: '2023-01-30', symbol: 'IX0043' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -351,7 +369,6 @@ describe('TpexScraper', () => {
       expect(data).toEqual({
         date: '2023-01-30',
         exchange: 'TPEx',
-        market: 'OTC',
         symbol: 'IX0043',
         name: '櫃買指數',
         open: 189.57,
@@ -363,7 +380,7 @@ describe('TpexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/otc-indices-historical-no-data.html').toString() });
+      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tpex-indices-historical-no-data.html').toString() });
 
       const data = await scraper.fetchIndicesHistorical({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -375,7 +392,7 @@ describe('TpexScraper', () => {
 
   describe('.fetchIndicesTrades()', () => {
     it('should fetch indices trades for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-indices-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-indices-trades.json') });
 
       const data = await scraper.fetchIndicesTrades({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -386,7 +403,7 @@ describe('TpexScraper', () => {
     });
 
     it('should fetch indices trades for the specified index on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-indices-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-indices-trades.json') });
 
       const data = await scraper.fetchIndicesTrades({ date: '2023-01-30', symbol: 'IX0055' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -396,7 +413,6 @@ describe('TpexScraper', () => {
       expect(data).toEqual({
         date: '2023-01-30',
         exchange: 'TPEx',
-        market: 'OTC',
         symbol: 'IX0055',
         name: '櫃買光電業類指數',
         tradeVolume: 52122583,
@@ -406,7 +422,7 @@ describe('TpexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-indices-trades-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-indices-trades-no-data.json') });
 
       const data = await scraper.fetchIndicesTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -418,7 +434,7 @@ describe('TpexScraper', () => {
 
   describe('.fetchMarketTrades()', () => {
     it('should fetch market trades for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-market-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-market-trades.json') });
 
       const data = await scraper.fetchMarketTrades({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -428,7 +444,6 @@ describe('TpexScraper', () => {
       expect(data).toEqual({
         date: '2023-01-30',
         exchange: 'TPEx',
-        market: 'OTC',
         tradeVolume: 630687778,
         tradeValue: 62678685445,
         transaction: 471626,
@@ -438,7 +453,7 @@ describe('TpexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-market-trades-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-market-trades-no-data.json') });
 
       const data = await scraper.fetchMarketTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -450,7 +465,7 @@ describe('TpexScraper', () => {
 
   describe('.fetchMarketBreadth()', () => {
     it('should fetch market breadth for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-market-breadth.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-market-breadth.json') });
 
       const data = await scraper.fetchMarketBreadth({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -460,7 +475,6 @@ describe('TpexScraper', () => {
       expect(data).toEqual({
         date: '2023-01-30',
         exchange: 'TPEx',
-        market: 'OTC',
         up: 591,
         limitUp: 10,
         down: 135,
@@ -471,7 +485,7 @@ describe('TpexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-market-breadth-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-market-breadth-no-data.json') });
 
       const data = await scraper.fetchMarketBreadth({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -481,11 +495,11 @@ describe('TpexScraper', () => {
     });
   });
 
-  describe('.fetchMarketInstInvestorsTrades()', () => {
+  describe('.fetchMarketInstitutional()', () => {
     it('should fetch market institutional investors\' trades for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-market-inst-investors-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-market-institutional.json') });
 
-      const data = await scraper.fetchMarketInstInvestorsTrades({ date: '2023-01-30' });
+      const data = await scraper.fetchMarketInstitutional({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/web/stock/3insti/3insti_summary/3itrdsum_result.php?d=112%2F01%2F30&t=D&o=json',
       );
@@ -493,38 +507,63 @@ describe('TpexScraper', () => {
       expect(data).toEqual({
         date: '2023-01-30',
         exchange: 'TPEx',
-        market: 'OTC',
-        finiWithoutDealersBuy: 20112958447,
-        finiWithoutDealersSell: 16591758807,
-        finiWithoutDealersNetBuySell: 3521199640,
-        finiDealersBuy: 0,
-        finiDealersSell: 0,
-        finiDealersNetBuySell: 0,
-        finiBuy: 20112958447,
-        finiSell: 16591758807,
-        finiNetBuySell: 3521199640,
-        sitcBuy: 1543494365,
-        sitcSell: 579611355,
-        sitcNetBuySell: 963883010,
-        dealersForProprietaryBuy: 1180899990,
-        dealersForProprietarySell: 450809569,
-        dealersForProprietaryNetBuySell: 730090421,
-        dealersForHedgingBuy: 903027569,
-        dealersForHedgingSell: 312306870,
-        dealersForHedgingNetBuySell: 590720699,
-        dealersBuy: 2083927559,
-        dealersSell: 763116439,
-        dealersNetBuySell: 1320811120,
-        totalInstInvestorsBuy: 23740380371,
-        totalInstInvestorsSell: 17934486601,
-        totalInstInvestorsNetBuySell: 5805893770,
+        institutional: [
+          {
+            investors: '外資及陸資合計',
+            totalBuy: 20112958447,
+            totalSell: 16591758807,
+            difference: 3521199640,
+          },
+          {
+            investors: '外資及陸資(不含自營商)',
+            totalBuy: 20112958447,
+            totalSell: 16591758807,
+            difference: 3521199640,
+          },
+          {
+            investors: '外資自營商',
+            totalBuy: 0,
+            totalSell: 0,
+            difference: 0,
+          },
+          {
+            investors: '投信',
+            totalBuy: 1543494365,
+            totalSell: 579611355,
+            difference: 963883010,
+          },
+          {
+            investors: '自營商合計',
+            totalBuy: 2083927559,
+            totalSell: 763116439,
+            difference: 1320811120,
+          },
+          {
+            investors: '自營商(自行買賣)',
+            totalBuy: 1180899990,
+            totalSell: 450809569,
+            difference: 730090421,
+          },
+          {
+            investors: '自營商(避險)',
+            totalBuy: 903027569,
+            totalSell: 312306870,
+            difference: 590720699,
+          },
+          {
+            investors: '三大法人合計*',
+            totalBuy: 23740380371,
+            totalSell: 17934486601,
+            difference: 5805893770,
+          },
+        ],
       });
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-market-inst-investors-trades-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-market-institutional-no-data.json') });
 
-      const data = await scraper.fetchMarketInstInvestorsTrades({ date: '2023-01-01' });
+      const data = await scraper.fetchMarketInstitutional({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/web/stock/3insti/3insti_summary/3itrdsum_result.php?d=112%2F01%2F01&t=D&o=json',
       );
@@ -534,7 +573,7 @@ describe('TpexScraper', () => {
 
   describe('.fetchMarketMarginTrades()', () => {
     it('should fetch market margin trades for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-market-margin-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-market-margin-trades.json') });
 
       const data = await scraper.fetchMarketMarginTrades({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -544,7 +583,6 @@ describe('TpexScraper', () => {
       expect(data).toEqual({
         date: '2023-01-30',
         exchange: 'TPEx',
-        market: 'OTC',
         marginBuy: 71250,
         marginSell: 59859,
         marginRedeem: 2750,
@@ -564,7 +602,7 @@ describe('TpexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-market-margin-trades-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-market-margin-trades-no-data.json') });
 
       const data = await scraper.fetchMarketMarginTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(

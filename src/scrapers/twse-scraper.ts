@@ -2,6 +2,7 @@ import * as _ from 'lodash';
 import * as numeral from 'numeral';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
+import { Exchange } from '../enums';
 import { asIndex } from '../utils';
 
 export class TwseScraper extends Scraper {
@@ -22,6 +23,7 @@ export class TwseScraper extends Scraper {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
+      data.exchange = Exchange.TWSE;
       data.symbol = symbol;
       data.name = name.trim();
       data.open = numeral(values[3]).value();
@@ -38,7 +40,7 @@ export class TwseScraper extends Scraper {
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
-  async fetchStocksInstInvestorsTrades(options: { date: string, symbol?: string }) {
+  async fetchStocksInstitutional(options: { date: string, symbol?: string }) {
     const { date, symbol } = options;
     const query = new URLSearchParams({
       date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
@@ -55,32 +57,49 @@ export class TwseScraper extends Scraper {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
+      data.exchange = Exchange.TWSE;
       data.symbol = symbol;
       data.name = name.trim();
-      data.finiWithoutDealersBuy = numeral(values[0]).value();
-      data.finiWithoutDealersSell = numeral(values[1]).value();
-      data.finiWithoutDealersNetBuySell = numeral(values[2]).value();
-      data.finiDealersBuy = numeral(values[3]).value();
-      data.finiDealersSell = numeral(values[4]).value();
-      data.finiDealersNetBuySell = numeral(values[5]).value();
-      data.finiBuy = data.finiWithoutDealersBuy + data.finiDealersBuy;
-      data.finiSell = data.finiWithoutDealersSell + data.finiDealersSell;
-      data.finiNetBuySell = data.finiWithoutDealersNetBuySell + data.finiDealersNetBuySell;
-      data.sitcBuy = numeral(values[6]).value();
-      data.sitcSell = numeral(values[7]).value();
-      data.sitcNetBuySell = numeral(values[8]).value();
-      data.dealersForProprietaryBuy = numeral(values[10]).value();
-      data.dealersForProprietarySell = numeral(values[11]).value();
-      data.dealersForProprietaryNetBuySell = numeral(values[12]).value();
-      data.dealersForHedgingBuy = numeral(values[13]).value();
-      data.dealersForHedgingSell = numeral(values[14]).value();
-      data.dealersForHedgingNetBuySell = numeral(values[15]).value();
-      data.dealersBuy = data.dealersForProprietaryBuy + data.dealersForHedgingBuy;
-      data.dealersSell = data.dealersForProprietarySell + data.dealersForHedgingSell;
-      data.dealersNetBuySell = numeral(values[9]).value();
-      data.totalInstInvestorsBuy = data.finiBuy + data.sitcBuy + data.dealersBuy;
-      data.totalInstInvestorsSell = data.finiSell + data.sitcSell + data.dealersSell;
-      data.totalInstInvestorsNetBuySell = numeral(values[16]).value();
+      data.institutional = [
+        {
+          investors: '外資及陸資(不含外資自營商)',
+          totalBuy: numeral(values[0]).value(),
+          totalSell: numeral(values[1]).value(),
+          difference: numeral(values[2]).value(),
+        },
+        {
+          investors: '外資自營商',
+          totalBuy: numeral(values[3]).value(),
+          totalSell: numeral(values[4]).value(),
+          difference: numeral(values[5]).value(),
+        },
+        {
+          investors: '投信',
+          totalBuy: numeral(values[6]).value(),
+          totalSell: numeral(values[7]).value(),
+          difference: numeral(values[8]).value(),
+        },
+        {
+          investors: '自營商合計',
+          difference: numeral(values[9]).value(),
+        },
+        {
+          investors: '自營商(自行買賣)',
+          totalBuy: numeral(values[10]).value(),
+          totalSell: numeral(values[11]).value(),
+          difference: numeral(values[12]).value(),
+        },
+        {
+          investors: '自營商(避險)',
+          totalBuy: numeral(values[13]).value(),
+          totalSell: numeral(values[14]).value(),
+          difference: numeral(values[15]).value(),
+        },
+        {
+          investors: '合計',
+          difference: numeral(values[16]).value(),
+        },
+      ];
       return data;
     }) as Record<string, any>[];
 
@@ -104,6 +123,7 @@ export class TwseScraper extends Scraper {
       const [symbol, name, isin, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
+      data.exchange = Exchange.TWSE;
       data.symbol = symbol;
       data.name = name.trim();
       data.issuedShares = numeral(values[0]).value();
@@ -135,6 +155,7 @@ export class TwseScraper extends Scraper {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
+      data.exchange = Exchange.TWSE;
       data.symbol = symbol;
       data.name = name.trim();
       data.marginBuy = numeral(values[0]).value();
@@ -173,6 +194,7 @@ export class TwseScraper extends Scraper {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
+      data.exchange = Exchange.TWSE;
       data.symbol = symbol;
       data.name = name.trim();
       data.marginShortBalancePrev = numeral(values[0]).value();
@@ -211,6 +233,7 @@ export class TwseScraper extends Scraper {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
+      data.exchange = Exchange.TWSE;
       data.symbol = symbol;
       data.name = name.trim();
       data.peRatio = numeral(values[2]).value();
@@ -257,7 +280,8 @@ export class TwseScraper extends Scraper {
         const { date, symbol, name } = prev;
         const data: Record<string, any> = {};
         data.date = date,
-        data.symbol = symbol,
+        data.exchange = Exchange.TWSE;
+        data.symbol = symbol;
         data.name = name.trim();
         data.open = _.minBy(rows, 'time').price;
         data.high = _.maxBy(rows, 'price').price;
@@ -287,6 +311,7 @@ export class TwseScraper extends Scraper {
     const data = json.data.map((row: string[]) => {
       const data: Record<string, any> = {};
       data.date = date,
+      data.exchange = Exchange.TWSE;
       data.symbol = asIndex(row[0].trim());
       data.name = row[0].trim();
       data.tradeVolume = numeral(row[1]).value();
@@ -314,6 +339,7 @@ export class TwseScraper extends Scraper {
       const [year, month, day] = row[0].split('/');
       return {
         date: `${+year + 1911}-${month}-${day}`,
+        exchange: Exchange.TWSE,
         tradeVolume: numeral(row[1]).value(),
         tradeValue: numeral(row[2]).value(),
         transaction: numeral(row[3]).value(),
@@ -344,6 +370,7 @@ export class TwseScraper extends Scraper {
 
     const data: Record<string, any> = {};
     data.date = date;
+    data.exchange = Exchange.TWSE,
     data.up = numeral(up).value();
     data.limitUp = numeral(limitUp).value();
     data.down = numeral(down).value();
@@ -354,7 +381,7 @@ export class TwseScraper extends Scraper {
     return data;
   }
 
-  async fetchMarketInstInvestorsTrades(options: { date: string }) {
+  async fetchMarketInstitutional(options: { date: string }) {
     const { date } = options;
     const query = new URLSearchParams({
       dayDate: DateTime.fromISO(date).toFormat('yyyyMMdd'),
@@ -367,33 +394,15 @@ export class TwseScraper extends Scraper {
     const json = (response.data.stat === 'OK') && response.data;
     if (!json) return null;
 
-    const values = json.data.map((row: string []) => row.slice(1)).flat();
     const data: Record<string, any> = {};
     data.date = date;
-    data.finiWithoutDealersBuy = numeral(values[9]).value();
-    data.finiWithoutDealersSell = numeral(values[10]).value();
-    data.finiWithoutDealersNetBuySell = numeral(values[11]).value();
-    data.finiDealersBuy = numeral(values[12]).value();
-    data.finiDealersSell = numeral(values[13]).value();
-    data.finiDealersNetBuySell = numeral(values[14]).value();
-    data.finiBuy = data.finiWithoutDealersBuy + data.finiDealersBuy;
-    data.finiSell = data.finiWithoutDealersSell + data.finiDealersSell;
-    data.finiNetBuySell = data.finiWithoutDealersNetBuySell + data.finiDealersNetBuySell;
-    data.sitcBuy = numeral(values[6]).value();
-    data.sitcSell = numeral(values[7]).value();
-    data.sitcNetBuySell = numeral(values[8]).value();
-    data.dealersForProprietaryBuy = numeral(values[0]).value();
-    data.dealersForProprietarySell = numeral(values[1]).value();
-    data.dealersForProprietaryNetBuySell = numeral(values[2]).value();
-    data.dealersForHedgingBuy = numeral(values[3]).value();
-    data.dealersForHedgingSell = numeral(values[4]).value();
-    data.dealersForHedgingNetBuySell = numeral(values[5]).value();
-    data.dealersBuy = data.dealersForProprietaryBuy + data.dealersForHedgingBuy;
-    data.dealersSell = data.dealersForProprietarySell + data.dealersForHedgingSell;
-    data.dealersNetBuySell = data.dealersForProprietaryNetBuySell + data.dealersForHedgingNetBuySell;
-    data.totalInstInvestorsBuy = numeral(values[15]).value();
-    data.totalInstInvestorsSell = numeral(values[16]).value();
-    data.totalInstInvestorsNetBuySell = numeral(values[17]).value();
+    data.exchange = Exchange.TWSE,
+    data.institutional = json.data.map((row: string[]) => ({
+      investors: row[0].trim(),
+      totalBuy: numeral(row[1]).value(),
+      totalSell: numeral(row[2]).value(),
+      difference: numeral(row[3]).value(),
+    }));
     return data;
   }
 
@@ -413,6 +422,7 @@ export class TwseScraper extends Scraper {
     const values = json.tables[0].data.map((row: string []) => row.slice(1)).flat();
     const data: Record<string, any> = {};
     data.date = date;
+    data.exchange = Exchange.TWSE,
     data.marginBuy = numeral(values[0]).value();
     data.marginSell = numeral(values[1]).value();
     data.marginRedeem = numeral(values[2]).value();

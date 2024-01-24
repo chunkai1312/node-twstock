@@ -1,6 +1,6 @@
 import { omit, map } from 'lodash';
 import { ScraperFactory } from './scrapers';
-import { Market } from './enums';
+import { Exchange } from './enums';
 import { RateLimitOptions, Ticker } from './interfaces';
 
 export class TwStock {
@@ -15,17 +15,17 @@ export class TwStock {
 
   get stocks() {
     return {
-      list: this.getStocksList.bind(this),
-      quote: this.getStocksQuote.bind(this),
-      historical: this.getStocksHistorical.bind(this),
-      instTrades: this.getStocksInstTrades.bind(this),
-      finiHoldings: this.getStocksFiniHoldings.bind(this),
-      marginTrades: this.getStocksMarginTrades.bind(this),
-      shortSales: this.getStocksShortSales.bind(this),
-      values: this.getStocksValues.bind(this),
-      holders: this.getStocksHolders.bind(this),
-      eps: this.getStocksEps.bind(this),
-      revenue: this.getStocksRevenue.bind(this),
+      list: this.fetchStocksList.bind(this),
+      quote: this.fetchStocksQuote.bind(this),
+      historical: this.fetchStocksHistorical.bind(this),
+      institutional: this.fetchStocksInstitutional.bind(this),
+      values: this.fetchStocksValues.bind(this),
+      finiHoldings: this.fetchStocksFiniHoldings.bind(this),
+      marginTrades: this.fetchStocksMarginTrades.bind(this),
+      shortSales: this.fetchStocksShortSales.bind(this),
+      shareholders: this.fetchStocksShareholders.bind(this),
+      eps: this.fetchStocksEps.bind(this),
+      revenue: this.fetchStocksRevenue.bind(this),
     };
   }
 
@@ -42,7 +42,7 @@ export class TwStock {
     return {
       trades: this.getMarketTrades.bind(this),
       breadth: this.getMarketBreadth.bind(this),
-      instTrades: this.getMarketInstTrades.bind(this),
+      institutional: this.getMarketInstitutional.bind(this),
       marginTrades: this.getMarketMarginTrades.bind(this),
     };
   }
@@ -52,12 +52,10 @@ export class TwStock {
       list: this.getFutOptList.bind(this),
       quote: this.getFutOptQuote.bind(this),
       historical: this.getFutOptHistorical.bind(this),
-      txfInstTrades: this.getFutOptTxfInstTrades.bind(this),
-      txoInstTrades: this.getFutOptTxoInstTrades.bind(this),
-      txoPutCallRatio: this.getFutOptTxoPutCallRatio.bind(this),
+      institutional: this.getFutOptInstitutional.bind(this),
+      largeTraders: this.getFutOptLargeTraders.bind(this),
       mxfRetailPosition: this.getFutOptMxfRetailPosition.bind(this),
-      txfLargeTradersPosition: this.getFutOptTxfLargeTradersPosition.bind(this),
-      txoLargeTradersPosition: this.getFutOptTxoLargeTradersPosition.bind(this),
+      txoPutCallRatio: this.getFutOptTxoPutCallRatio.bind(this),
       exchangeRates: this.getFutOptExchangeRates.bind(this),
     };
   }
@@ -67,10 +65,10 @@ export class TwStock {
     const isinScraper = this._scraper.getIsinScraper();
 
     const stocks = (symbol)
-      ? await isinScraper.fetchStocksInfo({ symbol })
+      ? await isinScraper.fetchListed({ symbol })
       : await Promise.all([
-          isinScraper.fetchListedStocks({ market: Market.TSE }),
-          isinScraper.fetchListedStocks({ market: Market.OTC }),
+          isinScraper.fetchListedStocks({ exchange: Exchange.TWSE }),
+          isinScraper.fetchListedStocks({ exchange: Exchange.TPEx }),
         ]).then(results => results.flat());
 
     stocks.forEach(({ symbol, ...ticker }) => this._stocks.set(symbol, { symbol, ...ticker }));
@@ -82,8 +80,8 @@ export class TwStock {
     const misScraper = this._scraper.getMisTwseScraper();
 
     const data = await Promise.all([
-      misScraper.fetchListedIndices({ market: Market.TSE }),
-      misScraper.fetchListedIndices({ market: Market.OTC }),
+      misScraper.fetchListedIndices({ exchange: Exchange.TWSE }),
+      misScraper.fetchListedIndices({ exchange: Exchange.TPEx }),
     ]).then(results => results.flat());
 
     const indices = data
@@ -97,26 +95,43 @@ export class TwStock {
     return indices;
   }
 
-  private async loadFutOpt(options?: { symbol?: string }) {
-    const { symbol } = options ?? {};
-    const isinScraper = this._scraper.getIsinScraper();
+  private async loadFutOpt(options?: { type?: 'F' | 'O' }) {
+    const { type } = options ?? {};
+    const misTaifexScraper = this._scraper.getMisTaifexScraper();
 
-    const futopt = (symbol)
-      ? await isinScraper.fetchStocksInfo({ symbol })
-      : await isinScraper.fetchListedFutOpt();
+    const futopt = await (() => {
+      switch (type) {
+        case 'F': return misTaifexScraper.fetchListedFutOpt({ type: 'F' });
+        case 'O': return misTaifexScraper.fetchListedFutOpt({ type: 'O' });
+        default: return misTaifexScraper.fetchListedFutOpt();
+      }
+    })() as Ticker[];
 
     futopt.forEach(({ symbol, ...ticker }) => this._futopt.set(symbol, { symbol, ...ticker }));
 
     return futopt;
   }
 
-  private async getStocksList(options?: { market: 'TSE' | 'OTC' }) {
-    const { market } = options ?? {};
-    const data = await this.loadStocks();
-    return market ? data.filter(ticker => ticker.market === market) : data;
+  private async loadFutOptContracts(options: { symbol?: string, type?: 'F' | 'O' }) {
+    const { symbol, type } = options;
+    const isinScraper = this._scraper.getIsinScraper();
+
+    const futopt = (symbol)
+      ? await isinScraper.fetchListed({ symbol })
+      : await isinScraper.fetchListedFutOpt({ type });
+
+    futopt.forEach(({ symbol, ...ticker }) => this._futopt.set(symbol, { symbol, ...ticker }));
+
+    return futopt;
   }
 
-  private async getStocksQuote(options: { symbol: string, odd?: boolean }) {
+  private async fetchStocksList(options?: { exchange: 'TWSE' | 'TPEx' }) {
+    const { exchange } = options ?? {};
+    const data = await this.loadStocks();
+    return exchange ? data.filter(ticker => ticker.exchange === exchange) : data;
+  }
+
+  private async fetchStocksQuote(options: { symbol: string, odd?: boolean }) {
     const { symbol, odd } = options;
 
     if (!this._stocks.has(symbol)) {
@@ -128,7 +143,7 @@ export class TwStock {
     return this._scraper.getMisTwseScraper().fetchStocksQuote({ ticker, odd });
   }
 
-  private async getStocksHistorical(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+  private async fetchStocksHistorical(options: { date: string, exchange?: 'TWSE' | 'TPEx', symbol?: string }) {
     const { date, symbol } = options;
 
     if (symbol && !this._stocks.has(symbol)) {
@@ -137,14 +152,14 @@ export class TwStock {
     }
 
     const ticker = this._stocks.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : options.market;
+    const exchange = symbol ? ticker.exchange : options.exchange;
 
-    return (market === Market.OTC)
+    return (exchange === Exchange.TPEx)
       ? await this._scraper.getTpexScraper().fetchStocksHistorical({ date, symbol })
       : await this._scraper.getTwseScraper().fetchStocksHistorical({ date, symbol });
   }
 
-  private async getStocksInstTrades(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+  private async fetchStocksInstitutional(options: { date: string, exchange?: 'TWSE' | 'TPEx', symbol?: string }) {
     const { date, symbol } = options;
 
     if (symbol && !this._stocks.has(symbol)) {
@@ -153,14 +168,14 @@ export class TwStock {
     }
 
     const ticker = this._stocks.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : options.market;
+    const exchange = symbol ? ticker.exchange : options.exchange;
 
-    return (market === Market.OTC)
-      ? await this._scraper.getTpexScraper().fetchStocksInstInvestorsTrades({ date, symbol })
-      : await this._scraper.getTwseScraper().fetchStocksInstInvestorsTrades({ date, symbol });
+    return (exchange === Exchange.TPEx)
+      ? await this._scraper.getTpexScraper().fetchStocksInstitutional({ date, symbol })
+      : await this._scraper.getTwseScraper().fetchStocksInstitutional({ date, symbol });
   }
 
-  private async getStocksFiniHoldings(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+  private async fetchStocksValues(options: { date: string, exchange?: 'TWSE' | 'TPEx', symbol?: string }) {
     const { date, symbol } = options;
 
     if (symbol && !this._stocks.has(symbol)) {
@@ -169,62 +184,14 @@ export class TwStock {
     }
 
     const ticker = this._stocks.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : options.market;
+    const exchange = symbol ? ticker.exchange : options.exchange;
 
-    return (market === Market.OTC)
-      ? await this._scraper.getTpexScraper().fetchStocksFiniHoldings({ date, symbol })
-      : await this._scraper.getTwseScraper().fetchStocksFiniHoldings({ date, symbol });
-  }
-
-  private async getStocksMarginTrades(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
-    const { date, symbol } = options;
-
-    if (symbol && !this._stocks.has(symbol)) {
-      const stocks = await this.loadStocks({ symbol });
-      if (!stocks.length) throw new Error('symbol not found');
-    }
-
-    const ticker = this._stocks.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : options.market;
-
-    return (market === Market.OTC)
-      ? await this._scraper.getTpexScraper().fetchStocksMarginTrades({ date, symbol })
-      : await this._scraper.getTwseScraper().fetchStocksMarginTrades({ date, symbol });
-  }
-
-  private async getStocksShortSales(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
-    const { date, symbol } = options;
-
-    if (symbol && !this._stocks.has(symbol)) {
-      const stocks = await this.loadStocks({ symbol });
-      if (!stocks.length) throw new Error('symbol not found');
-    }
-
-    const ticker = this._stocks.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : options.market;
-
-    return (market === Market.OTC)
-      ? await this._scraper.getTpexScraper().fetchStocksShortSales({ date, symbol })
-      : await this._scraper.getTwseScraper().fetchStocksShortSales({ date, symbol });
-  }
-
-  private async getStocksValues(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
-    const { date, symbol } = options;
-
-    if (symbol && !this._stocks.has(symbol)) {
-      const stocks = await this.loadStocks({ symbol });
-      if (!stocks.length) throw new Error('symbol not found');
-    }
-
-    const ticker = this._stocks.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : options.market;
-
-    return (market === Market.OTC)
+    return (exchange === Exchange.TPEx)
       ? await this._scraper.getTpexScraper().fetchStocksValues({ date, symbol })
       : await this._scraper.getTwseScraper().fetchStocksValues({ date, symbol });
   }
 
-  private async getStocksHolders(options: { date: string, symbol: string }) {
+  private async fetchStocksFiniHoldings(options: { date: string, exchange?: 'TWSE' | 'TPEx', symbol?: string }) {
     const { date, symbol } = options;
 
     if (symbol && !this._stocks.has(symbol)) {
@@ -232,17 +199,65 @@ export class TwStock {
       if (!stocks.length) throw new Error('symbol not found');
     }
 
-    return this._scraper.getTdccScraper().fetchStocksHolders({ date, symbol });
+    const ticker = this._stocks.get(symbol as string) as Ticker;
+    const exchange = symbol ? ticker.exchange : options.exchange;
+
+    return (exchange === Exchange.TPEx)
+      ? await this._scraper.getTpexScraper().fetchStocksFiniHoldings({ date, symbol })
+      : await this._scraper.getTwseScraper().fetchStocksFiniHoldings({ date, symbol });
   }
 
-  private async getStocksEps(options: { year: number, quarter: number, market?: 'TSE' | 'OTC', symbol?: string }) {
+  private async fetchStocksMarginTrades(options: { date: string, exchange?: 'TWSE' | 'TPEx', symbol?: string }) {
+    const { date, symbol } = options;
+
+    if (symbol && !this._stocks.has(symbol)) {
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
+    }
+
+    const ticker = this._stocks.get(symbol as string) as Ticker;
+    const exchange = symbol ? ticker.exchange : options.exchange;
+
+    return (exchange === Exchange.TPEx)
+      ? await this._scraper.getTpexScraper().fetchStocksMarginTrades({ date, symbol })
+      : await this._scraper.getTwseScraper().fetchStocksMarginTrades({ date, symbol });
+  }
+
+  private async fetchStocksShortSales(options: { date: string, exchange?: 'TWSE' | 'TPEx', symbol?: string }) {
+    const { date, symbol } = options;
+
+    if (symbol && !this._stocks.has(symbol)) {
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
+    }
+
+    const ticker = this._stocks.get(symbol as string) as Ticker;
+    const exchange = symbol ? ticker.exchange : options.exchange;
+
+    return (exchange === Exchange.TPEx)
+      ? await this._scraper.getTpexScraper().fetchStocksShortSales({ date, symbol })
+      : await this._scraper.getTwseScraper().fetchStocksShortSales({ date, symbol });
+  }
+
+  private async fetchStocksShareholders(options: { date: string, symbol: string }) {
+    const { date, symbol } = options;
+
+    if (symbol && !this._stocks.has(symbol)) {
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
+    }
+
+    return this._scraper.getTdccScraper().fetchStocksShareholders({ date, symbol });
+  }
+
+  private async fetchStocksEps(options: { year: number, quarter: number, exchange?: 'TWSE' | 'TPEx', symbol?: string }) {
     const { symbol, year, quarter } = options;
 
-    if (!options.market && !options.symbol) {
-      throw new Error('Either "market" or "symbol" options must be specified');
+    if (!options.exchange && !options.symbol) {
+      throw new Error('Either "exchange" or "symbol" options must be specified');
     }
-    if (options.market && options.symbol) {
-      throw new Error('One and only one of the "market" or "symbol" options must be specified');
+    if (options.exchange && options.symbol) {
+      throw new Error('One and only one of the "exchange" or "symbol" options must be specified');
     }
     if (symbol && !this._stocks.has(symbol)) {
       const stocks = await this.loadStocks({ symbol });
@@ -250,29 +265,35 @@ export class TwStock {
     }
 
     const ticker = this._stocks.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : options.market as string;
+    const exchange = symbol ? ticker.exchange : options.exchange as string;
 
-    return this._scraper.getMopsScraper().fetchStocksEps({ market, year, quarter, symbol });
+    return this._scraper.getMopsScraper().fetchStocksEps({ exchange, year, quarter, symbol });
   }
 
-  private async getStocksRevenue(options: { market?: 'TSE' | 'OTC', year: number, month: number, foreign?: boolean, symbol?: string  }) {
+  private async fetchStocksRevenue(options: { exchange?: 'TWSE' | 'TPEx', year: number, month: number, foreign?: boolean, symbol?: string  }) {
     const { symbol, year, month, foreign } = options;
 
+    if (!options.exchange && !options.symbol) {
+      throw new Error('Either "exchange" or "symbol" options must be specified');
+    }
+    if (options.exchange && options.symbol) {
+      throw new Error('One and only one of the "exchange" or "symbol" options must be specified');
+    }
     if (symbol && !this._stocks.has(symbol)) {
       const stocks = await this.loadStocks({ symbol });
       if (!stocks.length) throw new Error('symbol not found');
     }
 
     const ticker = this._stocks.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : options.market as string;
+    const exchange = symbol ? ticker.exchange : options.exchange as string;
 
-    return this._scraper.getMopsScraper().fetchStocksRevenue({ market, year, month, foreign, symbol });
+    return this._scraper.getMopsScraper().fetchStocksRevenue({ exchange, year, month, foreign, symbol });
   }
 
-  private async getIndicesList(options?: { market: 'TSE' | 'OTC' }) {
-    const { market } = options ?? {};
+  private async getIndicesList(options?: { exchange: 'TWSE' | 'TPEx' }) {
+    const { exchange } = options ?? {};
     const data = await this.loadIndices();
-    return market ? data.filter(ticker => ticker.market === market) : data;
+    return exchange ? data.filter(ticker => ticker.exchange === exchange) : data;
   }
 
   private async getIndicesQuote(options: { symbol: string }) {
@@ -287,7 +308,7 @@ export class TwStock {
     return this._scraper.getMisTwseScraper().fetchIndicesQuote({ ticker });
   }
 
-  private async getIndicesHistorical(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+  private async getIndicesHistorical(options: { date: string, exchange?: 'TWSE' | 'TPEx', symbol?: string }) {
     const { date, symbol } = options;
 
     if (symbol && !this._indices.has(symbol)) {
@@ -296,14 +317,14 @@ export class TwStock {
     }
 
     const ticker = this._indices.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : options.market;
+    const exchange = symbol ? ticker.exchange : options.exchange;
 
-    return (market === Market.OTC)
+    return (exchange === Exchange.TPEx)
       ? await this._scraper.getTpexScraper().fetchIndicesHistorical({ date, symbol })
       : await this._scraper.getTwseScraper().fetchIndicesHistorical({ date, symbol });
   }
 
-  private async getIndicesTrades(options: { date: string, market?: 'TSE' | 'OTC', symbol?: string }) {
+  private async getIndicesTrades(options: { date: string, exchange?: 'TWSE' | 'TPEx', symbol?: string }) {
     const { date, symbol } = options;
 
     if (symbol && !this._indices.has(symbol)) {
@@ -312,61 +333,70 @@ export class TwStock {
     }
 
     const ticker = this._indices.get(symbol as string) as Ticker;
-    const market = symbol ? ticker.market : options.market;
+    const exchange = symbol ? ticker.exchange : options.exchange;
 
-    return (market === Market.OTC)
+    return (exchange === Exchange.TPEx)
       ? await this._scraper.getTpexScraper().fetchIndicesTrades({ date, symbol })
       : await this._scraper.getTwseScraper().fetchIndicesTrades({ date, symbol });
   }
 
 
-  private async getMarketTrades(options: { date: string, market?: 'TSE' | 'OTC' }) {
-    const { date, market } = options;
+  private async getMarketTrades(options: { date: string, exchange?: 'TWSE' | 'TPEx' }) {
+    const { date, exchange } = options;
 
-    return (market === Market.OTC)
+    return (exchange === Exchange.TPEx)
       ? await this._scraper.getTpexScraper().fetchMarketTrades({ date })
       : await this._scraper.getTwseScraper().fetchMarketTrades({ date });
   }
 
-  private async getMarketBreadth(options: { date: string, market?: 'TSE' | 'OTC' }) {
-    const { date, market } = options;
+  private async getMarketBreadth(options: { date: string, exchange?: 'TWSE' | 'TPEx' }) {
+    const { date, exchange } = options;
 
-    return (market === Market.OTC)
+    return (exchange === Exchange.TPEx)
       ? await this._scraper.getTpexScraper().fetchMarketBreadth({ date })
       : await this._scraper.getTwseScraper().fetchMarketBreadth({ date });
   }
 
-  private async getMarketInstTrades(options: { date: string, market?: 'TSE' | 'OTC' }) {
-    const { date, market } = options;
+  private async getMarketInstitutional(options: { date: string, exchange?: 'TWSE' | 'TPEx' }) {
+    const { date, exchange } = options;
 
-    return (market === Market.OTC)
-      ? await this._scraper.getTpexScraper().fetchMarketInstInvestorsTrades({ date })
-      : await this._scraper.getTwseScraper().fetchMarketInstInvestorsTrades({ date });
+    return (exchange === Exchange.TPEx)
+      ? await this._scraper.getTpexScraper().fetchMarketInstitutional({ date })
+      : await this._scraper.getTwseScraper().fetchMarketInstitutional({ date });
   }
 
-  private async getMarketMarginTrades(options: { date: string, market?: 'TSE' | 'OTC' }) {
-    const { date, market } = options;
+  private async getMarketMarginTrades(options: { date: string, exchange?: 'TWSE' | 'TPEx' }) {
+    const { date, exchange } = options;
 
-    return (market === Market.OTC)
+    return (exchange === Exchange.TPEx)
       ? await this._scraper.getTpexScraper().fetchMarketMarginTrades({ date })
       : await this._scraper.getTwseScraper().fetchMarketMarginTrades({ date });
   }
 
-  private async getFutOptList() {
-    const data = await this.loadFutOpt();
-    return data;
+  private async getFutOptList(options?: { type?: 'F' | 'O', availableContracts?: boolean }) {
+    const { type, availableContracts } = options ?? {};
+
+    return availableContracts
+      ? await this.loadFutOptContracts({ type })
+      : await this.loadFutOpt({ type });
   }
 
   private async getFutOptQuote(options: { symbol: string, afterhours?: boolean }) {
     const { symbol, afterhours } = options;
 
     if (!this._futopt.has(symbol)) {
-      const futopt = await this.loadFutOpt({ symbol });
-      if (!futopt.length) throw new Error('symbol not found');
+      const futopt = (symbol.length === 3)
+        ? await this.loadFutOpt()
+        : await this.loadFutOptContracts({ symbol });
+
+      if (!map(futopt, 'symbol').includes(symbol)) throw new Error('symbol not found');
     }
 
     const ticker = this._futopt.get(symbol) as Ticker;
-    return this._scraper.getMisTaifexScraper().fetchFutOptQuote({ ticker, afterhours });
+
+    return (ticker.symbol.length === 3)
+      ? this._scraper.getMisTaifexScraper().fetchFutOptQuoteList({ ticker, afterhours })
+      : this._scraper.getMisTaifexScraper().fetchFutOptQuoteDetail({ ticker, afterhours });
   }
 
   private async getFutOptHistorical(options: { date: string, symbol: string, afterhours?: boolean }) {
@@ -378,19 +408,22 @@ export class TwStock {
       : this._scraper.getTaifexScraper().fetchFuturesHistorical({ date, symbol, afterhours });
   }
 
-  private async getFutOptTxfInstTrades(options: { date: string }) {
-    const { date } = options;
-    return this._scraper.getTaifexScraper().fetchTxfInstTrades({ date });
+  private async getFutOptInstitutional(options: { date: string, symbol: string }) {
+    const { date, symbol } = options;
+
+    const type = (symbol.charAt(2) === 'O') ? 'O' : 'F';
+    return (type === 'O')
+      ? this._scraper.getTaifexScraper().fetchOptionsInstitutional({ date, symbol })
+      : this._scraper.getTaifexScraper().fetchFuturesInstitutional({ date, symbol });
   }
 
-  private async getFutOptTxoInstTrades(options: { date: string }) {
-    const { date } = options;
-    return this._scraper.getTaifexScraper().fetchTxoInstTrades({ date });
-  }
+  private async getFutOptLargeTraders(options: { date: string, symbol: string }) {
+    const { date, symbol } = options;
 
-  private async getFutOptTxoPutCallRatio(options: { date: string }) {
-    const { date } = options;
-    return this._scraper.getTaifexScraper().fetchTxoPutCallRatio({ date });
+    const type = (symbol.charAt(2) === 'O') ? 'O' : 'F';
+    return (type === 'O')
+      ? this._scraper.getTaifexScraper().fetchOptionsLargeTraders({ date, symbol })
+      : this._scraper.getTaifexScraper().fetchFuturesLargeTraders({ date, symbol });
   }
 
   private async getFutOptMxfRetailPosition(options: { date: string }) {
@@ -398,14 +431,9 @@ export class TwStock {
     return this._scraper.getTaifexScraper().fetchMxfRetailPosition({ date });
   }
 
-  private async getFutOptTxfLargeTradersPosition(options: { date: string }) {
+  private async getFutOptTxoPutCallRatio(options: { date: string }) {
     const { date } = options;
-    return this._scraper.getTaifexScraper().fetchTxfLargeTradersPosition({ date });
-  }
-
-  private async getFutOptTxoLargeTradersPosition(options: { date: string }) {
-    const { date } = options;
-    return this._scraper.getTaifexScraper().fetchTxoLargeTradersPosition({ date });
+    return this._scraper.getTaifexScraper().fetchTxoPutCallRatio({ date });
   }
 
   private async getFutOptExchangeRates(options: { date: string }) {

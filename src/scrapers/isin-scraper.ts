@@ -3,10 +3,10 @@ import * as cheerio from 'cheerio';
 import * as iconv from 'iconv-lite';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
-import { asExchange, asMarket, asIndustry } from '../utils';
+import { asExchange, asIndustry } from '../utils';
 
 export class IsinScraper extends Scraper {
-  async fetchStocksInfo(options: { symbol: string }) {
+  async fetchListed(options: { symbol: string }) {
     const { symbol } = options;
     const url = `https://isin.twse.com.tw/isin/single_main.jsp?owncode=${symbol}`;
     const response = await this.httpService.get(url, { responseType: 'arraybuffer' });
@@ -19,7 +19,6 @@ export class IsinScraper extends Scraper {
         symbol: td.eq(2).text().trim(),
         name: td.eq(3).text().trim(),
         exchange: asExchange(td.eq(4).text().trim()),
-        market: asMarket(td.eq(4).text().trim()),
         type: td.eq(5).text().trim(),
         industry: asIndustry(td.eq(6).text().trim()),
         listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate(),
@@ -29,13 +28,13 @@ export class IsinScraper extends Scraper {
     return data;
   }
 
-  async fetchListedStocks(options: { market: 'TSE' | 'OTC' }) {
-    const { market } = options;
+  async fetchListedStocks(options: { exchange: 'TWSE' | 'TPEx' }) {
+    const { exchange } = options;
     const url = {
-      'TSE': 'https://isin.twse.com.tw/isin/class_main.jsp?market=1',
-      'OTC': 'https://isin.twse.com.tw/isin/class_main.jsp?market=2',
+      'TWSE': 'https://isin.twse.com.tw/isin/class_main.jsp?market=1',
+      'TPEx': 'https://isin.twse.com.tw/isin/class_main.jsp?market=2',
     };
-    const response = await this.httpService.get(url[market], { responseType: 'arraybuffer' });
+    const response = await this.httpService.get(url[exchange], { responseType: 'arraybuffer' });
     const page = iconv.decode(response.data, 'big5');
     const $ = cheerio.load(page);
 
@@ -45,7 +44,6 @@ export class IsinScraper extends Scraper {
         symbol: td.eq(2).text().trim(),
         name: td.eq(3).text().trim(),
         exchange: asExchange(td.eq(4).text().trim()),
-        market: asMarket(td.eq(4).text().trim()),
         type: td.eq(5).text().trim(),
         industry: asIndustry(td.eq(6).text().trim()),
         listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate(),
@@ -55,7 +53,8 @@ export class IsinScraper extends Scraper {
     return data;
   }
 
-  async fetchListedFutOpt() {
+  async fetchListedFutOpt(options?: { type?: 'F' | 'O'}) {
+    const { type } = options ?? {};
     const url = 'https://isin.twse.com.tw/isin/class_main.jsp?market=7';
     const response = await this.httpService.get(url, { responseType: 'arraybuffer' });
     const page = iconv.decode(response.data, 'big5');
@@ -67,13 +66,15 @@ export class IsinScraper extends Scraper {
         symbol: td.eq(2).text().trim(),
         name: td.eq(3).text().trim(),
         exchange: asExchange(td.eq(4).text().trim()),
-        market: asMarket(td.eq(4).text().trim()),
         type: td.eq(5).text().trim(),
-        industry: asIndustry(td.eq(6).text().trim()),
         listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate(),
       } as Record<string, any>;
     }).toArray();
 
-    return data;
+    return data.filter(row => {
+      if (type === 'F') return row.type.includes('期貨');
+      if (type === 'O') return row.type.includes('選擇權');
+      return true;
+    });
   }
 }

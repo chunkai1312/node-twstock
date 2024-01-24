@@ -14,7 +14,7 @@ describe('TwseScraper', () => {
 
   describe('.fetchStocksHistorical()', () => {
     it('should fetch stocks historical data for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-historical.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-historical.json') });
 
       const data = await scraper.fetchStocksHistorical({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -25,7 +25,7 @@ describe('TwseScraper', () => {
     });
 
     it('should fetch stocks historical data for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-historical.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-historical.json') });
 
       const data = await scraper.fetchStocksHistorical({ date: '2023-01-30', symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -34,6 +34,7 @@ describe('TwseScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
         symbol: '2330',
         name: '台積電',
         open: 542,
@@ -48,7 +49,7 @@ describe('TwseScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-historical-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-historical-no-data.json') });
 
       const data = await scraper.fetchStocksHistorical({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -58,11 +59,11 @@ describe('TwseScraper', () => {
     });
   });
 
-  describe('.fetchStocksInstInvestorsTrades()', () => {
+  describe('.fetchStocksInstitutional()', () => {
     it('should fetch stocks institutional investors\' trades for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-inst-investors-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-institutional.json') });
 
-      const data = await scraper.fetchStocksInstInvestorsTrades({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksInstitutional({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/fund/T86?date=20230130&selectType=ALLBUT0999&response=json',
       );
@@ -71,48 +72,65 @@ describe('TwseScraper', () => {
     });
 
     it('should fetch stocks institutional investors\' trades for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-inst-investors-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-institutional.json') });
 
-      const data = await scraper.fetchStocksInstInvestorsTrades({ date: '2023-01-30', symbol: '2330' });
+      const data = await scraper.fetchStocksInstitutional({ date: '2023-01-30', symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/fund/T86?date=20230130&selectType=ALLBUT0999&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
         symbol: '2330',
         name: '台積電',
-        finiWithoutDealersBuy: 133236588,
-        finiWithoutDealersSell: 52595539,
-        finiWithoutDealersNetBuySell: 80641049,
-        finiDealersBuy: 0,
-        finiDealersSell: 0,
-        finiDealersNetBuySell: 0,
-        finiBuy: 133236588,
-        finiSell: 52595539,
-        finiNetBuySell: 80641049,
-        sitcBuy: 1032000,
-        sitcSell: 94327,
-        sitcNetBuySell: 937673,
-        dealersForProprietaryBuy: 978000,
-        dealersForProprietarySell: 537000,
-        dealersForProprietaryNetBuySell: 441000,
-        dealersForHedgingBuy: 1227511,
-        dealersForHedgingSell: 788103,
-        dealersForHedgingNetBuySell: 439408,
-        dealersBuy: 2205511,
-        dealersSell: 1325103,
-        dealersNetBuySell: 880408,
-        totalInstInvestorsBuy: 136474099,
-        totalInstInvestorsSell: 54014969,
-        totalInstInvestorsNetBuySell: 82459130,
+        institutional: [
+          {
+            investors: '外資及陸資(不含外資自營商)',
+            totalBuy: 133236588,
+            totalSell: 52595539,
+            difference: 80641049,
+          },
+          {
+            investors: '外資自營商',
+            totalBuy: 0,
+            totalSell: 0,
+            difference: 0,
+          },
+          {
+            investors: '投信',
+            totalBuy: 1032000,
+            totalSell: 94327,
+            difference: 937673,
+          },
+          {
+            investors: '自營商合計',
+            difference: 880408,
+          },
+          {
+            investors: '自營商(自行買賣)',
+            totalBuy: 978000,
+            totalSell: 537000,
+            difference: 441000,
+          },
+          {
+            investors: '自營商(避險)',
+            totalBuy: 1227511,
+            totalSell: 788103,
+            difference: 439408,
+          },
+          {
+            investors: '合計',
+            difference: 82459130,
+          },
+        ],
       });
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-inst-investors-trades-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-institutional-no-data.json') });
 
-      const data = await scraper.fetchStocksInstInvestorsTrades({ date: '2023-01-01' });
+      const data = await scraper.fetchStocksInstitutional({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/fund/T86?date=20230101&selectType=ALLBUT0999&response=json',
       );
@@ -122,7 +140,7 @@ describe('TwseScraper', () => {
 
   describe('.fetchStocksFiniHoldings()', () => {
     it('should fetch stocks FINI holdings for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-fini-holdings.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-fini-holdings.json') });
 
       const data = await scraper.fetchStocksFiniHoldings({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -133,7 +151,7 @@ describe('TwseScraper', () => {
     });
 
     it('should fetch stocks FINI holdings for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-fini-holdings.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-fini-holdings.json') });
 
       const data = await scraper.fetchStocksFiniHoldings({ date: '2023-01-30', symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -142,6 +160,7 @@ describe('TwseScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
         symbol: '2330',
         name: '台積電',
         issuedShares: 25930380458,
@@ -154,7 +173,7 @@ describe('TwseScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-fini-holdings-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-fini-holdings-no-data.json') });
 
       const data = await scraper.fetchStocksFiniHoldings({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -166,7 +185,7 @@ describe('TwseScraper', () => {
 
   describe('.fetchStocksMarginTrades()', () => {
     it('should fetch stocks margin trades for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-margin-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-margin-trades.json') });
 
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -177,7 +196,7 @@ describe('TwseScraper', () => {
     });
 
     it('should fetch stocks margin trades for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-margin-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-margin-trades.json') });
 
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30', symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -186,6 +205,7 @@ describe('TwseScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
         symbol: '2330',
         name: '台積電',
         marginBuy: 1209,
@@ -206,7 +226,7 @@ describe('TwseScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-margin-trades-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-margin-trades-no-data.json') });
 
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -218,7 +238,7 @@ describe('TwseScraper', () => {
 
   describe('.fetchStocksShortSales()', () => {
     it('should fetch stocks short sales for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-short-sales.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-short-sales.json') });
 
       const data = await scraper.fetchStocksShortSales({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -229,7 +249,7 @@ describe('TwseScraper', () => {
     });
 
     it('should fetch stocks short sales for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-short-sales.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-short-sales.json') });
 
       const data = await scraper.fetchStocksShortSales({ date: '2023-01-30', symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -238,6 +258,7 @@ describe('TwseScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
         symbol: '2330',
         name: '台積電',
         marginShortBalancePrev: 1506000,
@@ -257,7 +278,7 @@ describe('TwseScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-short-sales-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-short-sales-no-data.json') });
 
       const data = await scraper.fetchStocksShortSales({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -269,7 +290,7 @@ describe('TwseScraper', () => {
 
   describe('.fetchStocksValues()', () => {
     it('should fetch stocks values for the given date', async () => {;
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-values.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-values.json') });
 
       const data = await scraper.fetchStocksValues({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -280,7 +301,7 @@ describe('TwseScraper', () => {
     });
 
     it('should fetch stocks values for the specified stock on the given date', async () => {;
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-values.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-values.json') });
 
       const data = await scraper.fetchStocksValues({ date: '2023-01-30', symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -289,6 +310,7 @@ describe('TwseScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
         symbol: '2330',
         name: '台積電',
         peRatio: 15.88,
@@ -299,7 +321,7 @@ describe('TwseScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-stocks-values-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-values-no-data.json') });
 
       const data = await scraper.fetchStocksValues({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -311,7 +333,7 @@ describe('TwseScraper', () => {
 
   describe('.fetchIndicesHistorical()', () => {
     it('should fetch indices historical data for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-indices-historical.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-indices-historical.json') });
 
       const data = await scraper.fetchIndicesHistorical({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -322,7 +344,7 @@ describe('TwseScraper', () => {
     });
 
     it('should fetch indices historical data for the specified index on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-indices-historical.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-indices-historical.json') });
 
       const data = await scraper.fetchIndicesHistorical({ date: '2023-01-30', symbol: 'IX0001' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -331,6 +353,7 @@ describe('TwseScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
         symbol: 'IX0001',
         name: '發行量加權股價指數',
         open: 15291.53,
@@ -342,7 +365,7 @@ describe('TwseScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-indices-historical-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-indices-historical-no-data.json') });
 
       const data = await scraper.fetchIndicesHistorical({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -359,9 +382,9 @@ describe('TwseScraper', () => {
         return new Promise((resolve, reject) => {
           switch (url) {
             case 'https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?date=20230130&response=json':
-              return resolve({ data: require('../fixtures/tse-indices-trades.json') });
+              return resolve({ data: require('../fixtures/twse-indices-trades.json') });
             case 'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20230130&response=json':
-              return resolve({ data: require('../fixtures/tse-market-trades.json') });
+              return resolve({ data: require('../fixtures/twse-market-trades.json') });
             default: return reject();
           }
         });
@@ -380,9 +403,9 @@ describe('TwseScraper', () => {
         return new Promise((resolve, reject) => {
           switch (url) {
             case 'https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?date=20230130&response=json':
-              return resolve({ data: require('../fixtures/tse-indices-trades.json') });
+              return resolve({ data: require('../fixtures/twse-indices-trades.json') });
             case 'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20230130&response=json':
-              return resolve({ data: require('../fixtures/tse-market-trades.json') });
+              return resolve({ data: require('../fixtures/twse-market-trades.json') });
             default: return reject();
           }
         });
@@ -395,6 +418,7 @@ describe('TwseScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
         symbol: 'IX0010',
         name: '水泥類指數',
         tradeVolume: 53094031,
@@ -409,9 +433,9 @@ describe('TwseScraper', () => {
         return new Promise((resolve, reject) => {
           switch (url) {
             case 'https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?date=20230101&response=json':
-              return resolve({ data: require('../fixtures/tse-indices-trades.json') });
+              return resolve({ data: require('../fixtures/twse-indices-trades.json') });
             case 'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20230101&response=json':
-              return resolve({ data: require('../fixtures/tse-market-trades-no-data.json') });
+              return resolve({ data: require('../fixtures/twse-market-trades-no-data.json') });
             default: return reject();
           }
         });
@@ -430,9 +454,9 @@ describe('TwseScraper', () => {
         return new Promise((resolve, reject) => {
           switch (url) {
             case 'https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?date=20230101&response=json':
-              return resolve({ data: require('../fixtures/tse-indices-trades-no-data.json') });
+              return resolve({ data: require('../fixtures/twse-indices-trades-no-data.json') });
             case 'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20230101&response=json':
-              return resolve({ data: require('../fixtures/tse-market-trades-no-data.json') });
+              return resolve({ data: require('../fixtures/twse-market-trades-no-data.json') });
             default: return reject();
           }
         });
@@ -448,7 +472,7 @@ describe('TwseScraper', () => {
 
   describe('.fetchMarketTrades()', () => {
     it('should fetch market trades for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-market-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-market-trades.json') });
 
       const data = await scraper.fetchMarketTrades({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -457,6 +481,7 @@ describe('TwseScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
         tradeVolume: 6919326963,
         tradeValue: 354872347181,
         transaction: 2330770,
@@ -466,7 +491,7 @@ describe('TwseScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-market-trades-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-market-trades-no-data.json') });
 
       const data = await scraper.fetchMarketTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -478,7 +503,7 @@ describe('TwseScraper', () => {
 
   describe('.fetchMarketBreadth()', () => {
     it('should fetch market breadth for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-market-breadth.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-market-breadth.json') });
 
       const data = await scraper.fetchMarketBreadth({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -487,6 +512,7 @@ describe('TwseScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
         up: 764,
         limitUp: 14,
         down: 132,
@@ -498,7 +524,7 @@ describe('TwseScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-market-breadth-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-market-breadth-no-data.json') });
 
       const data = await scraper.fetchMarketBreadth({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -508,48 +534,63 @@ describe('TwseScraper', () => {
     });
   });
 
-  describe('.fetchMarketInstInvestorsTrades()', () => {
-    it('should fetch market breadth for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-market-inst-investors-trades.json') });
+  describe('.fetchMarketInstitutional()', () => {
+    it('should fetch market institutional investors\' trades for the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-market-institutional.json') });
 
-      const data = await scraper.fetchMarketInstInvestorsTrades({ date: '2023-01-30' });
+      const data = await scraper.fetchMarketInstitutional({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/fund/BFI82U?dayDate=20230130&type=day&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
-        finiWithoutDealersBuy: 203744063563,
-        finiWithoutDealersSell: 131488377272,
-        finiWithoutDealersNetBuySell: 72255686291,
-        finiDealersBuy: 24864200,
-        finiDealersSell: 61653250,
-        finiDealersNetBuySell: -36789050,
-        finiBuy: 203768927763,
-        finiSell: 131550030522,
-        finiNetBuySell: 72218897241,
-        sitcBuy: 6269087553,
-        sitcSell: 3179424632,
-        sitcNetBuySell: 3089662921,
-        dealersForProprietaryBuy: 4736295878,
-        dealersForProprietarySell: 1917624556,
-        dealersForProprietaryNetBuySell: 2818671322,
-        dealersForHedgingBuy: 11451095424,
-        dealersForHedgingSell: 6481456459,
-        dealersForHedgingNetBuySell: 4969638965,
-        dealersBuy: 16187391302,
-        dealersSell: 8399081015,
-        dealersNetBuySell: 7788310287,
-        totalInstInvestorsBuy: 226200542418,
-        totalInstInvestorsSell: 143066882919,
-        totalInstInvestorsNetBuySell: 83133659499,
+        exchange: 'TWSE',
+        institutional: [
+          {
+            investors: '自營商(自行買賣)',
+            totalBuy: 4736295878,
+            totalSell: 1917624556,
+            difference: 2818671322,
+          },
+          {
+            investors: '自營商(避險)',
+            totalBuy: 11451095424,
+            totalSell: 6481456459,
+            difference: 4969638965,
+          },
+          {
+            investors: '投信',
+            totalBuy: 6269087553,
+            totalSell: 3179424632,
+            difference: 3089662921,
+          },
+          {
+            investors: '外資及陸資(不含外資自營商)',
+            totalBuy: 203744063563,
+            totalSell: 131488377272,
+            difference: 72255686291,
+          },
+          {
+            investors: '外資自營商',
+            totalBuy: 24864200,
+            totalSell: 61653250,
+            difference: -36789050,
+          },
+          {
+            investors: '合計',
+            totalBuy: 226200542418,
+            totalSell: 143066882919,
+            difference: 83133659499,
+          },
+        ],
       });
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-market-inst-investors-trades-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-market-institutional-no-data.json') });
 
-      const data = await scraper.fetchMarketInstInvestorsTrades({ date: '2023-01-01' });
+      const data = await scraper.fetchMarketInstitutional({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/fund/BFI82U?dayDate=20230101&type=day&response=json',
       );
@@ -559,7 +600,7 @@ describe('TwseScraper', () => {
 
   describe('.fetchMarketMarginTrades()', () => {
     it('should fetch market margin trades for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-market-margin-trades.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-market-margin-trades.json') });
 
       const data = await scraper.fetchMarketMarginTrades({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -568,6 +609,7 @@ describe('TwseScraper', () => {
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
+        exchange: 'TWSE',
         marginBuy: 264023,
         marginSell: 282873,
         marginRedeem: 10127,
@@ -587,7 +629,7 @@ describe('TwseScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-market-margin-trades-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-market-margin-trades-no-data.json') });
 
       const data = await scraper.fetchMarketMarginTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(

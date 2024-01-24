@@ -6,6 +6,8 @@
 
 > A client library for scraping Taiwan stock market data
 
+專為擷取台灣股市資料而設計的客戶端程式庫。使用前請務必詳細閱讀相關的 [使用規範與聲明](#disclaimer)。
+
 ## Table of Contents
 
 * [Installation](#installation)
@@ -15,12 +17,12 @@
   * [.stocks.list([options])](#stockslistoptions)
   * [.stocks.quote(options)](#stocksquoteoptions)
   * [.stocks.historical(options)](#stockshistoricaloptions)
-  * [.stocks.instTrades(options)](#stocksinsttradesoptions)
+  * [.stocks.institutional(options)](#stocksinstitutionaloptions)
   * [.stocks.finiHoldings(options)](#stocksfiniholdingsoptions)
   * [.stocks.marginTrades(options)](#stocksmargintradesoptions)
   * [.stocks.shortSales(options)](#stocksshortsalesoptions)
   * [.stocks.values(options)](#stocksvaluesoptions)
-  * [.stocks.holders(options)](#stocksholdersoptions)
+  * [.stocks.shareholders(options)](#stocksshareholdersoptions)
   * [.stocks.eps(options)](#stocksepsoptions)
   * [.stocks.revenue(options)](#stocksrevenueoptions)
   * [.indices.list([options])](#indiceslistoptions)
@@ -29,18 +31,17 @@
   * [.indices.trades(options)](#indicestradesoptions)
   * [.market.trades(options)](#markettradesoptions)
   * [.market.breadth(options)](#marketbreadthoptions)
-  * [.market.instTrades(options)](#marketinsttradesoptions)
+  * [.market.institutional(options)](#marketinstitutionaloptions)
   * [.market.marginTrades(options)](#marketmargintradesoptions)
   * [.futopt.list(options)](#futoptlist)
   * [.futopt.quote(options)](#futoptquoteoptions)
-  * [.futopt.txfInstTrades(options)](#futopttxfinsttradesoptions)
-  * [.futopt.txoInstTrades(options)](#futopttxoinsttradesoptions)
-  * [.futopt.txoPutCallRatio(options)](#futopttxoputcallratiooptions)
+  * [.futopt.historical(options)](#futopthistoricaloptions)
+  * [.futopt.institutional(options)](#futoptinstitutionaloptions)
+  * [.futopt.largeTraders(options)](#futoptlargetradersoptions)
   * [.futopt.mxfRetailPosition(options)](#futoptmxfretailpositionoptions)
-  * [.futopt.txfLargeTradersPosition(options)](#futopttxflargetraderspositionoptions)
-  * [.futopt.txoLargeTradersPosition(options)](#futopttxolargetraderspositionoptions)
+  * [.futopt.txoPutCallRatio(options)](#futopttxoputcallratiooptions)
   * [.futopt.exchangeRates(options)](#futoptexchangeratesoptions)
-* [Data Sources](#data-sources)
+* [Disclaimer](#disclaimer)
 * [Changelog](#changelog)
 * [License](#license)
 
@@ -66,7 +67,7 @@ const { TwStock } = require('node-twstock');
   - `ttl`: 每個請求持續的毫秒數。**Default:** `5000`
   - `limit`: 在 TTL 限制內的最大請求數。**Default:** `3`
 
-> 請注意，過於頻繁的請求可能導致被交易所禁止訪問。預設設定為每 5 秒最多發送 3 個請求。
+> 注意：過於頻繁的請求可能導致被交易所禁止訪問。預設設定為每 5 秒最多發送 3 個請求。
 
 ```js
 const twstock = new TwStock({ ttl: 5000, limit: 3  });
@@ -74,20 +75,20 @@ const twstock = new TwStock({ ttl: 5000, limit: 3  });
 
 ### `.stocks.list([options])`
 
-取得上市櫃股票列表。
+取得上市(櫃)股票列表。
 
 * `options`: {Object}
-  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
-* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
+* Returns: {Promise} 成功時以 {Object[]} 履行，其中 `Object` 包含以下屬性：
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
-  * `exchange`: {string} 交易所
-  * `market`: {string} 市場別
-  * `industry`: {string} 產業別
-  * `listedDate`: {string} 上市日期
+  * `exchange`: {string} 市場別
+  * `type`: {string} 有價證券別
+  * `industry`: {string} 產業別 (參閱 [產業別代碼](#產業別代碼))
+  * `listedDate`: {string} 上市(櫃)日期
 
 ```js
-twstock.stocks.list({ market: 'TSE' })
+twstock.stocks.list({ exchange: 'TWSE' })
   .then(data => console.log(data));
 // Prints:
 // [
@@ -95,7 +96,7 @@ twstock.stocks.list({ market: 'TSE' })
 //     symbol: '0050',
 //     name: '元大台灣50',
 //     exchange: 'TWSE',
-//     market: 'TSE',
+//     type: 'ETF',
 //     industry: '00',
 //     listedDate: '2003-06-30'
 //   },
@@ -103,14 +104,32 @@ twstock.stocks.list({ market: 'TSE' })
 // ]
 ```
 
+#### 產業別代碼
+
+| 代碼 | 產業別 | 代碼	| 產業別 | 代碼 | 產業別 |
+|:---:|-----|:---:|-----|:-----:|-----|
+| 01 | 水泥工業 | 16	| 觀光餐旅 | 29 | 電子通路業 |
+| 02 | 食品工業 | 17	| 金融保險 | 30 | 資訊服務業 |
+| 03 | 塑膠工業 | 18	| 貿易百貨 | 31 | 其他電子業 |
+| 04 | 紡織纖維 | 19	| 綜合 | 32 | 文化創意業 |
+| 05 | 電機機械 | 20	| 其他 | 33 | 農業科技業 |
+| 06 | 電器電纜 | 21	| 化學工業 | 34 | 電子商務 |
+| 08 | 玻璃陶瓷 | 22	| 生技醫療業 | 35 | 綠能環保 |
+| 09 | 造紙工業 | 23	| 油電燃氣業 | 36 | 數位雲端 |
+| 10 | 鋼鐵工業 | 24	| 半導體業 | 37 | 運動休閒 |
+| 11 | 橡膠工業 | 25	| 電腦及週邊設備業 | 38 | 居家生活 |
+| 12 | 汽車工業 | 26	| 光電業 | 
+| 14 | 建材營造 | 27	| 通信網路業 |
+| 15 | 航運業 | 28	| 電子零組件業 |		
+
 ### `.stocks.quote(options)`
 
-取得股票即時行情。
+取得股票行情報價。
 
 * `options`: {Object}
   * `symbol`: {string} 股票代號
   * `odd` (optional): {boolean} 盤中零股交易
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
   * `date`: {string} 日期
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
@@ -160,10 +179,11 @@ twstock.stocks.quote({ symbol: '2330' })
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
   * `symbol` (optional): {string} 股票代號
-* Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object[] | Object} 履行，其中 `Object` 包含以下屬性：
   * `date`: {string} 日期
+  * `exchange`: {string} 市場別
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
   * `open`: {number} 開盤價
@@ -181,6 +201,7 @@ twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' })
 // Prints:
 // {
 //   date: '2023-01-30',
+//   exchange: 'TWSE',
 //   symbol: '2330',
 //   name: '台積電',
 //   open: 542,
@@ -194,75 +215,80 @@ twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' })
 // }
 ```
 
-### `.stocks.instTrades(options)`
+### `.stocks.institutional(options)`
 
 取得股票在特定日期的三大法人買賣超。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
   * `symbol` (optional): {string} 股票代號
-* Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object[] | Object} 履行，其中 `Object` 包含以下屬性：
   * `date`: {string} 日期
+  * `exchange`: {string} 市場別
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
-  * `finiWithoutDealersBuy`: {number} 外資及陸資(不含外資自營商)買進金額
-  * `finiWithoutDealersSell`: {number} 外資及陸資(不含外資自營商)賣出金額
-  * `finiWithoutDealersNetBuySell`: {number} 外資及陸資(不含外資自營商)買賣差額
-  * `finiDealersBuy`: {number} 外資自營商買進金額
-  * `finiDealersSell`: {number} 外資自營商賣出金額
-  * `finiDealersNetBuySell`: {number} 外資自營商買賣差額
-  * `finiBuy`: {number} 外資買進金額
-  * `finiSell`: {number} 外資賣出金額
-  * `finiNetBuySell`: {number} 外資買賣差額
-  * `sitcBuy`: {number} 投信買進金額
-  * `sitcSell`: {number} 投信賣出金額
-  * `sitcNetBuySell`: {number} 投信買賣差額
-  * `dealersForProprietaryBuy`: {number} 自營商(自行買賣)買進金額
-  * `dealersForProprietarySell`: {number} 自營商(自行買賣)賣出金額
-  * `dealersForProprietaryNetBuySell`: {number} 自營商(自行買賣)買賣差額
-  * `dealersForHedgingBuy`: {number} 自營商(避險)買進金額
-  * `dealersForHedgingSell`: {number} 自營商(避險)賣出金額
-  * `dealersForHedgingNetBuySell`: {number} 自營商(避險)買賣差額
-  * `dealersBuy`: {number} 自營商買進金額
-  * `dealersSell`: {number} 自營商賣出金額
-  * `dealersNetBuySell`: {number} 自營商買賣差額
-  * `totalInstInvestorsBuy`: {number} 三大法人合計買進金額
-  * `totalInstInvestorsSell`: {number} 三大法人合計賣出金額
-  * `totalInstInvestorsNetBuySell`: {number} 三大法人合計買賣差額
+  * `institutional`: {Object[]} 三大法人買賣金額統計，其中 `Object` 包含以下屬性：
+    * `investors`: {number} 單位名稱
+    * `totalBuy`: {number} 買進金額
+    * `totalSell`: {number} 賣出金額
+    * `difference`: {number} 買賣差額
 
 ```js
-twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' })
+twstock.stocks.institutional({ date: '2023-01-30', symbol: '2330' })
   .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
 //   symbol: '2330',
+//   exchange: 'TWSE',
 //   name: '台積電',
-//   finiWithoutDealersBuy: 133236588,
-//   finiWithoutDealersSell: 52595539,
-//   finiWithoutDealersNetBuySell: 80641049,
-//   finiDealersBuy: 0,
-//   finiDealersSell: 0,
-//   finiDealersNetBuySell: 0,
-//   finiBuy: 133236588,
-//   finiSell: 52595539,
-//   finiNetBuySell: 80641049,
-//   sitcBuy: 1032000,
-//   sitcSell: 94327,
-//   sitcNetBuySell: 937673,
-//   dealersForProprietaryBuy: 978000,
-//   dealersForProprietarySell: 537000,
-//   dealersForProprietaryNetBuySell: 441000,
-//   dealersForHedgingBuy: 1227511,
-//   dealersForHedgingSell: 788103,
-//   dealersForHedgingNetBuySell: 439408,
-//   dealersBuy: 2205511,
-//   dealersSell: 1325103,
-//   dealersNetBuySell: 880408,
-//   totalInstInvestorsBuy: 136474099,
-//   totalInstInvestorsSell: 54014969,
-//   totalInstInvestorsNetBuySell: 82459130
+//   institutional: [
+//     {
+//       investors: '外資及陸資(不含外資自營商)',
+//       totalBuy: 133236588,
+//       totalSell: 52595539,
+//       difference: 80641049
+//     },
+//     {
+//       investors: '外資自營商',
+//       totalBuy: 0,
+//       totalSell: 0,
+//       difference: 0
+//     },
+//     {
+//       investors: '外資自營商',
+//       totalBuy: 0,
+//       totalSell: 0,
+//       difference: 0
+//     },
+//     {
+//       investors: '投信',
+//       totalBuy: 1032000,
+//       totalSell: 94327,
+//       difference: 937673
+//     },
+//     {
+//       investors: '自營商合計',
+//       difference: 880408
+//     },
+//     {
+//       investors: '自營商(自行買賣)',
+//       totalBuy: 978000,
+//       totalSell: 537000,
+//       difference: 441000
+//     },
+//     {
+//       investors: '自營商(避險)',
+//       totalBuy: 1227511,
+//       totalSell: 788103,
+//       difference: 439408
+//     },
+//     {
+//       investors: '合計',
+//       difference: 82459130
+//     }
+//   ]
 // }
 ```
 
@@ -272,10 +298,11 @@ twstock.stocks.instTrades({ date: '2023-01-30', symbol: '2330' })
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
   * `symbol` (optional): {string} 股票代號
-* Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object[] | Object} 履行，其中 `Object` 包含以下屬性：
   * `date`: {string} 日期
+  * `exchange`: {string} 市場別
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
   * `issuedShares`: {number} 發行股數
@@ -291,6 +318,7 @@ twstock.stocks.finiHoldings({ date: '2023-01-30', symbol: '2330' })
 // Prints:
 // {
 //   date: '2023-01-30',
+//   exchange: 'TWSE',
 //   symbol: '2330',
 //   name: '台積電',
 //   issuedShares: 25930380458,
@@ -308,10 +336,11 @@ twstock.stocks.finiHoldings({ date: '2023-01-30', symbol: '2330' })
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
   * `symbol` (optional): {string} 股票代號
-* Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object[] | Object} 履行，其中 `Object` 包含以下屬性：
   * `date`: {string} 日期
+  * `exchange`: {string} 市場別
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
   * `marginBuy`: {number} 融資買進
@@ -327,7 +356,17 @@ twstock.stocks.finiHoldings({ date: '2023-01-30', symbol: '2330' })
   * `shortBalance`: {number} 今日融券餘額
   * `shortQuota`: {number} 融券限額
   * `offset`: {number} 資券互抵
-  * `note`: {string} 註記
+  * `note`: {string} 備註 (參閱 [融資融券符號說明](#融資融券符號說明))
+
+#### 融資融券符號說明
+
+| 符號 | 說明 |
+|:---:|-----|
+| O | 停止融資 |
+| X | 停止融券 |
+| @ | 融資分配 |
+| % | 融券分配 |
+| ! | 停止買賣 |
 
 ```js
 twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' })
@@ -335,6 +374,7 @@ twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' })
 // Prints:
 // {
 //   date: '2023-01-30',
+//   exchange: 'TWSE',
 //   symbol: '2330',
 //   name: '台積電',
 //   marginBuy: 1209,
@@ -360,10 +400,11 @@ twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' })
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
   * `symbol` (optional): {string} 股票代號
-* Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object[] | Object} 履行，其中 `Object` 包含以下屬性：
   * `date`: {string} 日期
+  * `exchange`: {string} 市場別
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
   * `marginShortBalancePrev`: {number} 融券前日餘額
@@ -378,7 +419,18 @@ twstock.stocks.marginTrades({ date: '2023-01-30', symbol: '2330' })
   * `sblShortAdjustment`: {number} 借券賣出當日調整
   * `sblShortBalance`: {number} 借券賣出當日餘額
   * `sblShortQuota`: {number} 次一營業日可借券賣出限額
-  * `note`: {string} 備註
+  * `note`: {string} 備註 (參閱 [融券借券符號說明](#融券借券符號說明))
+
+#### 融券借券符號說明
+
+| 符號 | 說明 |
+|:---:|-----|
+| X | 停券 |
+| Y | 未取得信用交易資格 |
+| V | 不得借券交易且無借券餘額停止借券賣出 |
+| % | 信用額度分配 |
+| Z | 借券賣出餘額已達總量控管標準或初次上市無賣出額度暫停借券賣出 |
+| ! | 停止買賣 |
 
 ```js
 twstock.stocks.shortSales({ date: '2023-01-30', symbol: '2330' })
@@ -386,6 +438,7 @@ twstock.stocks.shortSales({ date: '2023-01-30', symbol: '2330' })
 // Prints:
 // {
 //   date: '2023-01-30',
+//   exchange: 'TWSE',
 //   symbol: '2330',
 //   name: '台積電',
 //   marginShortBalancePrev: 1506000,
@@ -410,10 +463,11 @@ twstock.stocks.shortSales({ date: '2023-01-30', symbol: '2330' })
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
   * `symbol` (optional): {string} 股票代號
-* Returns: {Promise} 成功時以 {Object[] | Object} 履行，包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object[] | Object} 履行，其中 `Object` 包含以下屬性：
   * `date`: {string} 日期
+  * `exchange`: {string} 市場別
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
   * `peRatio`: {number} 本益比
@@ -426,42 +480,43 @@ twstock.stocks.values({ date: '2023-01-30', symbol: '2330' })
   .then(data => console.log(data));
 // Prints:
 // {
-  // date: '2023-01-30',
-  // symbol: '2330',
-  // name: '台積電',
-  // peRatio: 15.88,
-  // pbRatio: 5.14,
-  // dividendYield: 2.03,
-  // dividendYear: 2021
+//   date: '2023-01-30',
+//   exchange: 'TWSE',
+//   symbol: '2330',
+//   name: '台積電',
+//   peRatio: 15.88,
+//   pbRatio: 5.14,
+//   dividendYield: 2.03,
+//   dividendYear: 2021
 // }
 ```
 
-### `.stocks.holders(options)`
+### `.stocks.shareholders(options)`
 
 取得股票在特定日期的集保分佈。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
   * `symbol`: {string} 股票代號
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
   * `date`: {string} 日期
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
-  * `data`: {Object[]} 集保分佈資料，包含以下物件屬性：
+  * `shareholders`: {Object[]} 集保分佈資料，其中 `Object` 包含以下屬性：
     * `level`: {string} 持股分級
     * `holders`: {number} 持股人數
     * `shares`: {number} 持股股數
     * `proportion`: {number} 持股比例
 
 ```js
-twstock.stocks.holders({ date: '2023-12-29', symbol: '2330' })
+twstock.stocks.shareholders({ date: '2023-12-29', symbol: '2330' })
   .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-12-29',
 //   symbol: '2330',
 //   name: '台積電',
-//   data: [
+//   shareholders: [
 //     {
 //       level: '1-999',
 //       holders: 731332,
@@ -475,14 +530,15 @@ twstock.stocks.holders({ date: '2023-12-29', symbol: '2330' })
 
 ### `.stocks.eps(options)`
 
-取得上市櫃股票在特定年度季度每股盈餘。
+取得上市(櫃)股票在特定年度季度每股盈餘。
 
 * `options`: {Object}
-  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
   * `symbol` (optional): {string} 股票代號
   * `year`: {number} 年度
   * `quarter`: {number} 季度
-* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object[]} 履行，其中 `Object` 包含以下屬性：
+  * `exchange`: {string} 市場別
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
   * `eps`: {number} 每股盈餘
@@ -494,6 +550,7 @@ twstock.stocks.eps({ symbol: '2330', year: 2023, quarter: 1 })
   .then(data => console.log(data));
 // Prints:
 // {
+//   exchange: 'TWSE',
 //   symbol: '2330',
 //   name: '台積電',
 //   eps: 7.98,
@@ -504,15 +561,16 @@ twstock.stocks.eps({ symbol: '2330', year: 2023, quarter: 1 })
 
 ### `.stocks.revenue(options)`
 
-取得上市櫃股票在特定年度月份營業收入。
+取得上市(櫃)股票在特定年度月份營業收入。
 
 * `options`: {Object}
-  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
   * `symbol` (optional): {string} 股票代號
   * `year`: {number} 年度
   * `month`: {number} 月份
   * `foreign` (optional): {boolean} 外國公司股票
-* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object[]} 履行，其中 `Object` 包含以下屬性：
+  * `exchange`: {string} 市場別
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
   * `revenue`: {number} 營業收入
@@ -524,6 +582,7 @@ twstock.stocks.revenue({ symbol: '2330', year: 2023, month: 1 })
   .then(data => console.log(data));
 // Prints:
 // {
+//   exchange: 'TWSE',
 //   symbol: '2330',
 //   name: '台積電',
 //   revenue: 200050544,
@@ -534,27 +593,24 @@ twstock.stocks.revenue({ symbol: '2330', year: 2023, month: 1 })
 
 ### `.indices.list([options])`
 
-取得上市櫃指數列表。
+取得上市(櫃)指數列表。
 
 * `options`: {Object}
-  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
-* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
+* Returns: {Promise} 成功時以 {Object[]} 履行，其中 `Object` 包含以下屬性：
   * `symbol`: {string} 指數代號
   * `name`: {string} 指數名稱
-  * `exchange`: {string} 交易所
-  * `market`: {string} 市場別
+  * `exchange`: {string} 市場別
 
 ```js
-twstock.indices.list({ market: 'TSE' })
+twstock.indices.list({ exchange: 'TWSE' })
   .then(data => console.log(data));
 // Prints:
 // [
 //   {
 //     symbol: 'IX0001',
 //     name: '發行量加權股價指數',
-//     exchange: 'TWSE',
-//     market: 'TSE',
-//     alias: 't00'
+//     exchange: 'TWSE'
 //   },
 //   ... more items
 // ]
@@ -562,19 +618,20 @@ twstock.indices.list({ market: 'TSE' })
 
 ### `.indices.quote(options)`
 
-取得指數即時行情。
+取得指數行情報價。
 
 * `options`: {Object}
   * `symbol`: {string} 指數代號
-* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
   * `date`: {string} 日期
+  * `exchange`: {string} 市場別
   * `symbol`: {string} 指數代號
   * `name`: {string} 指數名稱
   * `open`: {number} 開盤價
   * `high`: {number} 最高價
   * `low`: {number} 最低價
   * `close`: {number} 收盤價
-  * `volume`: {number} 成交金額(千元)
+  * `volume`: {number} 成交金額(十萬元)
   * `lastUpdated`: {number} 最後更新時間
 
 ```js
@@ -582,16 +639,17 @@ twstock.indices.quote({ symbol: 'IX0001' })
   .then(data => console.log(data));
 // Prints:
 // {
-  // date: '2023-12-29',
-  // symbol: 'IX0001',
-  // name: '發行量加權股價指數',
-  // previousClose: 17910.37,
-  // open: 17893.63,
-  // high: 17945.7,
-  // low: 17864.23,
-  // close: 17930.81,
-  // volume: 267204,
-  // lastUpdated: 1703827980000,
+//   date: '2023-12-29',
+//   exchange: 'TWSE',
+//   symbol: 'IX0001',
+//   name: '發行量加權股價指數',
+//   previousClose: 17910.37,
+//   open: 17893.63,
+//   high: 17945.7,
+//   low: 17864.23,
+//   close: 17930.81,
+//   volume: 267204,
+//   lastUpdated: 1703827980000,
 // }
 ```
 
@@ -601,10 +659,11 @@ twstock.indices.quote({ symbol: 'IX0001' })
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
   * `symbol` (optional): {string} 指數代號
-* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object[]} 履行，其中 `Object` 包含以下屬性：
   * `date`: {string} 日期
+  * `exchange`: {string} 市場別
   * `symbol`: {string} 指數代號
   * `name`: {string} 指數名稱
   * `open`: {number} 開盤價
@@ -619,6 +678,7 @@ twstock.indices.historical({ date: '2023-01-30', symbol: 'IX0001' })
 // Prints:
 // {
 //   date: '2023-01-30',
+//   exchange: 'TWSE',
 //   symbol: 'IX0001',
 //   name: '發行量加權股價指數',
 //   open: 15291.53,
@@ -635,10 +695,11 @@ twstock.indices.historical({ date: '2023-01-30', symbol: 'IX0001' })
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market` (optional): {string} 按市場別 (`'TSE'` 或 `'OTC'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
   * `symbol` (optional): {string} 指數代號
-* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object[]} 履行，其中 `Object` 包含以下屬性：
   * `date`: {string} 日期
+  * `exchange`: {string} 市場別
   * `symbol`: {string} 指數代號
   * `name`: {string} 指數名稱
   * `tradeVolume`: {number} 成交股數
@@ -651,6 +712,7 @@ twstock.indices.trades({ date: '2023-01-30', symbol: 'IX0028' })
 // Prints:
 // {
 //   date: '2023-01-30',
+//   exchange: 'TWSE',
 //   symbol: 'IX0028',
 //   name: '半導體類指數',
 //   tradeVolume: 770856550,
@@ -665,9 +727,10 @@ twstock.indices.trades({ date: '2023-01-30', symbol: 'IX0028' })
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
   * `date`: {string} 日期
+  * `exchange`: {string} 市場別
   * `tradeVolume`: {number} 成交股數
   * `tradeValue`: {number} 成交金額
   * `transaction`: {number} 成交筆數
@@ -675,11 +738,12 @@ twstock.indices.trades({ date: '2023-01-30', symbol: 'IX0028' })
   * `change`: {number} 指數漲跌
 
 ```js
-twstock.market.trades({ date: '2023-01-30', market: 'TSE' })
+twstock.market.trades({ date: '2023-01-30', exchange: 'TWSE' })
   .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
+//   exchange: 'TWSE',
 //   tradeVolume: 6919326963,
 //   tradeValue: 354872347181,
 //   transaction: 2330770,
@@ -694,9 +758,10 @@ twstock.market.trades({ date: '2023-01-30', market: 'TSE' })
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
   * `date`: {string} 日期
+  * `exchange`: {string} 市場別
   * `up`: {number} 上漲家數
   * `limitUp`: {number} 漲停家數
   * `down`: {number} 下跌家數
@@ -706,11 +771,12 @@ twstock.market.trades({ date: '2023-01-30', market: 'TSE' })
   * `notApplicable`: {number} 無比價家數
 
 ```js
-twstock.market.breadth({ date: '2023-01-30', market: 'TSE' })
+twstock.market.breadth({ date: '2023-01-30', exchange: 'TWSE' })
   .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
+//   exchange: 'TWSE',
 //   up: 764,
 //   limitUp: 14,
 //   down: 132,
@@ -721,70 +787,67 @@ twstock.market.breadth({ date: '2023-01-30', market: 'TSE' })
 // }
 ```
 
-### `.market.instTrades(options)`
+### `.market.institutional(options)`
 
 取得股票市場在特定日期的三大法人買賣超。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
   * `date`: {string} 日期
-  * `finiWithoutDealersBuy`: {number} 外資及陸資(不含外資自營商)買進金額
-  * `finiWithoutDealersSell`: {number} 外資及陸資(不含外資自營商)賣出金額
-  * `finiWithoutDealersNetBuySell`: {number} 外資及陸資(不含外資自營商)買賣差額
-  * `finiDealersBuy`: {number} 外資自營商買進金額
-  * `finiDealersSell`: {number} 外資自營商賣出金額
-  * `finiDealersNetBuySell`: {number} 外資自營商買賣差額
-  * `finiBuy`: {number} 外資買進金額
-  * `finiSell`: {number} 外資賣出金額
-  * `finiNetBuySell`: {number} 外資買賣差額
-  * `sitcBuy`: {number} 投信買進金額
-  * `sitcSell`: {number} 投信賣出金額
-  * `sitcNetBuySell`: {number} 投信買賣差額
-  * `dealersForProprietaryBuy`: {number} 自營商(自行買賣)買進金額
-  * `dealersForProprietarySell`: {number} 自營商(自行買賣)賣出金額
-  * `dealersForProprietaryNetBuySell`: {number} 自營商(自行買賣)買賣差額
-  * `dealersForHedgingBuy`: {number} 自營商(避險)買進金額
-  * `dealersForHedgingSell`: {number} 自營商(避險)賣出金額
-  * `dealersForHedgingNetBuySell`: {number} 自營商(避險)買賣差額
-  * `dealersBuy`: {number} 自營商買進金額
-  * `dealersSell`: {number} 自營商賣出金額
-  * `dealersNetBuySell`: {number} 自營商買賣差額
-  * `totalInstInvestorsBuy`: {number} 三大法人合計買進金額
-  * `totalInstInvestorsSell`: {number} 三大法人合計賣出金額
-  * `totalInstInvestorsNetBuySell`: {number} 三大法人合計買賣差額
-
+  * `exchange`: {string} 市場別
+  * `institutional`: {Object[]} 三大法人買賣金額統計，其中 `Object` 包含以下屬性：
+    * `investors`: {number} 單位名稱
+    * `totalBuy`: {number} 買進金額
+    * `totalSell`: {number} 賣出金額
+    * `difference`: {number} 買賣差額
+  
 ```js
-twstock.market.instTrades({ date: '2023-01-30', market: 'TSE' })
+twstock.market.institutional({ date: '2023-01-30', exchange: 'TWSE' })
   .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
-//   finiWithoutDealersBuy: 203744063563,
-//   finiWithoutDealersSell: 131488377272,
-//   finiWithoutDealersNetBuySell: 72255686291,
-//   finiDealersBuy: 24864200,
-//   finiDealersSell: 61653250,
-//   finiDealersNetBuySell: -36789050,
-//   finiBuy: 203768927763,
-//   finiSell: 131550030522,
-//   finiNetBuySell: 72218897241,
-//   sitcBuy: 6269087553,
-//   sitcSell: 3179424632,
-//   sitcNetBuySell: 3089662921,
-//   dealersForProprietaryBuy: 4736295878,
-//   dealersForProprietarySell: 1917624556,
-//   dealersForProprietaryNetBuySell: 2818671322,
-//   dealersForHedgingBuy: 11451095424,
-//   dealersForHedgingSell: 6481456459,
-//   dealersForHedgingNetBuySell: 4969638965,
-//   dealersBuy: 16187391302,
-//   dealersSell: 8399081015,
-//   dealersNetBuySell: 7788310287,
-//   totalInstInvestorsBuy: 226200542418,
-//   totalInstInvestorsSell: 143066882919,
-//   totalInstInvestorsNetBuySell: 83133659499
+//   exchange: 'TWSE',
+//   institutional: [
+//     {
+//       investors: '自營商(自行買賣)',
+//       totalBuy: 4736295878,
+//       totalSell: 1917624556,
+//       difference: 2818671322
+//     },
+//     {
+//       investors: '自營商(避險)',
+//       totalBuy: 11451095424,
+//       totalSell: 6481456459,
+//       difference: 4969638965
+//     },
+//     {
+//       investors: '投信',
+//       totalBuy: 6269087553,
+//       totalSell: 3179424632,
+//       difference: 3089662921
+//     },
+//     {
+//       investors: '外資及陸資(不含外資自營商)',
+//       totalBuy: 203744063563,
+//       totalSell: 131488377272,
+//       difference: 72255686291
+//     },
+//     {
+//       investors: '外資自營商',
+//       totalBuy: 24864200,
+//       totalSell: 61653250,
+//       difference: -36789050
+//     },
+//     {
+//       investors: '合計',
+//       totalBuy: 226200542418,
+//       totalSell: 143066882919,
+//       difference: 83133659499
+//     }
+//   ]
 // }
 ```
 
@@ -794,9 +857,10 @@ twstock.market.instTrades({ date: '2023-01-30', market: 'TSE' })
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `market`: {string} 市場別 (`'TSE'` 或 `'OTC'`)
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
   * `date`: {string} 日期
+  * `exchange`: {string} 市場別
   * `marginBuy`: {number} 融資買進(張)
   * `marginSell`: {number} 融資賣出(張)
   * `marginRedeem`: {number} 現金償還(張)
@@ -814,11 +878,12 @@ twstock.market.instTrades({ date: '2023-01-30', market: 'TSE' })
   * `marginBalanceValue`: {number} 今日融資餘額(仟元)
 
 ```js
-twstock.market.marginTrades({ date: '2023-01-30', market: 'TSE' })
+twstock.market.marginTrades({ date: '2023-01-30', exchange: 'TWSE' })
   .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
+//   exchange: 'TWSE',
 //   marginBuy: 264023,
 //   marginSell: 282873,
 //   marginRedeem: 10127,
@@ -839,29 +904,28 @@ twstock.market.marginTrades({ date: '2023-01-30', market: 'TSE' })
 
 ### `.futopt.list()`
 
-取得期貨與選擇權契約列表。
+取得期貨與選擇權商品(契約)列表。
 
-* Returns: {Promise} 成功時以 {Object[]} 履行，該陣列包含以下物件屬性：
-  * `symbol`: {string} 契約代號
-  * `name`: {string} 契約名稱
-  * `exchange`: {string} 交易所
-  * `market`: {string} 市場別
-  * `industry`: {string} 產業別
+* `options`: {Object}
+  * `type`: {string} 類別 (`'F'`：期貨；`'O'`：選擇權)
+  * `availableContracts`: {boolean} 列出可用契約
+* Returns: {Promise} 成功時以 {Object[]} 履行，其中 `Object` 包含以下屬性：
+  * `symbol`: {string} 商品(契約)代號
+  * `name`: {string} 商品(契約)名稱
+  * `exchange`: {string} 市場別
+  * `type`: {string} 商品(契約)類別
   * `listedDate`: {string} 上市日期
 
 ```js
-twstock.futopt.list()
+twstock.futopt.list({ type: 'F' })
   .then(data => console.log(data));
 // Prints:
 // [
 //   {
-//     symbol: 'BRFC4',
-//     name: '布蘭特原油期貨2024/03',
+//     symbol: 'TXF',
+//     name: '臺指期',
 //     exchange: 'TAIFEX',
-//     market: 'FUTOPT',
-//     type: '原油期貨',
-//     industry: '00',
-//     listedDate: '2023-11-01'
+//     type: 'F',
 //   },
 //   ... more items
 // ]
@@ -869,14 +933,15 @@ twstock.futopt.list()
 
 ### `.futopt.quote(options)`
 
-取得期貨與選擇權契約即時行情。
+取得期貨與選擇權契約行情報價。
 
 * `options`: {Object}
   * `symbol`: {string} 契約代號
   * `afterhours` (optional): {boolean} 盤後交易
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object | Object[]} 履行，其中包含以下屬性：
   * `symbol`: {string} 契約代號
   * `name`: {string} 契約名稱
+  * `status`: {string} 狀態 (`'TC'`：收盤)
   * `referencePrice`: {number} 參考價
   * `limitUpPrice`: {number} 漲停價
   * `limitDownPrice`: {number} 跌停價
@@ -908,299 +973,295 @@ twstock.futopt.list()
 twstock.futopt.quote({ symbol: 'TXFA4' })
   .then(data => console.log(data));
 // Prints:
-// {
-//   symbol: 'TXFA4',
-//   name: '臺股期貨2024/01',
-//   referencePrice: 17870,
-//   limitUpPrice: 19657,
-//   limitDownPrice: 16083,
-//   openPrice: 17838,
-//   highPrice: 17920,
-//   lowPrice: 17751,
-//   lastPrice: 17798,
-//   lastSize: 3,
-//   testPrice: 17831,
-//   testSize: 256,
-//   testTime: 1704156295000,
-//   totalVoluem: 116498,
-//   openInterest: 103404,
-//   bidOrders: 67979,
-//   askOrders: 66456,
-//   bidVolume: 124038,
-//   askVolume: 124080,
-//   bidPrice: [ 17798, 17797, 17796, 17795, 17794 ],
-//   askPrice: [ 17800, 17801, 17802, 17803, 17804 ],
-//   bidSize: [ 31, 26, 38, 24, 18 ],
-//   askSize: [ 6, 16, 30, 18, 22 ],
-//   extBidPrice: 17795,
-//   extAskPrice: 0,
-//   extBidSize: 2,
-//   extAskSize: 0,
-//   lastUpdated: 1704174299000
-// }
+// [
+//   {
+//     symbol: 'TXF',
+//     name: '臺指現貨',
+//     status: 'TC',
+//     openPrice: 17894.83,
+//     highPrice: 18014.26,
+//     lowPrice: 17894.83,
+//     lastPrice: 18002.62,
+//     referencePrice: 17875.83,
+//     limitUpPrice: '',
+//     limitDownPrice: '',
+//     settlementPrice: '',
+//     change: 126.79,
+//     changePercent: 0.71,
+//     amplitude: 0.67,
+//     totalVoluem: '',
+//     openInterest: '',
+//     bestBidPrice: '',
+//     bestAskPrice: '',
+//     bestBidSize: '',
+//     bestAskSize: '',
+//     testPrice: '',
+//     testSize: '',
+//     lastUpdated: 1706160795000
+//   },
+//   ... more items
+// ]
 ```
 
-### `.futopt.txfInstTrades(options)`
+### `.futopt.historical(options)`
 
-取得臺股期貨在特定日期的三大法人交易口數、契約金額與未平倉餘額。
+取得期貨與選擇權契約在特定日期的收盤行情。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
-  * `date`: {string} 日期
   * `symbol`: {string} 契約代號
-  * `finiLongTradeVolume`: {number} 外資-多方交易口數
-  * `finiLongTradeValue`: {number} 外資-多方交易契約金額(千元)
-  * `finiShortTradeVolume`: {number} 外資-空方交易口數
-  * `finiShortTradeValue`: {number} 外資-空方交易契約金額(千元)
-  * `finiNetTradeVolume`: {number} 外資-多空交易口數淨額
-  * `finiNetTradeValue`: {number} 外資-多空交易契約金額淨額(千元)
-  * `finiLongOiVolume`: {number} 外資-多方未平倉口數
-  * `finiLongOiValue`: {number} 外資-多方未平倉契約金額(千元)
-  * `finiShortOiVolume`: {number} 外資-空方未平倉口數
-  * `finiShortOiValue`: {number} 外資-空方未平倉契約金額(千元)
-  * `finiNetOiVolume`: {number} 外資-多空未平倉口數淨額
-  * `finiNetOiValue`: {number} 外資-多空未平倉契約金額淨額(千元) 
-  * `sitcLongTradeVolume`: {number} 投信-多方交易口數
-  * `sitcLongTradeValue`: {number} 投信-多方交易契約金額(千元)
-  * `sitcShortTradeVolume`: {number} 投信-空方交易口數
-  * `sitcShortTradeValue`: {number} 投信-空方交易契約金額(千元)
-  * `sitcNetTradeVolume`: {number} 投信-多空交易口數淨額
-  * `sitcNetTradeValue`: {number} 投信-多空交易契約金額淨額(千元)
-  * `sitcLongOiVolume`: {number} 投信-多方未平倉口數
-  * `sitcLongOiValue`: {number} 投信-多方未平倉契約金額(千元)
-  * `sitcShortOiVolume`: {number} 投信-空方未平倉口數
-  * `sitcShortOiValue`: {number} 投信-空方未平倉契約金額(千元)
-  * `sitcNetOiVolume`: {number} 投信-多空未平倉口數淨額
-  * `sitcNetOiValue`: {number} 投信-多空未平倉契約金額淨額(千元)
-  * `dealersLongTradeVolume`: {number} 自營商-多方交易口數
-  * `dealersLongTradeValue`: {number} 自營商-多方交易契約金額(千元)
-  * `dealersShortTradeVolume`: {number} 自營商-空方交易口數
-  * `dealersShortTradeValue`: {number} 自營商-空方交易契約金額(千元)
-  * `dealersNetTradeVolume`: {number} 自營商-多空交易口數淨額
-  * `dealersNetTradeValue`: {number} 自營商-多空交易契約金額淨額(千元)
-  * `dealersLongOiVolume`: {number} 自營商-多方未平倉口數
-  * `dealersLongOiValue`: {number} 自營商-多方未平倉契約金額(千元)
-  * `dealersShortOiVolume`: {number} 自營商-空方未平倉口數
-  * `dealersShortOiValue`: {number} 自營商-空方未平倉契約金額(千元)
-  * `dealersNetOiVolume`: {number} 自營商-多空未平倉口數淨額
-  * `dealersNetOiValue`: {number} 自營商-多空未平倉契約金額淨額(千元)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
+  * `date`: {string} 日期
+  * `exchange`: {string} 市場別
+  * `symbol`: {string} 契約代號
+  * `contractMonth`: {string} 到期月份(週別)
+  * `strikePrice`: {number} 履約價
+  * `type`: {string} 買賣權
+  * `open`: {number} 開盤價
+  * `high`: {number} 最高價
+  * `low`: {number} 最低價
+  * `close`: {number} 收盤價
+  * `change`: {number} 漲跌
+  * `changePercent`: {number} 漲跌%
+  * `volume`: {number} 成交量
+  * `settlementPrice`: {number} 結算價
+  * `openInterest`: {number} 未沖銷契約量
+  * `bestBid`: {number} 最後最佳買價
+  * `bestAsk`: {number} 最後最佳賣價
+  * `historicalHigh`: {number} 歷史最高價
+  * `historicalLow`: {number} 歷史最低價
+  * `session`: {number} 交易時段
+  * `volumeSpread`: {number} 價差對價差成交量
 
 ```js
-twstock.futopt.txfInstTrades({ date: '2023-01-30' })
+twstock.futopt.historical({ date: '2023-01-30', symbol: 'TXF' })
+  .then(data => console.log(data));
+// Prints:
+// [
+//   {
+//     date: '2023-01-30',
+//     exchange: 'TAIFEX',
+//     symbol: 'TXF',
+//     contractMonth: '202301',
+//     open: 15558,
+//     high: 15559,
+//     low: 15364,
+//     close: 15451,
+//     change: 526,
+//     changePercent: 3.52,
+//     volume: 45946,
+//     settlementPrice: 0,
+//     openInterest: 14509,
+//     bestBid: 15450,
+//     bestAsk: 15451,
+//     historicalHigh: 15559,
+//     historicalLow: 12631,
+//     session: '一般',
+//     volumeSpread: null
+//   },
+//   ... more items
+// ]
+```
+
+### `.futopt.institutional(options)`
+
+取得期貨與選擇權契約在特定日期的三大法人交易口數、契約金額與未平倉餘額。
+
+* `options`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+  * `symbol`: {string} 契約代號
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
+  * `date`: {string} 日期
+  * `exchange`: {string} 市場別
+  * `symbol`: {string} 契約代號
+  * `name`: {string} 契約名稱
+  * `institutional`: {Object[]} 三大法人交易口數、契約金額與未平倉餘額，其中 `Object` 包含以下屬性：
+    * `investors`: {number} 單位名稱
+    * `longTradeVolume`: {number} 多方交易口數
+    * `longTradeValue`: {number} 多方交易契約金額(千元)
+    * `shortTradeVolume`: {number} 空方交易口數
+    * `shortTradeValue`: {number} 空方交易契約金額(千元)
+    * `netTradeVolume`: {number} 多空交易口數淨額
+    * `netTradeValue`: {number} 多空交易契約金額淨額(千元)
+    * `longOiVolume`: {number} 多方未平倉口數
+    * `longOiValue`: {number} 多方未平倉契約金額(千元)
+    * `shortOiVolume`: {number} 空方未平倉口數
+    * `shortOiValue`: {number} 空方未平倉契約金額(千元)
+    * `netOiVolume`: {number} 多空未平倉口數淨額
+    * `netOiValue`: {number} 多空未平倉契約金額淨額(千元) 
+
+```js
+twstock.futopt.institutional({ date: '2023-01-30', symbol: 'TXF' })
   .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
+//   exchange: 'TAIFEX',
 //   symbol: 'TXF',
 //   name: '臺股期貨',
-//   finiLongTradeVolume: 61232,
-//   finiLongTradeValue: 187462698,
-//   finiShortTradeVolume: 60146,
-//   finiShortTradeValue: 184303292,
-//   finiNetTradeVolume: 1086,
-//   finiNetTradeValue: 3159406,
-//   finiLongOiVolume: 32100,
-//   finiLongOiValue: 99233073,
-//   finiShortOiVolume: 24001,
-//   finiShortOiValue: 74192341,
-//   finiNetOiVolume: 8099,
-//   finiNetOiValue: 25040732,
-//   sitcLongTradeVolume: 2237,
-//   sitcLongTradeValue: 6907887,
-//   sitcShortTradeVolume: 449,
-//   sitcShortTradeValue: 1384268,
-//   sitcNetTradeVolume: 1788,
-//   sitcNetTradeValue: 5523619,
-//   sitcLongOiVolume: 10112,
-//   sitcLongOiValue: 31260237,
-//   sitcShortOiVolume: 15995,
-//   sitcShortOiValue: 49446943,
-//   sitcNetOiVolume: -5883,
-//   sitcNetOiValue: -18186706,
-//   dealersLongTradeVolume: 14205,
-//   dealersLongTradeValue: 43588157,
-//   dealersShortTradeVolume: 17049,
-//   dealersShortTradeValue: 52346096,
-//   dealersNetTradeVolume: -2844,
-//   dealersNetTradeValue: -8757939,
-//   dealersLongOiVolume: 10822,
-//   dealersLongOiValue: 33446397,
-//   dealersShortOiVolume: 5797,
-//   dealersShortOiValue: 17917728,
-//   dealersNetOiVolume: 5025,
-//   dealersNetOiValue: 15528669
+//   institutional: [
+//     {
+//       investors: '自營商',
+//       longTradeVolume: 14205,
+//       longTradeValue: 43588157,
+//       shortTradeVolume: 17049,
+//       shortTradeValue: 52346096,
+//       netTradeVolume: -2844,
+//       netTradeValue: -8757939,
+//       longOiVolume: 10822,
+//       longOiValue: 33446397,
+//       shortOiVolume: 5797,
+//       shortOiValue: 17917728,
+//       netOiVolume: 5025,
+//       netOiValue: 15528669
+//     },
+//     {
+//       investors: '投信',
+//       longTradeVolume: 2237,
+//       longTradeValue: 6907887,
+//       shortTradeVolume: 449,
+//       shortTradeValue: 1384268,
+//       netTradeVolume: 1788,
+//       netTradeValue: 5523619,
+//       longOiVolume: 10112,
+//       longOiValue: 31260237,
+//       shortOiVolume: 15995,
+//       shortOiValue: 49446943,
+//       netOiVolume: -5883,
+//       netOiValue: -18186706
+//     },
+//     {
+//       investors: '外資及陸資',
+//       longTradeVolume: 61232,
+//       longTradeValue: 187462698,
+//       shortTradeVolume: 60146,
+//       shortTradeValue: 184303292,
+//       netTradeVolume: 1086,
+//       netTradeValue: 3159406,
+//       longOiVolume: 32100,
+//       longOiValue: 99233073,
+//       shortOiVolume: 24001,
+//       shortOiValue: 74192341,
+//       netOiVolume: 8099,
+//       netOiValue: 25040732
+//     }
+//   ]
 // }
 ```
 
-### `.futopt.txoInstTrades(options)`
+### `.futopt.largeTraders(options)`
 
-取得臺指選擇權在特定日期的三大法人交易口數、契約金額與未平倉餘額。
+取得期貨與選擇權契約在特定日期的大額交易人未沖銷部位。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
-  * `date`: {string} 日期
   * `symbol`: {string} 契約代號
-  * `calls`: {Object} 臺指選擇權-買權
-    * `finiLongTradeVolume`: {number} 外資-多方交易口數
-    * `finiLongTradeValue`: {number} 外資-多方交易契約金額(千元)
-    * `finiShortTradeVolume`: {number} 外資-空方交易口數
-    * `finiShortTradeValue`: {number} 外資-空方交易契約金額(千元)
-    * `finiNetTradeVolume`: {number} 外資-多空交易口數淨額
-    * `finiNetTradeValue`: {number} 外資-多空交易契約金額淨額(千元)
-    * `finiLongOiVolume`: {number} 外資-多方未平倉口數
-    * `finiLongOiValue`: {number} 外資-多方未平倉契約金額(千元)
-    * `finiShortOiVolume`: {number} 外資-空方未平倉口數
-    * `finiShortOiValue`: {number} 外資-空方未平倉契約金額(千元)
-    * `finiNetOiVolume`: {number} 外資-多空未平倉口數淨額
-    * `finiNetOiValue`: {number} 外資-多空未平倉契約金額淨額(千元) 
-    * `sitcLongTradeVolume`: {number} 投信-多方交易口數
-    * `sitcLongTradeValue`: {number} 投信-多方交易契約金額(千元)
-    * `sitcShortTradeVolume`: {number} 投信-空方交易口數
-    * `sitcShortTradeValue`: {number} 投信-空方交易契約金額(千元)
-    * `sitcNetTradeVolume`: {number} 投信-多空交易口數淨額
-    * `sitcNetTradeValue`: {number} 投信-多空交易契約金額淨額(千元)
-    * `sitcLongOiVolume`: {number} 投信-多方未平倉口數
-    * `sitcLongOiValue`: {number} 投信-多方未平倉契約金額(千元)
-    * `sitcShortOiVolume`: {number} 投信-空方未平倉口數
-    * `sitcShortOiValue`: {number} 投信-空方未平倉契約金額(千元)
-    * `sitcNetOiVolume`: {number} 投信-多空未平倉口數淨額
-    * `sitcNetOiValue`: {number} 投信-多空未平倉契約金額淨額(千元)
-    * `dealersLongTradeVolume`: {number} 自營商-多方交易口數
-    * `dealersLongTradeValue`: {number} 自營商-多方交易契約金額(千元)
-    * `dealersShortTradeVolume`: {number} 自營商-空方交易口數
-    * `dealersShortTradeValue`: {number} 自營商-空方交易契約金額(千元)
-    * `dealersNetTradeVolume`: {number} 自營商-多空交易口數淨額
-    * `dealersNetTradeValue`: {number} 自營商-多空交易契約金額淨額(千元)
-    * `dealersLongOiVolume`: {number} 自營商-多方未平倉口數
-    * `dealersLongOiValue`: {number} 自營商-多方未平倉契約金額(千元)
-    * `dealersShortOiVolume`: {number} 自營商-空方未平倉口數
-    * `dealersShortOiValue`: {number} 自營商-空方未平倉契約金額(千元)
-    * `dealersNetOiVolume`: {number} 自營商-多空未平倉口數淨額
-    * `dealersNetOiValue`: {number} 自營商-多空未平倉契約金額淨額(千元)
-  * `puts`: {Object} 臺指選擇權-賣權
-    * `finiLongTradeVolume`: {number} 外資-多方交易口數
-    * `finiLongTradeValue`: {number} 外資-多方交易契約金額(千元)
-    * `finiShortTradeVolume`: {number} 外資-空方交易口數
-    * `finiShortTradeValue`: {number} 外資-空方交易契約金額(千元)
-    * `finiNetTradeVolume`: {number} 外資-多空交易口數淨額
-    * `finiNetTradeValue`: {number} 外資-多空交易契約金額淨額(千元)
-    * `finiLongOiVolume`: {number} 外資-多方未平倉口數
-    * `finiLongOiValue`: {number} 外資-多方未平倉契約金額(千元)
-    * `finiShortOiVolume`: {number} 外資-空方未平倉口數
-    * `finiShortOiValue`: {number} 外資-空方未平倉契約金額(千元)
-    * `finiNetOiVolume`: {number} 外資-多空未平倉口數淨額
-    * `finiNetOiValue`: {number} 外資-多空未平倉契約金額淨額(千元) 
-    * `sitcLongTradeVolume`: {number} 投信-多方交易口數
-    * `sitcLongTradeValue`: {number} 投信-多方交易契約金額(千元)
-    * `sitcShortTradeVolume`: {number} 投信-空方交易口數
-    * `sitcShortTradeValue`: {number} 投信-空方交易契約金額(千元)
-    * `sitcNetTradeVolume`: {number} 投信-多空交易口數淨額
-    * `sitcNetTradeValue`: {number} 投信-多空交易契約金額淨額(千元)
-    * `sitcLongOiVolume`: {number} 投信-多方未平倉口數
-    * `sitcLongOiValue`: {number} 投信-多方未平倉契約金額(千元)
-    * `sitcShortOiVolume`: {number} 投信-空方未平倉口數
-    * `sitcShortOiValue`: {number} 投信-空方未平倉契約金額(千元)
-    * `sitcNetOiVolume`: {number} 投信-多空未平倉口數淨額
-    * `sitcNetOiValue`: {number} 投信-多空未平倉契約金額淨額(千元)
-    * `dealersLongTradeVolume`: {number} 自營商-多方交易口數
-    * `dealersLongTradeValue`: {number} 自營商-多方交易契約金額(千元)
-    * `dealersShortTradeVolume`: {number} 自營商-空方交易口數
-    * `dealersShortTradeValue`: {number} 自營商-空方交易契約金額(千元)
-    * `dealersNetTradeVolume`: {number} 自營商-多空交易口數淨額
-    * `dealersNetTradeValue`: {number} 自營商-多空交易契約金額淨額(千元)
-    * `dealersLongOiVolume`: {number} 自營商-多方未平倉口數
-    * `dealersLongOiValue`: {number} 自營商-多方未平倉契約金額(千元)
-    * `dealersShortOiVolume`: {number} 自營商-空方未平倉口數
-    * `dealersShortOiValue`: {number} 自營商-空方未平倉契約金額(千元)
-    * `dealersNetOiVolume`: {number} 自營商-多空未平倉口數淨額
-    * `dealersNetOiValue`: {number} 自營商-多空未平倉契約金額淨額(千元)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
+  * `date`: {string} 日期
+  * `exchange`: {string} 市場別
+  * `symbol`: {string} 契約代號
+  * `name`: {string} 契約名稱
+  * `largeTraders`: {Object} 大額交易人未沖銷部位
+    * `type`: {string} 買賣權
+    * `contractMonth`: {string} 到期月份(週別) (`'666666'`：週契約；`'999999'`：所有契約)
+    * `traderType`: {string} 交易人類別 (`'0'`：大額交易人；`'1'`：特定法人)
+    * `topFiveLongOi`: {number} 前五大交易人買方部位數
+    * `topFiveShortOi`: {number} 前五大交易人賣方部位數
+    * `topTenLongOi`: {number} 前十大交易人買方部位數
+    * `topTenShortOi`: {number} 前十大交易人賣方部位數
+    * `marketOi`: {number} 全市場未沖銷部位數
 
 ```js
-twstock.futopt.txoInstTrades({ date: '2023-01-30' })
+twstock.futopt.largeTraders({ date: '2023-01-30', symbol: 'TXF' })
   .then(data => console.log(data));
 // Prints:
 // {
 //   date: '2023-01-30',
-//   symbol: 'TXO',
-//   name: '臺指選擇權',
-//   calls: {
-//     finiLongTradeVolume: 58909,
-//     finiLongTradeValue: 277781,
-//     finiShortTradeVolume: 49665,
-//     finiShortTradeValue: 282059,
-//     finiNetTradeVolume: 9244,
-//     finiNetTradeValue: -4278,
-//     finiLongOiVolume: 11735,
-//     finiLongOiValue: 333628,
-//     finiShortOiVolume: 7956,
-//     finiShortOiValue: 182152,
-//     finiNetOiVolume: 3779,
-//     finiNetOiValue: 151476,
-//     sitcLongTradeVolume: 0,
-//     sitcLongTradeValue: 0,
-//     sitcShortTradeVolume: 0,
-//     sitcShortTradeValue: 0,
-//     sitcNetTradeVolume: 0,
-//     sitcNetTradeValue: 0,
-//     sitcLongOiVolume: 0,
-//     sitcLongOiValue: 0,
-//     sitcShortOiVolume: 0,
-//     sitcShortOiValue: 0,
-//     sitcNetOiVolume: 0,
-//     sitcNetOiValue: 0,
-//     dealersLongTradeVolume: 146455,
-//     dealersLongTradeValue: 790595,
-//     dealersShortTradeVolume: 150228,
-//     dealersShortTradeValue: 678924,
-//     dealersNetTradeVolume: -3773,
-//     dealersNetTradeValue: 111671,
-//     dealersLongOiVolume: 33450,
-//     dealersLongOiValue: 537454,
-//     dealersShortOiVolume: 37665,
-//     dealersShortOiValue: 377511,
-//     dealersNetOiVolume: -4215,
-//     dealersNetOiValue: 159943
-//   },
-//   puts: {
-//     finiLongTradeVolume: 29719,
-//     finiLongTradeValue: 88059,
-//     finiShortTradeVolume: 27070,
-//     finiShortTradeValue: 87819,
-//     finiNetTradeVolume: 2649,
-//     finiNetTradeValue: 240,
-//     finiLongOiVolume: 7147,
-//     finiLongOiValue: 8210,
-//     finiShortOiVolume: 9383,
-//     finiShortOiValue: 24009,
-//     finiNetOiVolume: -2236,
-//     finiNetOiValue: -15799,
-//     sitcLongTradeVolume: 141,
-//     sitcLongTradeValue: 1,
-//     sitcShortTradeVolume: 111,
-//     sitcShortTradeValue: 1152,
-//     sitcNetTradeVolume: 30,
-//     sitcNetTradeValue: -1151,
-//     sitcLongOiVolume: 0,
-//     sitcLongOiValue: 0,
-//     sitcShortOiVolume: 111,
-//     sitcShortOiValue: 1027,
-//     sitcNetOiVolume: -111,
-//     sitcNetOiValue: -1027,
-//     dealersLongTradeVolume: 118685,
-//     dealersLongTradeValue: 324370,
-//     dealersShortTradeVolume: 152013,
-//     dealersShortTradeValue: 332610,
-//     dealersNetTradeVolume: -33328,
-//     dealersNetTradeValue: -8240,
-//     dealersLongOiVolume: 24355,
-//     dealersLongOiValue: 126801,
-//     dealersShortOiVolume: 32667,
-//     dealersShortOiValue: 71726,
-//     dealersNetOiVolume: -8312,
-//     dealersNetOiValue: 55075
-//   }
+//   exchange: 'TAIFEX',
+//   symbol: 'TXF',
+//   name: '臺股期貨(TX+MTX/4)',
+//   largeTraders: [
+//     {
+//       contractMonth: '666666',
+//       traderType: '0',
+//       topFiveLongOi: 33,
+//       topFiveShortOi: 40,
+//       topTenLongOi: 43,
+//       topTenShortOi: 42,
+//       marketOi: 48
+//     },
+//     {
+//       contractMonth: '666666',
+//       traderType: '1',
+//       topFiveLongOi: 5,
+//       topFiveShortOi: 2,
+//       topTenLongOi: 5,
+//       topTenShortOi: 2,
+//       marketOi: 48
+//     },
+//     {
+//       contractMonth: '202302',
+//       traderType: '0',
+//       topFiveLongOi: 30643,
+//       topFiveShortOi: 29456,
+//       topTenLongOi: 40363,
+//       topTenShortOi: 36869,
+//       marketOi: 68173
+//     },
+//     {
+//       contractMonth: '202302',
+//       traderType: '1',
+//       topFiveLongOi: 30643,
+//       topFiveShortOi: 29456,
+//       topTenLongOi: 38860,
+//       topTenShortOi: 34209,
+//       marketOi: 68173
+//     },
+//     {
+//       contractMonth: '999999',
+//       traderType: '0',
+//       topFiveLongOi: 30828,
+//       topFiveShortOi: 29523,
+//       topTenLongOi: 40572,
+//       topTenShortOi: 37209,
+//       marketOi: 72437
+//     },
+//     {
+//       contractMonth: '999999',
+//       traderType: '1',
+//       topFiveLongOi: 30828,
+//       topFiveShortOi: 29523,
+//       topTenLongOi: 39045,
+//       topTenShortOi: 34493,
+//       marketOi: 72437
+//     }
+//   ]
+// }
+```
+
+### `.futopt.mxfRetailPosition(options)`
+
+取得特定日期的小台散戶部位數及多空比
+
+* `options`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
+  * `date`: {string} 日期
+  * `mxfRetailLongOi`: {number} 小台散戶多單
+  * `mxfRetailShortOi`: {number} 小台散戶空單
+  * `mxfRetailNetOi`: {number} 小台散戶淨部位
+  * `mxfRetailLongShortRatio`: {number} 小台散戶多空比
+  
+```js
+twstock.futopt.mxfRetailPosition({ date: '2023-01-30' })
+  .then(data => console.log(data));
+// Prints:
+// {
+//   date: '2023-01-30',
+//   mxfRetailLongOi: 30126,
+//   mxfRetailShortOi: 38959,
+//   mxfRetailNetOi: -8833,
+//   mxfRetailLongShortRatio: -0.2004
 // }
 ```
 
@@ -1210,9 +1271,9 @@ twstock.futopt.txoInstTrades({ date: '2023-01-30' })
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
   * `date`: {string} 日期
-  * `txoPutVolume`: {string} 賣權成交量
+  * `txoPutVolume`: {number} 賣權成交量
   * `txoCallVolume`: {number} 買權成交量
   * `txoPutCallVolumeRatio`: {number} 買賣權成交量比率
   * `txoPutOi`: {number} 賣權未平倉量
@@ -1234,410 +1295,13 @@ twstock.futopt.txoPutCallRatio({ date: '2023-01-30' })
 // }
 ```
 
-### `.futopt.mxfRetailPosition(options)`
-
-取得特定日期的散戶小台淨部位及散戶小台多空比
-
-* `options`: {Object}
-  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
-  * `date`: {string} 日期
-  * `mxfRetailLongOi`: {number} 散戶小台多單
-  * `mxfRetailShortOi`: {number} 散戶小台空單
-  * `mxfRetailNetOi`: {number} 散戶小台淨部位
-  * `mxfRetailLongShortRatio`: {number} 散戶小台多空比
-  
-```js
-twstock.futopt.mxfRetailPosition({ date: '2023-01-30' })
-  .then(data => console.log(data));
-// Prints:
-// {
-//   date: '2023-01-30',
-//   mxfRetailLongOi: 30126,
-//   mxfRetailShortOi: 38959,
-//   mxfRetailNetOi: -8833,
-//   mxfRetailLongShortRatio: -0.2004
-// }
-```
-
-### `.futopt.txfLargeTradersPosition(options)`
-
-取得臺股期貨在特定日期的大額交易人未沖銷部位。
-
-* `options`: {Object}
-  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
-  * `date`: {string} 日期
-  * `frontMonth`: {Object} 近月契約
-    * `topFiveLongOi`: {number} 前五大交易人買方部位數
-    * `topFiveShortOi`: {number} 前五大交易人賣方部位數
-    * `topFiveNetOi`: {number} 前五大交易人淨部位
-    * `topTenLongOi`: {number} 前十大交易人買方部位數
-    * `topTenShortOi`: {number} 前十大交易人賣方部位數
-    * `topTenNetOi`: {number} 前十大交易人淨部位
-    * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
-    * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
-    * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
-    * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
-    * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
-    * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
-    * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
-    * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
-    * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
-    * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
-    * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
-    * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
-    * `marketOi`: {number} 全市場未沖銷部位數
-* `allMonths`: {Object} 所有契約
-    * `topFiveLongOi`: {number} 前五大交易人買方部位數
-    * `topFiveShortOi`: {number} 前五大交易人賣方部位數
-    * `topFiveNetOi`: {number} 前五大交易人淨部位
-    * `topTenLongOi`: {number} 前十大交易人買方部位數
-    * `topTenShortOi`: {number} 前十大交易人賣方部位數
-    * `topTenNetOi`: {number} 前十大交易人淨部位
-    * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
-    * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
-    * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
-    * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
-    * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
-    * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
-    * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
-    * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
-    * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
-    * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
-    * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
-    * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
-    * `marketOi`: {number} 全市場未沖銷部位數
-* `backMonths`: {Object} 遠月契約
-    * `topFiveLongOi`: {number} 前五大交易人買方部位數
-    * `topFiveShortOi`: {number} 前五大交易人賣方部位數
-    * `topFiveNetOi`: {number} 前五大交易人淨部位
-    * `topTenLongOi`: {number} 前十大交易人買方部位數
-    * `topTenShortOi`: {number} 前十大交易人賣方部位數
-    * `topTenNetOi`: {number} 前十大交易人淨部位
-    * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
-    * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
-    * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
-    * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
-    * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
-    * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
-    * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
-    * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
-    * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
-    * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
-    * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
-    * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
-    * `marketOi`: {number} 全市場未沖銷部位數
-```js
-twstock.futopt.txfLargeTradersPosition({ date: '2023-01-30' })
-  .then(data => console.log(data));
-// Prints:
-// {
-//   frontMonth: {
-//     topFiveLongOi: 30643,
-//     topFiveShortOi: 29456,
-//     topFiveNetOi: 1187,
-//     topTenLongOi: 40363,
-//     topTenShortOi: 36869,
-//     topTenNetOi: 3494,
-//     topFiveSpecificLongOi: 30643,
-//     topFiveSpecificShortOi: 29456,
-//     topFiveSpecificNetOi: 1187,
-//     topTenSpecificLongOi: 38860,
-//     topTenSpecificShortOi: 34209,
-//     topTenSpecificNetOi: 4651,
-//     topFiveNonspecificLongOi: 0,
-//     topFiveNonspecificShortOi: 0,
-//     topFiveNonspecificNetOi: 0,
-//     topTenNonspecificLongOi: 1503,
-//     topTenNonspecificShortOi: 2660,
-//     topTenNonspecificNetOi: -1157,
-//     marketOi: 68173
-//   },
-//   allMonths: {
-//     topFiveLongOi: 30828,
-//     topFiveShortOi: 29523,
-//     topFiveNetOi: 1305,
-//     topTenLongOi: 40572,
-//     topTenShortOi: 37209,
-//     topTenNetOi: 3363,
-//     topFiveSpecificLongOi: 30828,
-//     topFiveSpecificShortOi: 29523,
-//     topFiveSpecificNetOi: 1305,
-//     topTenSpecificLongOi: 39045,
-//     topTenSpecificShortOi: 34493,
-//     topTenSpecificNetOi: 4552,
-//     marketOi: 72437
-//   },
-//   backMonths: {
-//     topFiveLongOi: 185,
-//     topFiveShortOi: 67,
-//     topFiveNetOi: 118,
-//     topTenLongOi: 209,
-//     topTenShortOi: 340,
-//     topTenNetOi: -131,
-//     topFiveSpecificLongOi: 185,
-//     topFiveSpecificShortOi: 67,
-//     topFiveSpecificNetOi: 118,
-//     topTenSpecificLongOi: 185,
-//     topTenSpecificShortOi: 284,
-//     topTenSpecificNetOi: -99,
-//     marketOi: 4264
-//   }
-// }
-```
-
-### `.futopt.txoLargeTradersPosition(options)`
-
-取得臺指選擇權在特定日期的大額交易人未沖銷部位。
-
-* `options`: {Object}
-  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
-  * `date`: {string} 日期
-  * `calls`: {Object} 臺指買權
-    * `frontMonth`: {Object} 近月契約
-      * `topFiveLongOi`: {number} 前五大交易人買方部位數
-      * `topFiveShortOi`: {number} 前五大交易人賣方部位數
-      * `topFiveNetOi`: {number} 前五大交易人淨部位
-      * `topTenLongOi`: {number} 前十大交易人買方部位數
-      * `topTenShortOi`: {number} 前十大交易人賣方部位數
-      * `topTenNetOi`: {number} 前十大交易人淨部位
-      * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
-      * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
-      * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
-      * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
-      * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
-      * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
-      * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
-      * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
-      * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
-      * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
-      * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
-      * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
-      * `marketOi`: {number} 全市場未沖銷部位數
-    * `allMonths`: {Object} 所有契約
-      * `topFiveLongOi`: {number} 前五大交易人買方部位數
-      * `topFiveShortOi`: {number} 前五大交易人賣方部位數
-      * `topFiveNetOi`: {number} 前五大交易人淨部位
-      * `topTenLongOi`: {number} 前十大交易人買方部位數
-      * `topTenShortOi`: {number} 前十大交易人賣方部位數
-      * `topTenNetOi`: {number} 前十大交易人淨部位
-      * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
-      * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
-      * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
-      * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
-      * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
-      * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
-      * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
-      * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
-      * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
-      * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
-      * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
-      * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
-      * `marketOi`: {number} 全市場未沖銷部位數
-    * `backMonths`: {Object} 遠月契約
-      * `topFiveLongOi`: {number} 前五大交易人買方部位數
-      * `topFiveShortOi`: {number} 前五大交易人賣方部位數
-      * `topFiveNetOi`: {number} 前五大交易人淨部位
-      * `topTenLongOi`: {number} 前十大交易人買方部位數
-      * `topTenShortOi`: {number} 前十大交易人賣方部位數
-      * `topTenNetOi`: {number} 前十大交易人淨部位
-      * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
-      * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
-      * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
-      * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
-      * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
-      * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
-      * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
-      * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
-      * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
-      * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
-      * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
-      * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
-      * `marketOi`: {number} 全市場未沖銷部位數
-  * `puts`: {Object} 臺指賣權
-    * `frontMonth`: {Object} 近月契約
-      * `topFiveLongOi`: {number} 前五大交易人買方部位數
-      * `topFiveShortOi`: {number} 前五大交易人賣方部位數
-      * `topFiveNetOi`: {number} 前五大交易人淨部位
-      * `topTenLongOi`: {number} 前十大交易人買方部位數
-      * `topTenShortOi`: {number} 前十大交易人賣方部位數
-      * `topTenNetOi`: {number} 前十大交易人淨部位
-      * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
-      * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
-      * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
-      * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
-      * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
-      * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
-      * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
-      * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
-      * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
-      * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
-      * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
-      * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
-      * `marketOi`: {number} 全市場未沖銷部位數
-    * `allMonths`: {Object} 所有契約
-      * `topFiveLongOi`: {number} 前五大交易人買方部位數
-      * `topFiveShortOi`: {number} 前五大交易人賣方部位數
-      * `topFiveNetOi`: {number} 前五大交易人淨部位
-      * `topTenLongOi`: {number} 前十大交易人買方部位數
-      * `topTenShortOi`: {number} 前十大交易人賣方部位數
-      * `topTenNetOi`: {number} 前十大交易人淨部位
-      * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
-      * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
-      * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
-      * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
-      * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
-      * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
-      * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
-      * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
-      * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
-      * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
-      * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
-      * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
-      * `marketOi`: {number} 全市場未沖銷部位數
-    * `backMonths`: {Object} 遠月契約
-      * `topFiveLongOi`: {number} 前五大交易人買方部位數
-      * `topFiveShortOi`: {number} 前五大交易人賣方部位數
-      * `topFiveNetOi`: {number} 前五大交易人淨部位
-      * `topTenLongOi`: {number} 前十大交易人買方部位數
-      * `topTenShortOi`: {number} 前十大交易人賣方部位數
-      * `topTenNetOi`: {number} 前十大交易人淨部位
-      * `topFiveSpecificLongOi`: {number} 前五大特定法人買方部位數
-      * `topFiveSpecificShortOi`: {number} 前五大特定法人賣方部位數
-      * `topFiveSpecificNetOi`: {number} 前五大特定法人淨部位
-      * `topTenSpecificLongOi`: {number} 前十大特定法人買方部位數
-      * `topTenSpecificShortOi`: {number} 前十大特定法人賣方部位數
-      * `topTenSpecificNetOi`: {number} 前十大特定法人淨部位
-      * `topFiveNonspecificLongOi`: {number} 前五大非特定法人買方部位數
-      * `topFiveNonspecificShortOi`: {number} 前五大非特定法人賣方部位數
-      * `topFiveNonspecificNetOi`: {number} 前五大非特定法人淨部位
-      * `topTenNonspecificLongOi`: {number} 前十大非特定法人買方部位數
-      * `topTenNonspecificShortOi`: {number} 前十大非特定法人賣方部位數
-      * `topTenNonspecificNetOi`: {number} 前十大非特定法人淨部位
-      * `marketOi`: {number} 全市場未沖銷部位數
-```js
-twstock.futopt.txoLargeTradersPosition({ date: '2023-01-30' })
-  .then(data => console.log(data));
-// Prints:
-// {
-//   calls: {
-//     frontMonth: {
-//       topFiveLongOi: 16007,
-//       topFiveShortOi: 11593,
-//       topFiveNetOi: 4414,
-//       topTenLongOi: 19936,
-//       topTenShortOi: 17255,
-//       topTenNetOi: 2681,
-//       topFiveSpecificLongOi: 2636,
-//       topFiveSpecificShortOi: 5158,
-//       topFiveSpecificNetOi: -2522,
-//       topTenSpecificLongOi: 5237,
-//       topTenSpecificShortOi: 6533,
-//       topTenSpecificNetOi: -1296,
-//       topFiveNonspecificLongOi: 13371,
-//       topFiveNonspecificShortOi: 6435,
-//       topFiveNonspecificNetOi: 6936,
-//       topTenNonspecificLongOi: 14699,
-//       topTenNonspecificShortOi: 10722,
-//       topTenNonspecificNetOi: 3977,
-//       marketOi: 37196
-//     },
-//     allMonths: {
-//       topFiveLongOi: 32966,
-//       topFiveShortOi: 33968,
-//       topFiveNetOi: -1002,
-//       topTenLongOi: 43496,
-//       topTenShortOi: 43773,
-//       topTenNetOi: -277,
-//       topFiveSpecificLongOi: 0,
-//       topFiveSpecificShortOi: 3000,
-//       topFiveSpecificNetOi: -3000,
-//       topTenSpecificLongOi: 7195,
-//       topTenSpecificShortOi: 5160,
-//       topTenSpecificNetOi: 2035,
-//       marketOi: 87502
-//     },
-//     backMonths: {
-//       topFiveLongOi: 16959,
-//       topFiveShortOi: 22375,
-//       topFiveNetOi: -5416,
-//       topTenLongOi: 23560,
-//       topTenShortOi: 26518,
-//       topTenNetOi: -2958,
-//       topFiveSpecificLongOi: -2636,
-//       topFiveSpecificShortOi: -2158,
-//       topFiveSpecificNetOi: -478,
-//       topTenSpecificLongOi: 1958,
-//       topTenSpecificShortOi: -1373,
-//       topTenSpecificNetOi: 3331,
-//       marketOi: 50306
-//     }
-//   },
-//   puts: {
-//     frontMonth: {
-//       topFiveLongOi: 9716,
-//       topFiveShortOi: 4483,
-//       topFiveNetOi: 5233,
-//       topTenLongOi: 11749,
-//       topTenShortOi: 6670,
-//       topTenNetOi: 5079,
-//       topFiveSpecificLongOi: 0,
-//       topFiveSpecificShortOi: 570,
-//       topFiveSpecificNetOi: -570,
-//       topTenSpecificLongOi: 0,
-//       topTenSpecificShortOi: 930,
-//       topTenSpecificNetOi: -930,
-//       topFiveNonspecificLongOi: 9716,
-//       topFiveNonspecificShortOi: 3913,
-//       topFiveNonspecificNetOi: 5803,
-//       topTenNonspecificLongOi: 11749,
-//       topTenNonspecificShortOi: 5740,
-//       topTenNonspecificNetOi: 6009,
-//       marketOi: 23838
-//     },
-//     allMonths: {
-//       topFiveLongOi: 13841,
-//       topFiveShortOi: 9469,
-//       topFiveNetOi: 4372,
-//       topTenLongOi: 17629,
-//       topTenShortOi: 11668,
-//       topTenNetOi: 5961,
-//       topFiveSpecificLongOi: 3474,
-//       topFiveSpecificShortOi: 1837,
-//       topFiveSpecificNetOi: 1637,
-//       topTenSpecificLongOi: 3474,
-//       topTenSpecificShortOi: 2208,
-//       topTenSpecificNetOi: 1266,
-//       marketOi: 34848
-//     },
-//     backMonths: {
-//       topFiveLongOi: 4125,
-//       topFiveShortOi: 4986,
-//       topFiveNetOi: -861,
-//       topTenLongOi: 5880,
-//       topTenShortOi: 4998,
-//       topTenNetOi: 882,
-//       topFiveSpecificLongOi: 3474,
-//       topFiveSpecificShortOi: 1267,
-//       topFiveSpecificNetOi: 2207,
-//       topTenSpecificLongOi: 3474,
-//       topTenSpecificShortOi: 1278,
-//       topTenSpecificNetOi: 2196,
-//       marketOi: 11010
-//     }
-//   }
-// }
-```
-
 ### `.futopt.exchangeRates(options)`
 
 取得特定日期的外幣參考匯率。
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-* Returns: {Promise} 成功時以 {Object} 履行，包含以下物件屬性：
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
   * `date`: {string} 日期
   * `usdtwd`: {number} 美元／新台幣
   * `cnytwd`: {number} 人民幣／新台幣
@@ -1669,14 +1333,12 @@ twstock.futopt.exchangeRates({ date: '2023-01-30' })
 // }
 ```
 
-## Data Sources
+## Disclaimer
 
-* [臺灣證券交易所](https://www.twse.com.tw)
-* [證券櫃檯買賣中心](https://www.tpex.org.tw)
-* [臺灣期貨交易所](https://www.taifex.com.tw)
-* [臺灣集中保管結算所](https://www.tdcc.com.tw)
-* [公開資訊觀測站](https://mops.twse.com.tw)
-* [基本市況報導網站](https://mis.twse.com.tw)
+- 本程式所取得之資料來源包括 [臺灣證券交易所](https://www.twse.com.tw)、[證券櫃檯買賣中心](https://www.tpex.org.tw)、[臺灣期貨交易所](https://www.taifex.com.tw)、[臺灣集中保管結算所](https://www.tdcc.com.tw)、[公開資訊觀測站](https://mops.twse.com.tw)、[臺灣證券交易所-基本市況報導網站](https://mis.twse.com.tw)、[臺灣期貨交易所行情資訊網](https://mis.taifex.com.tw)。使用者應遵守各資訊來源提供者所定之資訊使用相關規範及智慧財產權相關法令。
+- 本程式僅供使用公開數據進行研究之目的，嚴禁任何組織或個人利用該技術進行智慧財產盜竊、破壞網站功能或造成其他損害。對於任何違法行為，由該組織或個人自行承擔責任，作者不負擔任何法律及連帶責任。
+- 透過本程式取得之資料僅供參考，若因任何資料之不正確或疏漏所衍生之損害或損失，使用者需自行負責。對於資料內容錯誤、更新延誤或傳輸中斷，本程式不負任何責任。
+- 使用者在使用本程式所提供之資訊時，應謹慎評估並自行承擔風險，作者保留隨時修改或更新免責聲明之權利。
 
 ## Changelog
 

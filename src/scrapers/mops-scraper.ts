@@ -5,16 +5,16 @@ import * as numeral from 'numeral';
 import { Scraper } from './scraper';
 
 export class MopsScraper extends Scraper {
-  async fetchStocksEps(options: { market: string, year: number, quarter: number, symbol?: string }) {
-    const { market, year, quarter, symbol } = options;
-    const type: Record<string, string> = { 'TSE': 'sii', 'OTC': 'otc' };
+  async fetchStocksEps(options: { exchange: string, year: number, quarter: number, symbol?: string }) {
+    const { exchange, year, quarter, symbol } = options;
+    const type: Record<string, string> = { 'TWSE': 'sii', 'TPEx': 'otc' };
     const form = new URLSearchParams({
       encodeURIComponent: '1',
       step: '1',
       firstin: '1',
       off: '1',
       isQuery: 'Y',
-      TYPEK: type[market],
+      TYPEK: type[exchange],
       year: numeral(year).subtract(1911).format(),
       season: numeral(quarter).format('00'),
     });
@@ -30,17 +30,17 @@ export class MopsScraper extends Scraper {
       const symbol = td.eq(0).text().trim();
       const name = td.eq(1).text().trim();
       const eps = numeral(td.eq(td.length - 1).text().trim()).value();
-      return { symbol, name, eps, year, quarter };
+      return { exchange, symbol, name, eps, year, quarter };
     }).toArray() as Record<string, any>[];
 
     return symbol ? data.find(data => data.symbol === symbol) : _.sortBy(data, 'symbol');
   }
 
-  async fetchStocksRevenue(options: { market: string, year: number, month: number, foreign?: boolean, symbol?: string }) {
-    const { market, year, month, foreign = false, symbol } = options;
-    const type: Record<string, string> = { 'TSE': 'sii', 'OTC': 'otc' };
+  async fetchStocksRevenue(options: { exchange: string, year: number, month: number, foreign?: boolean, symbol?: string }) {
+    const { exchange, year, month, foreign = false, symbol } = options;
+    const type: Record<string, string> = { 'TWSE': 'sii', 'TPEx': 'otc' };
     const suffix = `${numeral(year).subtract(1911).value()}_${month}_${+foreign}`;
-    const url = `https://mops.twse.com.tw/nas/t21/${type[market]}/t21sc03_${suffix}.html`;
+    const url = `https://mops.twse.com.tw/nas/t21/${type[exchange]}/t21sc03_${suffix}.html`;
 
     const response = await this.httpService.get(url, { responseType: 'arraybuffer' });
     const page = iconv.decode(response.data, 'big5');
@@ -59,7 +59,7 @@ export class MopsScraper extends Scraper {
         const symbol = td.eq(0).text().trim();
         const name = td.eq(1).text().trim();
         const revenue = numeral(td.eq(2).text().trim()).value();
-        return { symbol, name, revenue, year, month };
+        return { exchange, symbol, name, revenue, year, month };
       })
       .toArray() as Record<string, any>[];
 

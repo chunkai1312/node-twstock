@@ -6,7 +6,7 @@ export function asExchange(market: string) {
     [Market.OTC]: Exchange.TPEx,
     '上市': Exchange.TWSE,
     '上櫃': Exchange.TPEx,
-    '期貨及選擇權': Exchange.Taifex,
+    '期貨及選擇權': Exchange.TAIFEX,
   };
   return exchanges[market];
 }

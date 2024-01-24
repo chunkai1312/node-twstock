@@ -3,16 +3,16 @@ import * as numeral from 'numeral';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
 import { Ticker } from '../interfaces';
-import { asExchange, asIndex } from '../utils';
-import { Market } from '../enums';
+import { asIndex } from '../utils';
 
 export class MisTwseScraper extends Scraper {
-  async fetchListedIndices(options: { market: 'TSE' | 'OTC' }) {
-    const { market } = options;
-    const i = { 'TSE': 'TIDX', 'OTC': 'OIDX' };
+  async fetchListedIndices(options: { exchange: 'TWSE' | 'TPEx' }) {
+    const { exchange } = options;
+    const ex = { 'TWSE': 'tse', 'TPEx': 'otc' };
+    const i = { 'TWSE': 'TIDX', 'TPEx': 'OIDX' };
     const query = new URLSearchParams({
-      ex: market.toLowerCase(),
-      i: i[market],
+      ex: ex[exchange],
+      i: i[exchange],
     });
     const url = `https://mis.twse.com.tw/stock/api/getCategory.jsp?${query}`;
 
@@ -22,9 +22,8 @@ export class MisTwseScraper extends Scraper {
 
     const data = json.msgArray.map((row: any) => ({
       symbol: asIndex(row.n) ?? (row.ch).replace('.tw', ''),
-      exchange: asExchange(row.ex.toUpperCase() as Market),
-      market: row.ex.toUpperCase(),
       name: row.n,
+      exchange,
       ex_ch: `${row.ex}_${row.ch}`,
     }));
 
@@ -95,9 +94,9 @@ export class MisTwseScraper extends Scraper {
   }
 
   private extractExChFromTicker(ticker: Ticker) {
-    const { symbol, market, ex_ch } = ticker;
-    const ex = market.toLowerCase();
+    const { symbol, exchange, ex_ch } = ticker;
+    const ex: Record<string, string> = { 'TWSE': 'tse', 'TPEx': 'otc' };
     const ch = `${symbol}.tw`;
-    return ex_ch ? ex_ch : `${ex}_${ch}`;
+    return ex_ch ? ex_ch : `${ex[exchange]}_${ch}`;
   }
 }

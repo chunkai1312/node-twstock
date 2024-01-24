@@ -14,10 +14,10 @@ describe('MopsScraper', () => {
   });
 
   describe('.fetchStocksEps()', () => {
-    it('should fetch TSE stocks quarterly EPS', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tse-stocks-eps.html') });
+    it('should fetch TWSE listed stocks quarterly EPS', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-twse-stocks-eps.html') });
 
-      const data = await scraper.fetchStocksEps({ market: 'TSE', year: 2023, quarter: 1 });
+      const data = await scraper.fetchStocksEps({ exchange: 'TWSE', year: 2023, quarter: 1 });
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/mops/web/t163sb04',
         new URLSearchParams({
@@ -35,10 +35,10 @@ describe('MopsScraper', () => {
       expect(data?.length).toBeGreaterThan(0);
     });
 
-    it('should fetch TSE stocks quarterly EPS for the specified stock', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tse-stocks-eps.html') });
+    it('should fetch TWSE listed stocks quarterly EPS for the specified stock', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-twse-stocks-eps.html') });
 
-      const data = await scraper.fetchStocksEps({ market: 'TSE', year: 2023, quarter: 1, symbol: '2330' });
+      const data = await scraper.fetchStocksEps({ exchange: 'TWSE', year: 2023, quarter: 1, symbol: '2330' });
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/mops/web/t163sb04',
         new URLSearchParams({
@@ -54,6 +54,7 @@ describe('MopsScraper', () => {
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
+        exchange: 'TWSE',
         symbol: '2330',
         name: '台積電',
         eps: 7.98,
@@ -62,10 +63,10 @@ describe('MopsScraper', () => {
       });
     });
 
-    it('should return null when no data is available for TSE stocks', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tse-stocks-eps-no-data.html') });
+    it('should return null when no data is available for TWSE listed', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-twse-stocks-eps-no-data.html') });
 
-      const data = await scraper.fetchStocksEps({ market: 'TSE', year: 2024, quarter: 1, symbol: '2330' });
+      const data = await scraper.fetchStocksEps({ exchange: 'TWSE', year: 2024, quarter: 1, symbol: '2330' });
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/mops/web/t163sb04',
         new URLSearchParams({
@@ -82,10 +83,10 @@ describe('MopsScraper', () => {
       expect(data).toBe(null);
     });
 
-    it('should fetch OTC stocks quarterly EPS', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/otc-stocks-eps.html') });
+    it('should fetch TPEx listed stocks quarterly EPS', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-tpex-stocks-eps.html') });
 
-      const data = await scraper.fetchStocksEps({ market: 'OTC', year: 2023, quarter: 1 });
+      const data = await scraper.fetchStocksEps({ exchange: 'TPEx', year: 2023, quarter: 1 });
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/mops/web/t163sb04',
         new URLSearchParams({
@@ -103,10 +104,10 @@ describe('MopsScraper', () => {
       expect(data?.length).toBeGreaterThan(0);
     });
 
-    it('should fetch OTC stocks quarterly EPS for the specified stock', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/otc-stocks-eps.html') });
+    it('should fetch TPEx listed stocks quarterly EPS for the specified stock', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-tpex-stocks-eps.html') });
 
-      const data = await scraper.fetchStocksEps({ market: 'OTC', year: 2023, quarter: 1, symbol: '6488' });
+      const data = await scraper.fetchStocksEps({ exchange: 'TPEx', year: 2023, quarter: 1, symbol: '6488' });
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/mops/web/t163sb04',
         new URLSearchParams({
@@ -122,6 +123,7 @@ describe('MopsScraper', () => {
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
+        exchange: 'TPEx',
         symbol: '6488',
         name: '環球晶',
         eps: 11.49,
@@ -130,10 +132,10 @@ describe('MopsScraper', () => {
       });
     });
 
-    it('should return null when no data is available for OTC stocks', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/otc-stocks-eps-no-data.html') });
+    it('should return null when no data is available for TPEx listed', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-tpex-stocks-eps-no-data.html') });
 
-      const data = await scraper.fetchStocksEps({ market: 'OTC', year: 2024, quarter: 1, symbol: '2330' });
+      const data = await scraper.fetchStocksEps({ exchange: 'TPEx', year: 2024, quarter: 1, symbol: '2330' });
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/mops/web/t163sb04',
         new URLSearchParams({
@@ -152,10 +154,10 @@ describe('MopsScraper', () => {
   });
 
   describe('.fetchStocksRevenue()', () => {
-    it('should fetch TSE stocks monthly revenue', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tse-stocks-revenue.html') });
+    it('should fetch TWSE listed stocks monthly revenue', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-twse-stocks-revenue.html') });
 
-      const data = await scraper.fetchStocksRevenue({ market: 'TSE', year: 2023, month: 1 });
+      const data = await scraper.fetchStocksRevenue({ exchange: 'TWSE', year: 2023, month: 1 });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/nas/t21/sii/t21sc03_112_1_0.html',
         { responseType: 'arraybuffer' },
@@ -164,16 +166,17 @@ describe('MopsScraper', () => {
       expect(data?.length).toBeGreaterThan(0);
     });
 
-    it('should fetch TSE stocks monthly revenue for the specified stock', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tse-stocks-revenue.html') });
+    it('should fetch TWSE listed stocks monthly revenue for the specified stock', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-twse-stocks-revenue.html') });
 
-      const data = await scraper.fetchStocksRevenue({ market: 'TSE', year: 2023, month: 1, symbol: '2330' });
+      const data = await scraper.fetchStocksRevenue({ exchange: 'TWSE', year: 2023, month: 1, symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/nas/t21/sii/t21sc03_112_1_0.html',
         { responseType: 'arraybuffer' },
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
+        exchange: 'TWSE',
         symbol: '2330',
         name: '台積電',
         revenue: 200050544,
@@ -182,10 +185,10 @@ describe('MopsScraper', () => {
       });
     });
 
-    it('should return null when no data is available for TSE stocks', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tse-stocks-revenue-no-data.html') });
+    it('should return null when no data is available for TWSE listed', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-twse-stocks-revenue-no-data.html') });
 
-      const data = await scraper.fetchStocksRevenue({ market: 'TSE', year: 2024, month: 1, symbol: '2330' });
+      const data = await scraper.fetchStocksRevenue({ exchange: 'TWSE', year: 2024, month: 1, symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/nas/t21/sii/t21sc03_113_1_0.html',
         { responseType: 'arraybuffer' },
@@ -193,10 +196,10 @@ describe('MopsScraper', () => {
       expect(data).toBe(null);
     });
 
-    it('should fetch OTC stocks monthly revenue', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/otc-stocks-revenue.html') });
+    it('should fetch TPEx listed stocks monthly revenue', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-tpex-stocks-revenue.html') });
 
-      const data = await scraper.fetchStocksRevenue({ market: 'OTC', year: 2023, month: 1 });
+      const data = await scraper.fetchStocksRevenue({ exchange: 'TPEx', year: 2023, month: 1 });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/nas/t21/otc/t21sc03_112_1_0.html',
         { responseType: 'arraybuffer' },
@@ -205,16 +208,17 @@ describe('MopsScraper', () => {
       expect(data?.length).toBeGreaterThan(0);
     });
 
-    it('should fetch OTC stocks monthly revenue for the specified stock', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/otc-stocks-revenue.html') });
+    it('should fetch TPEx listed stocks monthly revenue for the specified stock', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-tpex-stocks-revenue.html') });
 
-      const data = await scraper.fetchStocksRevenue({ market: 'OTC', year: 2023, month: 1, symbol: '6488' });
+      const data = await scraper.fetchStocksRevenue({ exchange: 'TPEx', year: 2023, month: 1, symbol: '6488' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/nas/t21/otc/t21sc03_112_1_0.html',
         { responseType: 'arraybuffer' },
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
+        exchange: 'TPEx',
         symbol: '6488',
         name: '環球晶',
         revenue: 5929796,
@@ -223,10 +227,10 @@ describe('MopsScraper', () => {
       });
     });
 
-    it('should return null when no data is available for OTC stocks', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tse-stocks-revenue-no-data.html') });
+    it('should return null when no data is available for TPEx listed', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-twse-stocks-revenue-no-data.html') });
 
-      const data = await scraper.fetchStocksRevenue({ market: 'OTC', year: 2024, month: 1, symbol: '2330' });
+      const data = await scraper.fetchStocksRevenue({ exchange: 'TPEx', year: 2024, month: 1, symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/nas/t21/otc/t21sc03_113_1_0.html',
         { responseType: 'arraybuffer' },

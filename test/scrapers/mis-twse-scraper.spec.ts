@@ -14,10 +14,10 @@ describe('MisTwseScraper', () => {
   });
 
   describe('.fetchListedIndices()', () => {
-    it('should fetch listed indices for TSE market', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tse-listed-indices.json') });
+    it('should fetch listed indices for TWSE listed', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/mis-twse-twse-listed-indices.json') });
 
-      const data = await scraper.fetchListedIndices({ market: 'TSE' });
+      const data = await scraper.fetchListedIndices({ exchange: 'TWSE' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mis.twse.com.tw/stock/api/getCategory.jsp?ex=tse&i=TIDX',
       );
@@ -25,17 +25,16 @@ describe('MisTwseScraper', () => {
       expect(data.length).toBeGreaterThan(0);
       expect(data[0]).toEqual({
         symbol: 'IX0001',
-        exchange: 'TWSE',
-        market: 'TSE',
         name: '發行量加權股價指數',
+        exchange: 'TWSE',
         ex_ch: 'tse_t00.tw',
       });
     });
 
-    it('should fetch listed indices for OTC market', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/otc-listed-indices.json') });
+    it('should fetch listed indices for TPEx listed', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/mis-twse-tpex-listed-indices.json') });
 
-      const data = await scraper.fetchListedIndices({ market: 'OTC' });
+      const data = await scraper.fetchListedIndices({ exchange: 'TPEx' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mis.twse.com.tw/stock/api/getCategory.jsp?ex=otc&i=OIDX',
       );
@@ -43,9 +42,8 @@ describe('MisTwseScraper', () => {
       expect(data.length).toBeGreaterThan(0);
       expect(data[0]).toEqual({
         symbol: 'IX0043',
-        exchange: 'TPEx',
-        market: 'OTC',
         name: '櫃買指數',
+        exchange: 'TPEx',
         ex_ch: 'otc_o00.tw',
       });
     });
@@ -53,7 +51,7 @@ describe('MisTwseScraper', () => {
     it('should return null when no data is available', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: {} });
 
-      const indices = await scraper.fetchListedIndices({ market: 'TSE' });
+      const indices = await scraper.fetchListedIndices({ exchange: 'TWSE' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mis.twse.com.tw/stock/api/getCategory.jsp?ex=tse&i=TIDX',
       );
@@ -63,10 +61,10 @@ describe('MisTwseScraper', () => {
 
   describe('.fetchStocksQuote()', () => {
     it('should fetch stocks realtime quote', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/stocks-quote.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/mis-twse-stocks-quote.json') });
 
       const data = await scraper.fetchStocksQuote({
-        ticker: { symbol: '2330', market: 'TSE' } as Ticker,
+        ticker: { symbol: '2330', exchange: 'TWSE' } as Ticker,
       });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_2330.tw',
@@ -94,10 +92,10 @@ describe('MisTwseScraper', () => {
     });
 
     it('should fetch stocks realtime quote for intraday odd lot trading', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/stocks-quote-odd.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/mis-twse-stocks-quote-odd.json') });
 
       const data = await scraper.fetchStocksQuote({
-        ticker: { symbol: '2330', market: 'TSE' } as Ticker,
+        ticker: { symbol: '2330', exchange: 'TWSE' } as Ticker,
         odd: true,
       });
       expect(mockAxios.get).toHaveBeenCalledWith(
@@ -129,7 +127,7 @@ describe('MisTwseScraper', () => {
       mockAxios.get.mockResolvedValueOnce({ data: {} });
 
       const data = await scraper.fetchStocksQuote({
-        ticker: { symbol: '2330', market: 'TSE' } as Ticker,
+        ticker: { symbol: '2330', exchange: 'TWSE' } as Ticker,
       });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_2330.tw',
@@ -140,10 +138,10 @@ describe('MisTwseScraper', () => {
 
   describe('.fetchIndicesQuote()', () => {
     it('should fetch indices realtime quote', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/indices-quote.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/mis-twse-indices-quote.json') });
 
       const data = await scraper.fetchIndicesQuote({
-        ticker: { symbol: 'IX0001', exchange: 'TWSE', market: 'TSE', ex_ch: 'tse_t00.tw' } as Ticker,
+        ticker: { symbol: 'IX0001', exchange: 'TWSE', ex_ch: 'tse_t00.tw' } as Ticker,
       });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_t00.tw',
@@ -167,7 +165,7 @@ describe('MisTwseScraper', () => {
       mockAxios.get.mockResolvedValueOnce({ data: {} });
 
       const data = await scraper.fetchIndicesQuote({
-        ticker: { symbol: 'IX0001', exchange: 'TWSE', market: 'TSE', ex_ch: 'tse_t00.tw' } as Ticker,
+        ticker: { symbol: 'IX0001', exchange: 'TWSE', ex_ch: 'tse_t00.tw' } as Ticker,
       });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_t00.tw',
