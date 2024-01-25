@@ -1,5 +1,19 @@
 # Changelog
 
+# [1.0.0](https://github.com/chunkai1312/node-twstock/compare/v0.14.0...v1.0.0) (2024-01-25)
+
+
+### Features
+
+* modify class method names, parameter names, and return data formats ([cb83847](https://github.com/chunkai1312/node-twstock/commit/cb83847286909dacc85759f961d018be5347b198))
+* support for fetching futures historical data ([6c7bec9](https://github.com/chunkai1312/node-twstock/commit/6c7bec9b5313969d749b8468ff2d5da2ea336787))
+* support for fetching futures institutional investors' trades ([c6b93ce](https://github.com/chunkai1312/node-twstock/commit/c6b93ce8d218e65ac6ef859c573e3c8c0a9126b7))
+* support for fetching futures large traders' position ([b1a50fc](https://github.com/chunkai1312/node-twstock/commit/b1a50fc189a1209983cbeb24650d731fa518bd5c))
+* support for fetching listed stock futures & options ([f5b3f2a](https://github.com/chunkai1312/node-twstock/commit/f5b3f2afecaa5d472fbeb13ba4b689116311f040))
+* support for fetching options historical data ([5163c7b](https://github.com/chunkai1312/node-twstock/commit/5163c7b0b5ac5be5b7f20e46f2836c89629bfbe1))
+* support for fetching options institutional investors' trades ([7c1d576](https://github.com/chunkai1312/node-twstock/commit/7c1d57621495b598737731bf012656f67aa4d775))
+* support for fetching options large traders' position ([726a399](https://github.com/chunkai1312/node-twstock/commit/726a3992a3961b6622f576251841738b588cf1c4))
+
 # [0.14.0](https://github.com/chunkai1312/node-twstock/compare/v0.13.0...v0.14.0) (2024-01-02)
 
 
