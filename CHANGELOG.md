@@ -1,5 +1,17 @@
 # Changelog
 
+# [1.1.0](https://github.com/chunkai1312/node-twstock/compare/v1.0.0...v1.1.0) (2024-01-26)
+
+
+### Bug Fixes
+
+* correct property name for institutional data ([bdd4a14](https://github.com/chunkai1312/node-twstock/commit/bdd4a14e16b376882f603b3dffb2e9115f765873))
+
+
+### Features
+
+* support for fetching futures & options historical data by type ([05e59bb](https://github.com/chunkai1312/node-twstock/commit/05e59bbc9dcb89e3495f739afd84289c1c3b5cfb))
+
 # [1.0.0](https://github.com/chunkai1312/node-twstock/compare/v0.14.0...v1.0.0) (2024-01-25)
 
 
