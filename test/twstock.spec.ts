@@ -510,14 +510,28 @@ describe('TwStock', () => {
     });
 
     describe('.historical()', () => {
-      it('should fetch futopt historical data', async () => {
+      it('should fetch futures historical data', async () => {
+        await twstock.futopt.historical({ date: '2023-01-30', type: 'F' });
+        expect(TaifexScraper.prototype.fetchFuturesHistorical).toBeCalledWith({ date: '2023-01-30' });
+      });
+
+      it('should fetch options historical data', async () => {
+        await twstock.futopt.historical({ date: '2023-01-30', type: 'O' });
+        expect(TaifexScraper.prototype.fetchOptionsHistorical).toBeCalledWith({ date: '2023-01-30' });
+      });
+
+      it('should fetch TXF historical data', async () => {
         await twstock.futopt.historical({ date: '2023-01-30', symbol: 'TXF' });
         expect(TaifexScraper.prototype.fetchFuturesHistorical).toBeCalledWith({ date: '2023-01-30', symbol: 'TXF' });
       });
 
-      it('should fetch options historical data', async () => {
+      it('should fetch TXO historical data', async () => {
         await twstock.futopt.historical({ date: '2023-01-30', symbol: 'TXO' });
         expect(TaifexScraper.prototype.fetchOptionsHistorical).toBeCalledWith({ date: '2023-01-30', symbol: 'TXO' });
+      });
+
+      it('should throw an error if the symbol is not found', async () => {
+        await expect(() => twstock.futopt.historical({ date: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
       });
     });
 

@@ -399,10 +399,17 @@ export class TwStock {
       : this._scraper.getMisTaifexScraper().fetchFutOptQuoteDetail({ ticker, afterhours });
   }
 
-  private async getFutOptHistorical(options: { date: string, symbol: string, afterhours?: boolean }) {
+  private async getFutOptHistorical(options: { date: string, type?: 'F' | 'O', symbol?: string, afterhours?: boolean }) {
     const { date, symbol, afterhours } = options;
 
-    const type = (symbol.charAt(2) === 'O') ? 'O' : 'F';
+    if (symbol && !this._futopt.has(symbol)) {
+      const futopt = await this.loadFutOpt();
+      if (!map(futopt, 'symbol').includes(symbol)) throw new Error('symbol not found');
+    }
+
+    const ticker = this._futopt.get(symbol as string) as Ticker;
+    const type = symbol ? ticker.type : options.type;
+
     return (type === 'O')
       ? this._scraper.getTaifexScraper().fetchOptionsHistorical({ date, symbol, afterhours })
       : this._scraper.getTaifexScraper().fetchFuturesHistorical({ date, symbol, afterhours });

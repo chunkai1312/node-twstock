@@ -44,13 +44,13 @@ describe('TaifexScraper', () => {
     it('should fetch futures historical data for the given date of regular trading', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical.csv') });
 
-      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30', symbol: 'MXF' });
+      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30' });
       const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
       const form = new URLSearchParams({
         down_type: '1',
         queryStartDate: '2023/01/30',
         queryEndDate: '2023/01/30',
-        commodity_id: 'MTX',
+        commodity_id: 'all',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
@@ -58,21 +58,21 @@ describe('TaifexScraper', () => {
       expect(data?.[0]).toEqual({
         date: '2023-01-30',
         exchange: 'TAIFEX',
-        symbol: 'MXF',
+        symbol: 'ZFF',
         contractMonth: '202301',
-        open: 15568,
-        high: 15568,
-        low: 15364,
-        close: 15452,
-        change: 527,
-        changePercent: 3.53,
-        volume: 70861,
+        open: 1580.4,
+        high: 1586,
+        low: 1553.2,
+        close: 1570.2,
+        change: 19.8,
+        changePercent: 1.28,
+        volume: 647,
         settlementPrice: 0,
-        openInterest: 11638,
-        bestBid: 15450,
-        bestAsk: 15452,
-        historicalHigh: 15568,
-        historicalLow: 12625,
+        openInterest: 186,
+        bestBid: 1569.4,
+        bestAsk: 1570.2,
+        historicalHigh: 1586,
+        historicalLow: 1352,
         session: '一般',
         volumeSpread: null,
       });
@@ -81,13 +81,13 @@ describe('TaifexScraper', () => {
     it('should fetch futures historical data for the given date of after-hours trading', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical.csv') });
 
-      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30', symbol: 'MXF', afterhours: true });
+      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30', afterhours: true });
       const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
       const form = new URLSearchParams({
         down_type: '1',
         queryStartDate: '2023/01/30',
         queryEndDate: '2023/01/30',
-        commodity_id: 'MTX',
+        commodity_id: 'all',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
@@ -95,21 +95,95 @@ describe('TaifexScraper', () => {
       expect(data?.[0]).toEqual({
         date: '2023-01-30',
         exchange: 'TAIFEX',
-        symbol: 'MXF',
+        symbol: 'ZEF',
         contractMonth: '202301',
-        open: 14920,
-        high: 15051,
-        low: 14820,
-        close: 15051,
-        change: 126,
-        changePercent: 0.84,
-        volume: 63455,
+        open: 690.55,
+        high: 699.25,
+        low: 689.6,
+        close: 699.25,
+        change: 7.25,
+        changePercent: 1.05,
+        volume: 649,
         settlementPrice: null,
         openInterest: null,
-        bestBid: 15046,
-        bestAsk: 15049,
-        historicalHigh: 15086,
-        historicalLow: 12625,
+        bestBid: 698.8,
+        bestAsk: 699.3,
+        historicalHigh: 703,
+        historicalLow: 564.2,
+        session: '盤後',
+        volumeSpread: null,
+      });
+    });
+
+    it('should fetch TXF historical data for the given date of regular trading', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical.csv') });
+
+      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30', symbol: 'TXF' });
+      const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
+      const form = new URLSearchParams({
+        down_type: '1',
+        queryStartDate: '2023/01/30',
+        queryEndDate: '2023/01/30',
+        commodity_id: 'all',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBeDefined();
+      expect(data?.length).toBeGreaterThan(0);
+      expect(data?.[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TAIFEX',
+        symbol: 'TXF',
+        contractMonth: '202301',
+        open: 15558,
+        high: 15559,
+        low: 15364,
+        close: 15451,
+        change: 526,
+        changePercent: 3.52,
+        volume: 45946,
+        settlementPrice: 0,
+        openInterest: 14509,
+        bestBid: 15450,
+        bestAsk: 15451,
+        historicalHigh: 15559,
+        historicalLow: 12631,
+        session: '一般',
+        volumeSpread: null,
+      });
+    });
+
+    it('should fetch TXF historical data for the given date of after-hours trading', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical.csv') });
+
+      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30', symbol: 'TXF', afterhours: true });
+      const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
+      const form = new URLSearchParams({
+        down_type: '1',
+        queryStartDate: '2023/01/30',
+        queryEndDate: '2023/01/30',
+        commodity_id: 'all',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBeDefined();
+      expect(data?.length).toBeGreaterThan(0);
+      expect(data?.[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TAIFEX',
+        symbol: 'TXF',
+        contractMonth: '202301',
+        open: 14918,
+        high: 15054,
+        low: 14828,
+        close: 15048,
+        change: 123,
+        changePercent: 0.8199999999999998,
+        volume: 31299,
+        settlementPrice: null,
+        openInterest: null,
+        bestBid: 15048,
+        bestAsk: 15054,
+        historicalHigh: 15082,
+        historicalLow: 12631,
         session: '盤後',
         volumeSpread: null,
       });
@@ -124,7 +198,7 @@ describe('TaifexScraper', () => {
         down_type: '1',
         queryStartDate: '2023/01/01',
         queryEndDate: '2023/01/01',
-        commodity_id: 'GTF',
+        commodity_id: 'all',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBe(null);
@@ -135,13 +209,89 @@ describe('TaifexScraper', () => {
     it('should fetch options historical data for the given date of regular trading', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-historical.csv') });
 
+      const data = await scraper.fetchOptionsHistorical({ date: '2023-01-30' });
+      const url = 'https://www.taifex.com.tw/cht/3/optDataDown';
+      const form = new URLSearchParams({
+        down_type: '1',
+        queryStartDate: '2023/01/30',
+        queryEndDate: '2023/01/30',
+        commodity_id: 'all',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBeDefined();
+      expect(data?.length).toBeGreaterThan(0);
+      expect(data?.[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TAIFEX',
+        symbol: 'CAO',
+        contractMonth: '202301',
+        strikePrice: 57.5,
+        type: '買權',
+        open: null,
+        high: null,
+        low: null,
+        close: null,
+        volume: 0,
+        settlementPrice: 0,
+        openInterest: 0,
+        bestBid: null,
+        bestAsk: null,
+        historicalHigh: null,
+        historicalLow: null,
+        session: '一般',
+        change: null,
+        changePercent: 0,
+      });
+    });
+
+    it('should fetch options historical data for the given date of after-hours trading', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-historical.csv') });
+
+      const data = await scraper.fetchOptionsHistorical({ date: '2023-01-30', afterhours: true });
+      const url = 'https://www.taifex.com.tw/cht/3/optDataDown';
+      const form = new URLSearchParams({
+        down_type: '1',
+        queryStartDate: '2023/01/30',
+        queryEndDate: '2023/01/30',
+        commodity_id: 'all',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBeDefined();
+      expect(data?.length).toBeGreaterThan(0);
+      expect(data?.[0]).toEqual({
+        date: '2023-01-30',
+        exchange: 'TAIFEX',
+        symbol: 'TGO',
+        contractMonth: '202302',
+        strikePrice: 5800,
+        type: '買權',
+        open: null,
+        high: null,
+        low: null,
+        close: null,
+        volume: 0,
+        settlementPrice: null,
+        openInterest: null,
+        bestBid: null,
+        bestAsk: null,
+        historicalHigh: null,
+        historicalLow: null,
+        session: '盤後',
+        change: null,
+        changePercent: 0,
+      });
+    });
+
+    it('should fetch TXO historical data for the given date of regular trading', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-historical.csv') });
+
       const data = await scraper.fetchOptionsHistorical({ date: '2023-01-30', symbol: 'TXO' });
       const url = 'https://www.taifex.com.tw/cht/3/optDataDown';
       const form = new URLSearchParams({
         down_type: '1',
         queryStartDate: '2023/01/30',
         queryEndDate: '2023/01/30',
-        commodity_id: 'TXO',
+        commodity_id: 'all',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
@@ -170,7 +320,7 @@ describe('TaifexScraper', () => {
       });
     });
 
-    it('should fetch options historical data for the given date of after-hours trading', async () => {
+    it('should fetch TXO historical data for the given date of after-hours trading', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-historical.csv') });
 
       const data = await scraper.fetchOptionsHistorical({ date: '2023-01-30', symbol: 'TXO', afterhours: true });
@@ -179,7 +329,7 @@ describe('TaifexScraper', () => {
         down_type: '1',
         queryStartDate: '2023/01/30',
         queryEndDate: '2023/01/30',
-        commodity_id: 'TXO',
+        commodity_id: 'all',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
@@ -217,7 +367,7 @@ describe('TaifexScraper', () => {
         down_type: '1',
         queryStartDate: '2023/01/01',
         queryEndDate: '2023/01/01',
-        commodity_id: 'TXO',
+        commodity_id: 'all',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBe(null);
@@ -822,7 +972,7 @@ describe('TaifexScraper', () => {
         down_type: '1',
         queryStartDate: '2023/01/30',
         queryEndDate: '2023/01/30',
-        commodity_id: 'MTX',
+        commodity_id: 'all',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
@@ -855,7 +1005,7 @@ describe('TaifexScraper', () => {
         down_type: '1',
         queryStartDate: '2023/01/01',
         queryEndDate: '2023/01/01',
-        commodity_id: 'MTX',
+        commodity_id: 'all',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBe(null);

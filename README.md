@@ -1009,7 +1009,8 @@ twstock.futopt.quote({ symbol: 'TXFA4' })
 
 * `options`: {Object}
   * `date`: {string} 日期 (`'YYYY-MM-DD'`)
-  * `symbol`: {string} 契約代號
+  * `type` (optional): {string} 類別 (`'F'`：期貨；`'O'`：選擇權)
+  * `symbol` (optional): {string} 契約代號
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
   * `date`: {string} 日期
   * `exchange`: {string} 市場別

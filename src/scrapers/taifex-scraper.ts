@@ -56,14 +56,14 @@ export class TaifexScraper extends Scraper {
     return data;
   }
 
-  async fetchFuturesHistorical(options: { date: string, symbol: string, afterhours?: boolean }) {
+  async fetchFuturesHistorical(options: { date: string, symbol?: string, afterhours?: boolean }) {
     const { date, symbol, afterhours } = options;
 
     const alias: Record<string, string> = {
-      'TXF': 'TX',  // 臺股期貨
-      'EXF': 'TE',  // 電子期貨
-      'FXF': 'TF',  // 金融期貨
-      'MXF': 'MTX', // 小型臺指期貨
+      'TX': 'TXF',  // 臺股期貨
+      'TE': 'EXF',  // 電子期貨
+      'TF': 'FXF',  // 金融期貨
+      'MTX': 'MXF', // 小型臺指期貨
     };
 
     const queryDate = DateTime.fromISO(date).toFormat('yyyy/MM/dd');
@@ -71,7 +71,7 @@ export class TaifexScraper extends Scraper {
       down_type: '1',
       queryStartDate: queryDate,
       queryEndDate: queryDate,
-      commodity_id: alias[symbol] ?? symbol,
+      commodity_id: 'all',
     });
     const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
 
@@ -87,7 +87,7 @@ export class TaifexScraper extends Scraper {
       const data: Record<string, any> = {};
       data.date = DateTime.fromFormat(date, 'yyyy/MM/dd').toISODate();
       data.exchange = Exchange.TAIFEX;
-      data.symbol = symbol;
+      data.symbol = alias[contract] ?? contract;
       data.contractMonth = contractMonth;
       data.open = numeral(values[0]).value();
       data.high = numeral(values[1]).value();
@@ -105,12 +105,12 @@ export class TaifexScraper extends Scraper {
       data.session = values[14];
       data.volumeSpread = numeral(values[15]).value();
       return data;
-    }) as Record<string, any>[];
+    }).filter(row => afterhours ? row.session === '盤後' : row.session === '一般');
 
-    return data.filter(row => afterhours ? row.session === '盤後' : row.session === '一般');
+    return symbol ? data.filter(data => data.symbol === symbol) : data;
   }
 
-  async fetchOptionsHistorical(options: { date: string, symbol: string, afterhours?: boolean }) {
+  async fetchOptionsHistorical(options: { date: string, symbol?: string, afterhours?: boolean }) {
     const { date, symbol, afterhours } = options;
 
     const queryDate = DateTime.fromISO(date).toFormat('yyyy/MM/dd');
@@ -118,7 +118,7 @@ export class TaifexScraper extends Scraper {
       down_type: '1',
       queryStartDate: queryDate,
       queryEndDate: queryDate,
-      commodity_id: symbol,
+      commodity_id: 'all',
     });
     const url = 'https://www.taifex.com.tw/cht/3/optDataDown';
 
@@ -134,7 +134,7 @@ export class TaifexScraper extends Scraper {
       const data: Record<string, any> = {};
       data.date = DateTime.fromFormat(date, 'yyyy/MM/dd').toISODate();
       data.exchange = Exchange.TAIFEX;
-      data.symbol = symbol;
+      data.symbol = contract;
       data.contractMonth = contractMonth;
       data.strikePrice = numeral(strikePrice).value();
       data.type = type;
@@ -153,9 +153,9 @@ export class TaifexScraper extends Scraper {
       data.change = numeral(values[13]).value();
       data.changePercent = (numeral(values[14]).value() as number) * 100;
       return data;
-    }) as Record<string, any>[];
+    }).filter(row => afterhours ? row.session === '盤後' : row.session === '一般');
 
-    return data.filter(row => afterhours ? row.session === '盤後' : row.session === '一般');
+    return symbol ? data.filter(data => data.symbol === symbol) : data;
   }
 
   async fetchFuturesInstitutional(options: { date: string, symbol: string }) {
