@@ -70,7 +70,7 @@ const { TwStock } = require('node-twstock');
 > 注意：過於頻繁的請求可能導致被交易所禁止訪問。預設設定為每 5 秒最多發送 3 個請求。
 
 ```js
-const twstock = new TwStock({ ttl: 5000, limit: 3  });
+const twstock = new TwStock({ ttl: 5000, limit: 3 });
 ```
 
 ### `.stocks.list([options])`
@@ -229,7 +229,7 @@ twstock.stocks.historical({ date: '2023-01-30', symbol: '2330' })
   * `symbol`: {string} 股票代號
   * `name`: {string} 股票名稱
   * `institutional`: {Object[]} 三大法人買賣金額統計，其中 `Object` 包含以下屬性：
-    * `investors`: {number} 單位名稱
+    * `investor`: {number} 單位名稱
     * `totalBuy`: {number} 買進金額
     * `totalSell`: {number} 賣出金額
     * `difference`: {number} 買賣差額
@@ -245,47 +245,47 @@ twstock.stocks.institutional({ date: '2023-01-30', symbol: '2330' })
 //   name: '台積電',
 //   institutional: [
 //     {
-//       investors: '外資及陸資(不含外資自營商)',
+//       investor: '外資及陸資(不含外資自營商)',
 //       totalBuy: 133236588,
 //       totalSell: 52595539,
 //       difference: 80641049
 //     },
 //     {
-//       investors: '外資自營商',
+//       investor: '外資自營商',
 //       totalBuy: 0,
 //       totalSell: 0,
 //       difference: 0
 //     },
 //     {
-//       investors: '外資自營商',
+//       investor: '外資自營商',
 //       totalBuy: 0,
 //       totalSell: 0,
 //       difference: 0
 //     },
 //     {
-//       investors: '投信',
+//       investor: '投信',
 //       totalBuy: 1032000,
 //       totalSell: 94327,
 //       difference: 937673
 //     },
 //     {
-//       investors: '自營商合計',
+//       investor: '自營商合計',
 //       difference: 880408
 //     },
 //     {
-//       investors: '自營商(自行買賣)',
+//       investor: '自營商(自行買賣)',
 //       totalBuy: 978000,
 //       totalSell: 537000,
 //       difference: 441000
 //     },
 //     {
-//       investors: '自營商(避險)',
+//       investor: '自營商(避險)',
 //       totalBuy: 1227511,
 //       totalSell: 788103,
 //       difference: 439408
 //     },
 //     {
-//       investors: '合計',
+//       investor: '合計',
 //       difference: 82459130
 //     }
 //   ]
@@ -798,7 +798,7 @@ twstock.market.breadth({ date: '2023-01-30', exchange: 'TWSE' })
   * `date`: {string} 日期
   * `exchange`: {string} 市場別
   * `institutional`: {Object[]} 三大法人買賣金額統計，其中 `Object` 包含以下屬性：
-    * `investors`: {number} 單位名稱
+    * `investor`: {number} 單位名稱
     * `totalBuy`: {number} 買進金額
     * `totalSell`: {number} 賣出金額
     * `difference`: {number} 買賣差額
@@ -812,37 +812,37 @@ twstock.market.institutional({ date: '2023-01-30', exchange: 'TWSE' })
 //   exchange: 'TWSE',
 //   institutional: [
 //     {
-//       investors: '自營商(自行買賣)',
+//       investor: '自營商(自行買賣)',
 //       totalBuy: 4736295878,
 //       totalSell: 1917624556,
 //       difference: 2818671322
 //     },
 //     {
-//       investors: '自營商(避險)',
+//       investor: '自營商(避險)',
 //       totalBuy: 11451095424,
 //       totalSell: 6481456459,
 //       difference: 4969638965
 //     },
 //     {
-//       investors: '投信',
+//       investor: '投信',
 //       totalBuy: 6269087553,
 //       totalSell: 3179424632,
 //       difference: 3089662921
 //     },
 //     {
-//       investors: '外資及陸資(不含外資自營商)',
+//       investor: '外資及陸資(不含外資自營商)',
 //       totalBuy: 203744063563,
 //       totalSell: 131488377272,
 //       difference: 72255686291
 //     },
 //     {
-//       investors: '外資自營商',
+//       investor: '外資自營商',
 //       totalBuy: 24864200,
 //       totalSell: 61653250,
 //       difference: -36789050
 //     },
 //     {
-//       investors: '合計',
+//       investor: '合計',
 //       totalBuy: 226200542418,
 //       totalSell: 143066882919,
 //       difference: 83133659499
@@ -1076,7 +1076,7 @@ twstock.futopt.historical({ date: '2023-01-30', symbol: 'TXF' })
   * `symbol`: {string} 契約代號
   * `name`: {string} 契約名稱
   * `institutional`: {Object[]} 三大法人交易口數、契約金額與未平倉餘額，其中 `Object` 包含以下屬性：
-    * `investors`: {number} 單位名稱
+    * `investor`: {number} 單位名稱
     * `longTradeVolume`: {number} 多方交易口數
     * `longTradeValue`: {number} 多方交易契約金額(千元)
     * `shortTradeVolume`: {number} 空方交易口數
@@ -1101,7 +1101,7 @@ twstock.futopt.institutional({ date: '2023-01-30', symbol: 'TXF' })
 //   name: '臺股期貨',
 //   institutional: [
 //     {
-//       investors: '自營商',
+//       investor: '自營商',
 //       longTradeVolume: 14205,
 //       longTradeValue: 43588157,
 //       shortTradeVolume: 17049,
@@ -1116,7 +1116,7 @@ twstock.futopt.institutional({ date: '2023-01-30', symbol: 'TXF' })
 //       netOiValue: 15528669
 //     },
 //     {
-//       investors: '投信',
+//       investor: '投信',
 //       longTradeVolume: 2237,
 //       longTradeValue: 6907887,
 //       shortTradeVolume: 449,
@@ -1131,7 +1131,7 @@ twstock.futopt.institutional({ date: '2023-01-30', symbol: 'TXF' })
 //       netOiValue: -18186706
 //     },
 //     {
-//       investors: '外資及陸資',
+//       investor: '外資及陸資',
 //       longTradeVolume: 61232,
 //       longTradeValue: 187462698,
 //       shortTradeVolume: 60146,

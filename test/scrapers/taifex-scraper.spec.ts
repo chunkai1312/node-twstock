@@ -244,7 +244,7 @@ describe('TaifexScraper', () => {
         name: '小型臺指期貨',
         institutional: [
           {
-            investors: '自營商',
+            investor: '自營商',
             longTradeVolume: 16135,
             longTradeValue: 12314862,
             shortTradeVolume: 16475,
@@ -259,7 +259,7 @@ describe('TaifexScraper', () => {
             netOiValue: 4451224,
           },
           {
-            investors: '投信',
+            investor: '投信',
             longTradeVolume: 8,
             longTradeValue: 6161,
             shortTradeVolume: 9,
@@ -274,7 +274,7 @@ describe('TaifexScraper', () => {
             netOiValue: 59510,
           },
           {
-            investors: '外資及陸資',
+            investor: '外資及陸資',
             longTradeVolume: 76626,
             longTradeValue: 58456520,
             shortTradeVolume: 71944,
@@ -328,7 +328,7 @@ describe('TaifexScraper', () => {
         institutional: [
           {
             type: 'CALL',
-            investors: '自營商',
+            investor: '自營商',
             longTradeVolume: 146455,
             longTradeValue: 790595,
             shortTradeVolume: 150228,
@@ -344,7 +344,7 @@ describe('TaifexScraper', () => {
           },
           {
             type: 'CALL',
-            investors: '投信',
+            investor: '投信',
             longTradeVolume: 0,
             longTradeValue: 0,
             shortTradeVolume: 0,
@@ -360,7 +360,7 @@ describe('TaifexScraper', () => {
           },
           {
             type: 'CALL',
-            investors: '外資及陸資',
+            investor: '外資及陸資',
             longTradeVolume: 58909,
             longTradeValue: 277781,
             shortTradeVolume: 49665,
@@ -376,7 +376,7 @@ describe('TaifexScraper', () => {
           },
           {
             type: 'PUT',
-            investors: '自營商',
+            investor: '自營商',
             longTradeVolume: 118685,
             longTradeValue: 324370,
             shortTradeVolume: 152013,
@@ -392,7 +392,7 @@ describe('TaifexScraper', () => {
           },
           {
             type: 'PUT',
-            investors: '投信',
+            investor: '投信',
             longTradeVolume: 141,
             longTradeValue: 1,
             shortTradeVolume: 111,
@@ -408,7 +408,7 @@ describe('TaifexScraper', () => {
           },
           {
             type: 'PUT',
-            investors: '外資及陸資',
+            investor: '外資及陸資',
             longTradeVolume: 29719,
             longTradeValue: 88059,
             shortTradeVolume: 27070,

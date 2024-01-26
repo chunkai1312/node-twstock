@@ -180,7 +180,7 @@ export class TaifexScraper extends Scraper {
     data.symbol = symbol;
     data.name = rows[0][1];
     data.institutional = rows.map(row => ({
-      investors: row[2],
+      investor: row[2],
       longTradeVolume: numeral(row[3]).value(),
       longTradeValue: numeral(row[4]).value(),
       shortTradeVolume: numeral(row[5]).value(),
@@ -220,7 +220,7 @@ export class TaifexScraper extends Scraper {
     data.name = rows[0][1];
     data.institutional = rows.map(row => ({
       type: row[2],
-      investors: row[3],
+      investor: row[3],
       longTradeVolume: numeral(row[4]).value(),
       longTradeValue: numeral(row[5]).value(),
       shortTradeVolume: numeral(row[6]).value(),

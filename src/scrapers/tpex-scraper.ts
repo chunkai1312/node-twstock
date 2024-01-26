@@ -67,49 +67,49 @@ export class TpexScraper extends Scraper {
       data.name = name.trim();
       data.institutional = [
         {
-          investors: '外資及陸資(不含外資自營商)',
+          investor: '外資及陸資(不含外資自營商)',
           totalBuy: numeral(values[0]).value(),
           totalSell: numeral(values[1]).value(),
           difference: numeral(values[2]).value(),
         },
         {
-          investors: '外資自營商',
+          investor: '外資自營商',
           totalBuy: numeral(values[3]).value(),
           totalSell: numeral(values[4]).value(),
           difference: numeral(values[5]).value(),
         },
         {
-          investors: '外資及陸資合計',
+          investor: '外資及陸資合計',
           totalBuy: numeral(values[6]).value(),
           totalSell: numeral(values[7]).value(),
           difference: numeral(values[8]).value(),
         },
         {
-          investors: '投信',
+          investor: '投信',
           totalBuy: numeral(values[9]).value(),
           totalSell: numeral(values[10]).value(),
           difference: numeral(values[11]).value(),
         },
         {
-          investors: '自營商(自行買賣)',
+          investor: '自營商(自行買賣)',
           totalBuy: numeral(values[12]).value(),
           totalSell: numeral(values[13]).value(),
           difference: numeral(values[14]).value(),
         },
         {
-          investors: '自營商(避險)',
+          investor: '自營商(避險)',
           totalBuy: numeral(values[15]).value(),
           totalSell: numeral(values[16]).value(),
           difference: numeral(values[17]).value(),
         },
         {
-          investors: '自營商合計',
+          investor: '自營商合計',
           totalBuy: numeral(values[18]).value(),
           totalSell: numeral(values[19]).value(),
           difference: numeral(values[20]).value(),
         },
         {
-          investors: '合計',
+          investor: '合計',
           difference: numeral(values[21]).value(),
         },
       ];
@@ -444,7 +444,7 @@ export class TpexScraper extends Scraper {
     data.date = date;
     data.exchange = Exchange.TPEx,
     data.institutional = json.aaData.map((row: string[]) => ({
-      investors: row[0].trim(),
+      investor: row[0].trim(),
       totalBuy: numeral(row[1]).value(),
       totalSell: numeral(row[2]).value(),
       difference: numeral(row[3]).value(),
