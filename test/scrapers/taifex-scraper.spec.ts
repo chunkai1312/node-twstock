@@ -176,7 +176,7 @@ describe('TaifexScraper', () => {
         low: 14828,
         close: 15048,
         change: 123,
-        changePercent: 0.8199999999999998,
+        changePercent: 0.82,
         volume: 31299,
         settlementPrice: null,
         openInterest: null,
@@ -240,7 +240,7 @@ describe('TaifexScraper', () => {
         historicalLow: null,
         session: '一般',
         change: null,
-        changePercent: 0,
+        changePercent: null,
       });
     });
 
@@ -278,7 +278,7 @@ describe('TaifexScraper', () => {
         historicalLow: null,
         session: '盤後',
         change: null,
-        changePercent: 0,
+        changePercent: null,
       });
     });
 
@@ -316,7 +316,7 @@ describe('TaifexScraper', () => {
         historicalLow: null,
         session: '一般',
         change: null,
-        changePercent: 0,
+        changePercent: null,
       });
     });
 
@@ -354,7 +354,7 @@ describe('TaifexScraper', () => {
         historicalLow: null,
         session: '盤後',
         change: null,
-        changePercent: 0,
+        changePercent: null,
       });
     });
 

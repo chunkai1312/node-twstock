@@ -94,7 +94,7 @@ export class TaifexScraper extends Scraper {
       data.low = numeral(values[2]).value();
       data.close = numeral(values[3]).value();
       data.change = numeral(values[4]).value();
-      data.changePercent = (numeral(values[5]).value() as number) * 100;
+      data.changePercent = numeral(values[5].replace('%', '')).value();
       data.volume = numeral(values[6]).value();
       data.settlementPrice = numeral(values[7]).value();
       data.openInterest = numeral(values[8]).value();
@@ -151,7 +151,7 @@ export class TaifexScraper extends Scraper {
       data.historicalLow = numeral(values[10]).value();
       data.session = values[12];
       data.change = numeral(values[13]).value();
-      data.changePercent = (numeral(values[14]).value() as number) * 100;
+      data.changePercent = numeral(values[14].replace('%', '')).value();
       return data;
     }).filter(row => afterhours ? row.session === '盤後' : row.session === '一般');
 
