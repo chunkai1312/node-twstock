@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/chunkai1312/node-twstock/compare/v1.1.0...v1.1.1) (2024-01-30)
+
+
+### Bug Fixes
+
+* correct change percent value for futures & options historical data ([232a2be](https://github.com/chunkai1312/node-twstock/commit/232a2beb284d317dec698a7f123c67eeb835c4d2))
+
 # [1.1.0](https://github.com/chunkai1312/node-twstock/compare/v1.0.0...v1.1.0) (2024-01-26)
 
 
