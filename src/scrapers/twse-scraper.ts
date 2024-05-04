@@ -246,6 +246,185 @@ export class TwseScraper extends Scraper {
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
+  async fetchStocksDividends(options: { startDate: string; endDate: string, symbol?: string }) {
+    const { startDate, endDate, symbol } = options;
+    const query = new URLSearchParams({
+      startDate: DateTime.fromISO(startDate).toFormat('yyyyMMdd'),
+      endDate: DateTime.fromISO(endDate).toFormat('yyyyMMdd'),
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/exRight/TWT49U?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.stat === 'OK' && response.data;
+    if (!json) return [];
+
+    const data = await Promise.all(json.data.map(async (row: string[]) => {
+      const [date, symbol, name, ...values] = row;
+      const formattedDate = date.replace(
+        /(\d+)年(\d+)月(\d+)日/,
+        (_, year, month, day) => {
+          const westernYear = parseInt(year) + 1911;
+          return `${westernYear}-${month.padStart(2, '0')}-${day.padStart(
+            2,
+            '0'
+          )}`;
+        }
+      );
+
+      const data: Record<string, any> = {};
+      data.date = formattedDate;
+      data.exchange = Exchange.TWSE;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.previousClose = numeral(values[0]).value();
+      data.referencePrice = numeral(values[1]).value();
+      data.dividend = numeral(values[2]).value();
+      data.dividendType = values[3].trim();
+      data.limitUpPrice = numeral(values[4]).value();
+      data.limitDownPrice = numeral(values[5]).value();
+      data.openingReferencePrice = numeral(values[6]).value();
+      data.exdividendReferencePrice = numeral(values[7]).value();
+
+      const [_, detailDate] = values[8].split(',');
+      const detail = await this.fetchStocksDividendsDetail({symbol, date: detailDate})
+
+      return {
+        ...data,
+        ...detail,
+      };
+    }) as Record<string, any>[]);
+
+    return symbol ? data.filter((data) => data.symbol === symbol) : data;
+  }
+
+  async fetchStocksDividendsDetail(options: { date: string, symbol: string }) {
+    const { date, symbol } = options;
+
+    const query = new URLSearchParams({
+      STK_NO: symbol,
+      T1: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/exRight/TWT49UDetail?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.stat === 'ok' && response.data;
+    if (!json) return null;
+
+    const [_, name, ...values] = json.data[0];
+
+    const data: Record<string, any> = {};
+    data.symbol = symbol;
+    data.name = name.trim();
+    data.cashDividend = values[0] && parseFloat(values[0]);
+    data.stockDividendShares = values[2] && parseFloat(values[2]);
+
+    return data;
+  }
+
+  async fetchStocksCapitalReduction(options: { startDate: string; endDate: string, symbol?: string }) {
+    const { startDate, endDate, symbol } = options;
+    const query = new URLSearchParams({
+      startDate: DateTime.fromISO(startDate).toFormat('yyyyMMdd'),
+      endDate: DateTime.fromISO(endDate).toFormat('yyyyMMdd'),
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/reducation/TWTAUU?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.stat === 'OK' && response.data;
+    if (!json) return [];
+
+    const data = await Promise.all(json.data.map(async (row: string[]) => {
+      const [date, symbol, name, ...values] = row;
+      const [year, month, day] = date.split('/');
+
+      const data: Record<string, any> = {};
+      data.resumeDate = `${+year + 1911}-${month}-${day}`;
+      data.exchange = Exchange.TWSE;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.previousClose = numeral(values[0]).value();
+      data.referencePrice = numeral(values[1]).value();
+      data.limitUpPrice = numeral(values[2]).value();
+      data.limitDownPrice = numeral(values[3]).value();
+      data.openingReferencePrice = numeral(values[4]).value();
+      data.exrightReferencePrice = numeral(values[5]).value();
+      data.reason = values[6].trim();
+
+      const [_, detailDate] = values[7].split(',');
+      const detail = await this.fetchStockCapitalReductionDetail({symbol, date: detailDate})
+
+      return {
+        ...data,
+        ...detail,
+      };
+    }) as Record<string, any>[]);
+
+    return symbol ? data.filter((data) => data.symbol === symbol) : data;
+  }
+
+  async fetchStockCapitalReductionDetail(options: {symbol: string, date: string}) {
+    const { date, symbol } = options;
+    const query = new URLSearchParams({
+      STK_NO: symbol,
+      FILE_DATE: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/reducation/TWTAVUDetail?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.stat === 'OK' && response.data;
+    if (!json) return null;
+
+    const [_, name, ...values] = json.data[0];
+    const [year, month, day] = values[0].split('/');
+
+    const data: Record<string, any> = {};
+
+    data.symbol = symbol;
+    data.name = name.trim();
+    data.haltDate = `${+year + 1911}-${month}-${day}`;
+    data.sharesPerThousand = parseFloat(values[1]);
+    data.refundPerShare = parseFloat(values[2]);
+
+    return data;
+  }
+
+  async fetchStocksSplits(options: { startDate: string; endDate: string, symbol?: string }) {
+    const { startDate, endDate, symbol } = options;
+    const query = new URLSearchParams({
+      strDate: DateTime.fromISO(startDate).toFormat('yyyyMMdd'),
+      endDate: DateTime.fromISO(endDate).toFormat('yyyyMMdd'),
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/pcversion/zh/exchangeReport/TWTB8U?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.stat === 'OK' && response.data;
+    /* istanbul ignore next */ if (!json) return null;
+
+    const data = json.data.map((row: string[]) => {
+      const [date, symbol, name, ...values] = row;
+      const [year, month, day] = date.split('/');
+
+      const data: Record<string, any> = {};
+      data.resumeDate = `${+year + 1911}-${month}-${day}`;
+      data.exchange = Exchange.TWSE;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.previousClose = numeral(values[0]).value();
+      data.referencePrice = numeral(values[1]).value();
+      data.limitUpPrice = numeral(values[2]).value();
+      data.limitDownPrice = numeral(values[3]).value();
+      data.openingReferencePrice = numeral(values[4]).value();
+      return data;
+    }) as Record<string, any>[];
+
+    return symbol ? data.filter((data) => data.symbol === symbol) : data;
+  }
+
   async fetchIndicesHistorical(options: { date: string, symbol?: string }) {
     const { date, symbol } = options;
     const query = new URLSearchParams({

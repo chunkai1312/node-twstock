@@ -1,5 +1,6 @@
 import mockAxios from 'jest-mock-axios';
 import { TwseScraper } from '../../src/scrapers/twse-scraper';
+import { options } from 'numeral';
 
 describe('TwseScraper', () => {
   let scraper: TwseScraper;
@@ -289,7 +290,7 @@ describe('TwseScraper', () => {
   });
 
   describe('.fetchStocksValues()', () => {
-    it('should fetch stocks values for the given date', async () => {;
+    it('should fetch stocks values for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-values.json') });
 
       const data = await scraper.fetchStocksValues({ date: '2023-01-30' });
@@ -300,7 +301,7 @@ describe('TwseScraper', () => {
       expect(data?.length).toBeGreaterThan(0);
     });
 
-    it('should fetch stocks values for the specified stock on the given date', async () => {;
+    it('should fetch stocks values for the specified stock on the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-values.json') });
 
       const data = await scraper.fetchStocksValues({ date: '2023-01-30', symbol: '2330' });
@@ -328,6 +329,386 @@ describe('TwseScraper', () => {
         'https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?date=20230101&selectType=ALL&response=json',
       );
       expect(data).toBe(null);
+    });
+  });
+
+  describe('.fetchStocksDividends()', () => {
+    it('should fetch stocks rights and dividend for the given startDate and endDate', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-dividends.json') });
+
+      scraper.fetchStocksDividendsDetail = jest
+        .fn()
+        .mockReturnValueOnce({
+          cashDividend: 0.75,
+          stockDividendShares: 0,
+          symbol: '00690',
+          name: '兆豐藍籌30',
+        })
+        .mockReturnValueOnce({
+          cashDividend: 0.46,
+          stockDividendShares: 0,
+          symbol: '00913',
+          name: '兆豐台灣晶圓製造',
+        });
+
+      const data = await scraper.fetchStocksDividends({ startDate: '2024-03-04', endDate: '2024-03-05' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/exRight/TWT49U?startDate=20240304&endDate=20240305&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([
+        {
+          date: '2024-03-04',
+          exchange: 'TWSE',
+          symbol: '00690',
+          name: '兆豐藍籌30',
+          previousClose: 31.35,
+          referencePrice: 30.6,
+          dividend: 0.75,
+          dividendType: '息',
+          limitUpPrice: 33.66,
+          limitDownPrice: 27.54,
+          openingReferencePrice: 30.6,
+          exdividendReferencePrice: 30.6,
+          cashDividend: 0.75,
+          stockDividendShares: 0,
+        },
+        {
+          date: '2024-03-04',
+          exchange: 'TWSE',
+          symbol: '00913',
+          name: '兆豐台灣晶圓製造',
+          previousClose: 19.42,
+          referencePrice: 18.96,
+          dividend: 0.46,
+          dividendType: '息',
+          limitUpPrice: 20.85,
+          limitDownPrice: 17.07,
+          openingReferencePrice: 18.96,
+          exdividendReferencePrice: 18.96,
+          cashDividend: 0.46,
+          stockDividendShares: 0,
+        },
+      ]);
+    });
+    it('should fetch stocks rights and dividend for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-dividends.json') });
+
+      scraper.fetchStocksDividendsDetail = jest
+        .fn()
+        .mockReturnValueOnce({
+          cashDividend: 0.75,
+          stockDividendShares: 0,
+          symbol: '00690',
+          name: '兆豐藍籌30',
+        })
+        .mockReturnValueOnce({
+          cashDividend: 0.46,
+          stockDividendShares: 0,
+          symbol: '00913',
+          name: '兆豐台灣晶圓製造',
+        });
+
+      const data = await scraper.fetchStocksDividends({ startDate: '2024-03-04', endDate: '2024-03-05', symbol: '00913' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/exRight/TWT49U?startDate=20240304&endDate=20240305&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        date: '2024-03-04',
+        exchange: 'TWSE',
+        symbol: '00913',
+        name: '兆豐台灣晶圓製造',
+        previousClose: 19.42,
+        referencePrice: 18.96,
+        dividend: 0.46,
+        dividendType: '息',
+        limitUpPrice: 20.85,
+        limitDownPrice: 17.07,
+        openingReferencePrice: 18.96,
+        exdividendReferencePrice: 18.96,
+        cashDividend: 0.46,
+        stockDividendShares: 0,
+      }]);
+    });
+
+    it('should return empty array when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-dividends-no-data.json') });
+
+      const data = await scraper.fetchStocksDividends({ startDate: '2024-02-08', endDate: '2024-02-14' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/exRight/TWT49U?startDate=20240208&endDate=20240214&response=json',
+      );
+      expect(data).toEqual([]);
+    });
+  });
+
+  describe('.fetchStocksDividendsDetail()', () => {
+    it('should fetch capital reducation detail for the given date and symbol', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-dividends-detail.json') });
+
+      const data = await scraper.fetchStocksDividendsDetail({ date: '2024-03-04', symbol: '00913' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/exRight/TWT49UDetail?STK_NO=00913&T1=20240304&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual({
+        cashDividend: 0.46,
+        stockDividendShares: 0,
+        name: '兆豐台灣晶圓製造',
+        symbol: '00913',
+      });
+    });
+
+    it('should return null when no data or symbol is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-dividends-detail-no-data.json') });
+
+      const data = await scraper.fetchStocksDividendsDetail({ date: '2023-01-01', symbol: '4444' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/exRight/TWT49UDetail?STK_NO=4444&T1=20230101&response=json',
+      );
+      expect(data).toBe(null);
+    });
+  });
+
+  describe('.fetchStocksCapitalReduction()', () => {
+    it('should fetch stocks capital reducation for the given startDate and endDate', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-capital-reduction.json') });
+
+      scraper.fetchStockCapitalReductionDetail = jest
+        .fn()
+        .mockReturnValueOnce({
+          symbol: '3432',
+          name: '台端',
+          haltDate: '2024-01-11',
+          sharesPerThousand: 540.65419,
+          refundPerShare: 0,
+        })
+        .mockReturnValueOnce({
+          symbol: '2911',
+          name: '麗嬰房',
+          haltDate: '2024-02-29',
+          sharesPerThousand: 720,
+          refundPerShare: 0,
+        })
+        .mockReturnValueOnce({
+          symbol: '3308',
+          name: '聯德',
+          haltDate: '2024-03-21',
+          sharesPerThousand: 855.66635,
+          refundPerShare: 1.443336,
+        });
+
+      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-06-28' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/reducation/TWTAUU?startDate=20240101&endDate=20240628&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([
+        {
+          resumeDate: '2024-01-22',
+          exchange: 'TWSE',
+          symbol: '3432',
+          name: '台端',
+          previousClose: 10.65,
+          referencePrice: 19.69,
+          limitUpPrice: 21.65,
+          limitDownPrice: 17.75,
+          openingReferencePrice: 19.7,
+          exrightReferencePrice: null,
+          reason: '彌補虧損',
+          haltDate: '2024-01-11',
+          sharesPerThousand: 540.65419,
+          refundPerShare: 0,
+        },
+        {
+          resumeDate: '2024-03-11',
+          exchange: 'TWSE',
+          symbol: '2911',
+          name: '麗嬰房',
+          previousClose: 6.23,
+          referencePrice: 8.65,
+          limitUpPrice: 9.51,
+          limitDownPrice: 7.79,
+          openingReferencePrice: 8.65,
+          exrightReferencePrice: null,
+          reason: '彌補虧損',
+          haltDate: '2024-02-29',
+          sharesPerThousand: 720,
+          refundPerShare: 0,
+        },
+        {
+          resumeDate: '2024-04-01',
+          exchange: 'TWSE',
+          symbol: '3308',
+          name: '聯德',
+          previousClose: 28.2,
+          referencePrice: 31.26,
+          limitUpPrice: 34.35,
+          limitDownPrice: 28.15,
+          openingReferencePrice: 31.25,
+          exrightReferencePrice: null,
+          reason: '退還股款',
+          haltDate: '2024-03-21',
+          sharesPerThousand: 855.66635,
+          refundPerShare: 1.443336,
+        },
+      ]);
+    });
+    it('should fetch stocks capital reducation for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-capital-reduction.json') });
+      const args = { startDate: '2024-01-01', endDate: '2024-06-28', symbol: '2911' }
+
+      scraper.fetchStockCapitalReductionDetail = jest
+        .fn()
+        .mockReturnValueOnce({
+          symbol: '3432',
+          name: '台端',
+          haltDate: '2024-01-11',
+          sharesPerThousand: 540.65419,
+          refundPerShare: 0,
+        })
+        .mockReturnValueOnce({
+          symbol: '2911',
+          name: '麗嬰房',
+          haltDate: '2024-02-29',
+          sharesPerThousand: 720,
+          refundPerShare: 0,
+        })
+        .mockReturnValueOnce({
+          symbol: '3308',
+          name: '聯德',
+          haltDate: '2024-03-21',
+          sharesPerThousand: 855.66635,
+          refundPerShare: 1.443336,
+        });
+
+      const data = await scraper.fetchStocksCapitalReduction(args);
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/reducation/TWTAUU?startDate=20240101&endDate=20240628&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        resumeDate: '2024-03-11',
+        exchange: 'TWSE',
+        symbol: '2911',
+        name: '麗嬰房',
+        previousClose: 6.23,
+        referencePrice: 8.65,
+        limitUpPrice: 9.51,
+        limitDownPrice: 7.79,
+        openingReferencePrice: 8.65,
+        exrightReferencePrice: null,
+        reason: '彌補虧損',
+        haltDate: '2024-02-29',
+        sharesPerThousand: 720,
+        refundPerShare: 0,
+      }]);
+    });
+
+    it('should return empty array when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-capital-reduction-no-data.json') });
+
+      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/reducation/TWTAUU?startDate=20240101&endDate=20240101&response=json',
+      );
+      expect(data).toEqual([]);
+    });
+  });
+
+  describe('.fetchStockCapitalReductionDetail()', () => {
+    it('should fetch capital reducation detail for the given date and symbol', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-capital-reduction-detail.json') });
+
+      const data = await scraper.fetchStockCapitalReductionDetail({ date: '2024-02-27', symbol: '2911' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/reducation/TWTAVUDetail?STK_NO=2911&FILE_DATE=20240227&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual({
+        sharesPerThousand: 720,
+        refundPerShare: 0,
+        name: '麗嬰房',
+        haltDate: '2024-02-29',
+        symbol: '2911',
+      });
+    });
+
+    it('should return null when no data or symbol is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-market-breadth-no-data.json') });
+
+      const data = await scraper.fetchStockCapitalReductionDetail({ date: '2023-01-01', symbol: '4444' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/reducation/TWTAVUDetail?STK_NO=4444&FILE_DATE=20230101&response=json',
+      );
+      expect(data).toBe(null);
+    });
+  });
+
+  describe('.fetchStocksSplits()', () => {
+    it('should fetch stocks splits for the given startDate and endDate', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-splits.json') });
+
+      const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2024-05-03' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/pcversion/zh/exchangeReport/TWTB8U?strDate=20210101&endDate=20240503&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([
+        {
+          resumeDate: '2021-10-18',
+          exchange: 'TWSE',
+          symbol: '6531',
+          name: '愛普',
+          previousClose: 750,
+          referencePrice: 375,
+          limitUpPrice: 412.5,
+          limitDownPrice: 337.5,
+          openingReferencePrice: 375,
+        },
+        {
+          resumeDate: '2022-07-13',
+          exchange: 'TWSE',
+          symbol: '6415',
+          name: '矽力-KY',
+          previousClose: 2485,
+          referencePrice: 621.25,
+          limitUpPrice: 683,
+          limitDownPrice: 560,
+          openingReferencePrice: 621,
+        },
+      ]);
+    });
+    it('should fetch stocks splits for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-splits.json') });
+
+      const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2024-05-03', symbol: '6415' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/pcversion/zh/exchangeReport/TWTB8U?strDate=20210101&endDate=20240503&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        resumeDate: '2022-07-13',
+        exchange: 'TWSE',
+        symbol: '6415',
+        name: '矽力-KY',
+        previousClose: 2485,
+        referencePrice: 621.25,
+        limitUpPrice: 683,
+        limitDownPrice: 560,
+        openingReferencePrice: 621,
+      }]);
+    });
+
+    it('should return empty array when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-splits-no-data.json') });
+
+      const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2021-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/pcversion/zh/exchangeReport/TWTB8U?strDate=20210101&endDate=20210101&response=json',
+      );
+      expect(data).toEqual([]);
     });
   });
 

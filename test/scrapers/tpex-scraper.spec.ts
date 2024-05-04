@@ -346,6 +346,272 @@ describe('TpexScraper', () => {
     });
   });
 
+  describe('.fetchStocksDividends()', () => {
+    it('should fetch stocks rights and dividend for the given startDate and endDate', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-dividends.json') });
+
+      const data = await scraper.fetchStocksDividends({ startDate: '2024-03-22', endDate: '2024-03-23' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/exright/dailyquo/exDailyQ_result.php?d=113%2F03%2F22&ed=113%2F03%2F23&o=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([
+        {
+          date: '2024-03-22',
+          exchange: 'TPEx',
+          symbol: '2065',
+          name: '世豐',
+          previousClose: 65.7,
+          referencePrice: 62.84,
+          dividend: 2.862035,
+          dividendType: '息',
+          limitUpPrice: 69.1,
+          limitDownPrice: 56.6,
+          openingReferencePrice: 62.8,
+          exdividendReferencePrice: 62.84,
+          cashDividend: 2.86203464,
+          stockDividendShares: 0,
+        },
+        {
+          date: '2024-03-22',
+          exchange: 'TPEx',
+          symbol: '5478',
+          name: '智冠',
+          previousClose: 166.5,
+          referencePrice: 157.5,
+          dividend: 9,
+          dividendType: '息',
+          limitUpPrice: 173,
+          limitDownPrice: 142,
+          openingReferencePrice: 157.5,
+          exdividendReferencePrice: 157.5,
+          cashDividend: 9,
+          stockDividendShares: 0,
+        },
+        {
+          date: '2024-03-22',
+          exchange: 'TPEx',
+          symbol: '6895',
+          name: '宏碩系統',
+          previousClose: 103.5,
+          referencePrice: 101.3,
+          dividend: 2.2,
+          dividendType: '息',
+          limitUpPrice: 111,
+          limitDownPrice: 91.2,
+          openingReferencePrice: 101.5,
+          exdividendReferencePrice: 101.3,
+          cashDividend: 2.2,
+          stockDividendShares: 0,
+        },
+      ]);
+    });
+    it('should fetch stocks rights and dividend for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-dividends.json') });
+
+      const data = await scraper.fetchStocksDividends({ startDate: '2024-03-22', endDate: '2024-03-23', symbol: '5478' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/exright/dailyquo/exDailyQ_result.php?d=113%2F03%2F22&ed=113%2F03%2F23&o=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        date: '2024-03-22',
+        exchange: 'TPEx',
+        symbol: '5478',
+        name: '智冠',
+        previousClose: 166.5,
+        referencePrice: 157.5,
+        dividend: 9,
+        dividendType: '息',
+        limitUpPrice: 173,
+        limitDownPrice: 142,
+        openingReferencePrice: 157.5,
+        exdividendReferencePrice: 157.5,
+        cashDividend: 9,
+        stockDividendShares: 0,
+      }]);
+    });
+
+    it('should return empty array when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-dividends-no-data.json') });
+
+      const data = await scraper.fetchStocksDividends({ startDate: '2024-02-08', endDate: '2024-02-14' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/exright/dailyquo/exDailyQ_result.php?d=113%2F02%2F08&ed=113%2F02%2F14&o=json',
+      );
+      expect(data).toEqual([]);
+    });
+  });
+
+  describe('.fetchStocksCapitalReduction()', () => {
+    it('should fetch stocks capital reducation for the given startDate and endDate', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reduction.json') });
+
+      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-06-28' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/exright/revivt/revivt_result.php?d=113%2F01%2F01&ed=113%2F06%2F28&o=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([
+        {
+          resumeDate: '2024-02-05',
+          exchange: 'TPEx',
+          symbol: '3064',
+          name: '泰偉',
+          previousClose: 10.65,
+          referencePrice: 35.5,
+          limitUpPrice: 39.05,
+          limitDownPrice: 31.95,
+          openingReferencePrice: 35.5,
+          exrightReferencePrice: 0,
+          reason: '彌補虧損',
+          haltDate: '2024-01-25',
+          sharesPerThousand: 300,
+          refundPerShare: 0,
+        },
+        {
+          resumeDate: '2024-02-21',
+          exchange: 'TPEx',
+          symbol: '3191',
+          name: '和進',
+          previousClose: 10.45,
+          referencePrice: 20.9,
+          limitUpPrice: 22.95,
+          limitDownPrice: 18.85,
+          openingReferencePrice: 20.9,
+          exrightReferencePrice: 0,
+          reason: '彌補虧損',
+          haltDate: '2024-02-05',
+          sharesPerThousand: 500,
+          refundPerShare: 0,
+        },
+      ]);
+    });
+    it('should fetch stocks capital reducation for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reduction.json') });
+
+      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-06-28', symbol: '3064' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/exright/revivt/revivt_result.php?d=113%2F01%2F01&ed=113%2F06%2F28&o=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        resumeDate: '2024-02-05',
+        exchange: 'TPEx',
+        symbol: '3064',
+        name: '泰偉',
+        previousClose: 10.65,
+        referencePrice: 35.5,
+        limitUpPrice: 39.05,
+        limitDownPrice: 31.95,
+        openingReferencePrice: 35.5,
+        exrightReferencePrice: 0,
+        reason: '彌補虧損',
+        haltDate: '2024-01-25',
+        sharesPerThousand: 300,
+        refundPerShare: 0,
+      }]);
+    });
+
+    it('should return empty array when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reduction-no-data.json') });
+
+      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/exright/revivt/revivt_result.php?d=113%2F01%2F01&ed=113%2F01%2F01&o=json',
+      );
+      expect(data).toEqual([]);
+    });
+  });
+
+  describe('.fetchStocksSplits()', () => {
+    it('should fetch stocks splits for the given startDate and endDate', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-splits.json') });
+
+      const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2024-05-03' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/bulletin/parvaluechg/rslt_result.php?d=110%2F01%2F01&ed=113%2F05%2F03&o=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([
+        {
+          resumeDate: '2022-08-29',
+          exchange: 'TPEx',
+          symbol: '6613',
+          name: '朋億*',
+          previousClose: 169,
+          referencePrice: 84.5,
+          limitUpPrice: 92.9,
+          limitDownPrice: 76.1,
+          openingReferencePrice: 84.5,
+        },
+        {
+          resumeDate: '2022-09-05',
+          exchange: 'TPEx',
+          symbol: '6548',
+          name: '長科*',
+          previousClose: 90.6,
+          referencePrice: 36.24,
+          limitUpPrice: 39.85,
+          limitDownPrice: 32.65,
+          openingReferencePrice: 36.25,
+        },
+        {
+          resumeDate: '2022-09-19',
+          exchange: 'TPEx',
+          symbol: '5536',
+          name: '聖暉*',
+          previousClose: 206,
+          referencePrice: 103,
+          limitUpPrice: 113,
+          limitDownPrice: 92.7,
+          openingReferencePrice: 103,
+        },
+        {
+          resumeDate: '2022-12-12',
+          exchange: 'TPEx',
+          symbol: '3093',
+          name: '港建*',
+          previousClose: 109.5,
+          referencePrice: 27.38,
+          limitUpPrice: 30.1,
+          limitDownPrice: 24.65,
+          openingReferencePrice: 27.4,
+        },
+      ]);
+    });
+    it('should fetch stocks splits for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-splits.json') });
+
+      const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2024-05-03', symbol: '6613' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/bulletin/parvaluechg/rslt_result.php?d=110%2F01%2F01&ed=113%2F05%2F03&o=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        resumeDate: '2022-08-29',
+        exchange: 'TPEx',
+        symbol: '6613',
+        name: '朋億*',
+        previousClose: 169,
+        referencePrice: 84.5,
+        limitUpPrice: 92.9,
+        limitDownPrice: 76.1,
+        openingReferencePrice: 84.5,
+      }]);
+    });
+
+    it('should return empty array when no data is available', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-splits-no-data.json') });
+
+      const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2021-01-01' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/bulletin/parvaluechg/rslt_result.php?d=110%2F01%2F01&ed=110%2F01%2F01&o=json',
+      );
+      expect(data).toEqual([]);
+    });
+  });
+
   describe('.fetchIndicesHistorical()', () => {
     it('should fetch indices historical data for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tpex-indices-historical.html').toString() });

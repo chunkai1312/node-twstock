@@ -257,6 +257,84 @@ describe('TwStock', () => {
       });
     });
 
+    describe('.dividends()', () => {
+      it('should fetch TWSE listed stocks dividends', async () => {
+        await twstock.stocks.dividends({ startDate: '2023-01-30', endDate: '2023-01-30', exchange: 'TWSE' });
+        expect(TwseScraper.prototype.fetchStocksDividends).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30' });
+      });
+
+      it('should fetch TWSE listed stocks dividends for the symbol', async () => {
+        await twstock.stocks.dividends({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '2330' });
+        expect(TwseScraper.prototype.fetchStocksDividends).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '2330' });
+      });
+
+      it('should fetch TPEx listed stocks dividends', async () => {
+        await twstock.stocks.dividends({ startDate: '2023-01-30', endDate: '2023-01-30', exchange: 'TPEx' });
+        expect(TpexScraper.prototype.fetchStocksDividends).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30' });
+      });
+
+      it('should fetch TPEx listed stocks dividends for the symbol', async () => {
+        await twstock.stocks.dividends({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '6488' });
+        expect(TpexScraper.prototype.fetchStocksDividends).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '6488' });
+      });
+
+      it('should throw an error if the symbol is not found', async () => {
+        await expect(() => twstock.stocks.dividends({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+    });
+
+    describe('.capitalReduction()', () => {
+      it('should fetch TWSE listed stocks capital reduction', async () => {
+        await twstock.stocks.capitalReduction({ startDate: '2023-01-30', endDate: '2023-01-30', exchange: 'TWSE' });
+        expect(TwseScraper.prototype.fetchStocksCapitalReduction).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30' });
+      });
+
+      it('should fetch TWSE listed stocks capital reduction for the symbol', async () => {
+        await twstock.stocks.capitalReduction({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '2330' });
+        expect(TwseScraper.prototype.fetchStocksCapitalReduction).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '2330' });
+      });
+
+      it('should fetch TPEx listed stocks capital reduction', async () => {
+        await twstock.stocks.capitalReduction({ startDate: '2023-01-30', endDate: '2023-01-30', exchange: 'TPEx' });
+        expect(TpexScraper.prototype.fetchStocksCapitalReduction).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30' });
+      });
+
+      it('should fetch TPEx listed stocks capital reduction for the symbol', async () => {
+        await twstock.stocks.capitalReduction({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '6488' });
+        expect(TpexScraper.prototype.fetchStocksCapitalReduction).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '6488' });
+      });
+
+      it('should throw an error if the symbol is not found', async () => {
+        await expect(() => twstock.stocks.capitalReduction({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+    });
+
+    describe('.splits()', () => {
+      it('should fetch TWSE listed stocks change of par value', async () => {
+        await twstock.stocks.splits({ startDate: '2023-01-30', endDate: '2023-01-30', exchange: 'TWSE' });
+        expect(TwseScraper.prototype.fetchStocksSplits).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30' });
+      });
+
+      it('should fetch TWSE listed stocks change of par value for the symbol', async () => {
+        await twstock.stocks.splits({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '2330' });
+        expect(TwseScraper.prototype.fetchStocksSplits).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '2330' });
+      });
+
+      it('should fetch TPEx listed stocks change of par value', async () => {
+        await twstock.stocks.splits({ startDate: '2023-01-30', endDate: '2023-01-30', exchange: 'TPEx' });
+        expect(TpexScraper.prototype.fetchStocksSplits).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30' });
+      });
+
+      it('should fetch TPEx listed stocks change of par value for the symbol', async () => {
+        await twstock.stocks.splits({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '6488' });
+        expect(TpexScraper.prototype.fetchStocksSplits).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '6488' });
+      });
+
+      it('should throw an error if the symbol is not found', async () => {
+        await expect(() => twstock.stocks.splits({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+    });
+
     describe('.shareholders()', () => {
       it('should fetch stocks holders for the symbol', async () => {
         await twstock.stocks.shareholders({ date: '2022-12-30', symbol: '2330' });

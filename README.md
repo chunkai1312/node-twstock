@@ -591,6 +591,143 @@ twstock.stocks.revenue({ symbol: '2330', year: 2023, month: 1 })
 // }
 ```
 
+### `.stocks.dividends(options)`
+
+取得上市(櫃)股票在特定期間的除權除息資料。
+
+* `options`: {Object}
+  * `startDate`: {string} 開始日期 (`'YYYY-MM-DD'`)
+  * `endDate`: {string} 結束日期 (`'YYYY-MM-DD'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
+  * `symbol` (optional): {string} 股票代號
+* Returns: {Promise} 成功時以 {Object[]} 履行，其中 `Object` 包含以下屬性：
+  * `date`: {string} 資料日期
+  * `exchange`: {string} 市場別
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `previousClose`: {number} 除權息前收盤價
+  * `referencePrice`: {number} 除權息參考價
+  * `dividend`: {number} 權值+息值
+  * `dividendType`: {string} 權/息
+  * `limitUpPrice`: {number} 漲停價格
+  * `limitDownPrice`: {number} 跌停價格
+  * `openingReferencePrice`: {number} 開盤競價基準
+  * `exdividendReferencePrice`: {number} 減除股利參考價
+  * `cashDividend`: {number} 現金股利
+  * `stockDividendShares`: {number} 每仟股無償配股
+
+```js
+twstock.stocks.dividends({ startDate: '2023-01-01', endDate: '2023-01-31', symbol: '0050' })
+  .then(data => console.log(data));
+// Prints:
+// [
+//   {
+//     date: '2023-01-30',
+//     exchange: 'TWSE',
+//     symbol: '0050',
+//     name: '元大台灣50',
+//     previousClose: 118.1,
+//     referencePrice: 115.5,
+//     dividend: 2.6,
+//     dividendType: '息',
+//     limitUpPrice: 127.05,
+//     limitDownPrice: 103.95,
+//     openingReferencePrice: 115.5,
+//     exdividendReferencePrice: 115.5,
+//     cashDividend: 2.6,
+//     stockDividendShares: 0
+//   }
+// ]
+```
+
+### `.stocks.capitalReduction(options)`
+
+取得上市(櫃)股票在特定期間的普通股減資資料。
+
+* `options`: {Object}
+  * `startDate`: {string} 開始日期 (`'YYYY-MM-DD'`)
+  * `endDate`: {string} 結束日期 (`'YYYY-MM-DD'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
+  * `symbol` (optional): {string} 股票代號
+* Returns: {Promise} 成功時以 {Object[]} 履行，其中 `Object` 包含以下屬性：
+  * `resumeDate`: {string} 恢復買賣日期
+  * `exchange`: {string} 市場別
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `previousClose`: {number} 停止買賣前收盤價格
+  * `referencePrice`: {number} 恢復買賣參考價
+  * `limitUpPrice`: {number} 漲停價格
+  * `limitDownPrice`: {number} 跌停價格
+  * `openingReferencePrice`: {number} 開盤競價基準
+  * `exrightReferencePrice`: {number} 除權參考價
+  * `reason`: {string} 減資原因
+  * `haltDate`: {string} 停止買賣日期
+  * `sharesPerThousand`: {number} 每壹仟股換發新股票
+  * `refundPerShare`: {number} 每股退還股款
+
+```js
+twstock.stocks.capitalReduction({ startDate: '2023-02-01', endDate: '2023-02-28', exchange: 'TWSE' })
+  .then(data => console.log(data));
+// Prints:
+// [
+//   {
+//     resumeDate: '2023-02-17',
+//     exchange: 'TWSE',
+//     symbol: '2321',
+//     name: '東訊',
+//     previousClose: 6.38,
+//     referencePrice: 19.93,
+//     limitUpPrice: 21.9,
+//     limitDownPrice: 17.95,
+//     openingReferencePrice: 19.95,
+//     exrightReferencePrice: null,
+//     reason: '彌補虧損',
+//     haltDate: '2023-02-09',
+//     sharesPerThousand: 320,
+//     refundPerShare: 0
+//   }
+// ]
+```
+
+### `.stocks.splits(options)`
+
+取得上市(櫃)股票在特定期間的變更股票面額資料。
+
+* `options`: {Object}
+  * `startDate`: {string} 開始日期 (`'YYYY-MM-DD'`)
+  * `endDate`: {string} 結束日期 (`'YYYY-MM-DD'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
+  * `symbol` (optional): {string} 股票代號
+* Returns: {Promise} 成功時以 {Object[]} 履行，其中 `Object` 包含以下屬性：
+  * `resumeDate`: {string} 恢復買賣日期
+  * `exchange`: {string} 市場別
+  * `symbol`: {string} 股票代號
+  * `name`: {string} 股票名稱
+  * `previousClose`: {number} 停止買賣前收盤價格
+  * `referencePrice`: {number} 恢復買賣參考價
+  * `limitUpPrice`: {number} 漲停價格
+  * `limitDownPrice`: {number} 跌停價格
+  * `openingReferencePrice`: {number} 開盤競價基準
+
+```js
+twstock.stocks.splits({ startDate: '2022-07-01', endDate: '2022-07-31', exchange: 'TWSE' })
+  .then(data => console.log(data));
+// Prints:
+// [
+//   {
+//     resumeDate: '2022-07-13',
+//     exchange: 'TWSE',
+//     symbol: '6415',
+//     name: '矽力-KY',
+//     previousClose: 2485,
+//     referencePrice: 621.25,
+//     limitUpPrice: 683,
+//     limitDownPrice: 560,
+//     openingReferencePrice: 621
+//   }
+// ]
+```
+
 ### `.indices.list([options])`
 
 取得上市(櫃)指數列表。

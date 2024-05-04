@@ -26,6 +26,9 @@ export class TwStock {
       shareholders: this.fetchStocksShareholders.bind(this),
       eps: this.fetchStocksEps.bind(this),
       revenue: this.fetchStocksRevenue.bind(this),
+      dividends: this.fetchStocksDividends.bind(this),
+      capitalReduction: this.fetchStocksCapitalReduction.bind(this),
+      splits: this.fetchStocksSplits.bind(this),
     };
   }
 
@@ -189,6 +192,54 @@ export class TwStock {
     return (exchange === Exchange.TPEx)
       ? await this._scraper.getTpexScraper().fetchStocksValues({ date, symbol })
       : await this._scraper.getTwseScraper().fetchStocksValues({ date, symbol });
+  }
+
+  private async fetchStocksSplits(options: { exchange?: 'TWSE' | 'TPEx', startDate: string, endDate: string, symbol?: string }) {
+    const { startDate, endDate, symbol } = options;
+
+    if (symbol && !this._stocks.has(symbol)) {
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
+    }
+
+    const ticker = this._stocks.get(symbol as string) as Ticker;
+    const exchange = symbol ? ticker.exchange : options.exchange;
+
+    return (exchange === Exchange.TPEx)
+      ? await this._scraper.getTpexScraper().fetchStocksSplits({ symbol, startDate, endDate })
+      : await this._scraper.getTwseScraper().fetchStocksSplits({ symbol, startDate, endDate });
+  }
+
+  private async fetchStocksCapitalReduction(options: { exchange?: 'TWSE' | 'TPEx', startDate: string, endDate: string, symbol?: string }) {
+    const { symbol, startDate, endDate } = options;
+
+    if (symbol && !this._stocks.has(symbol)) {
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
+    }
+
+    const ticker = this._stocks.get(symbol as string) as Ticker;
+    const exchange = symbol ? ticker.exchange : options.exchange;
+
+    return (exchange === Exchange.TPEx)
+      ? await this._scraper.getTpexScraper().fetchStocksCapitalReduction({ symbol, startDate, endDate })
+      : await this._scraper.getTwseScraper().fetchStocksCapitalReduction({ symbol, startDate, endDate });
+  }
+
+  private async fetchStocksDividends(options: { startDate: string, endDate: string, exchange?: 'TWSE' | 'TPEx', symbol?: string }) {
+    const { symbol, startDate, endDate } = options;
+
+    if (symbol && !this._stocks.has(symbol)) {
+      const stocks = await this.loadStocks({ symbol });
+      if (!stocks.length) throw new Error('symbol not found');
+    }
+
+    const ticker = this._stocks.get(symbol as string) as Ticker;
+    const exchange = symbol ? ticker.exchange : options.exchange;
+
+    return (exchange === Exchange.TPEx)
+      ? await this._scraper.getTpexScraper().fetchStocksDividends({ symbol, startDate, endDate })
+      : await this._scraper.getTwseScraper().fetchStocksDividends({ symbol, startDate, endDate });
   }
 
   private async fetchStocksFiniHoldings(options: { date: string, exchange?: 'TWSE' | 'TPEx', symbol?: string }) {
