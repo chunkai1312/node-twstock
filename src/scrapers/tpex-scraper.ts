@@ -265,6 +265,122 @@ export class TpexScraper extends Scraper {
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
+  async fetchStocksSplits(options: { startDate: string; endDate: string, symbol?: string }) {
+    const { startDate, endDate, symbol } = options;
+    const [startYear, startMonth, startDay] = startDate.split('-')
+    const [endYear, endMonth, endDay] = endDate.split('-')
+    const query = new URLSearchParams({
+      d: `${+startYear - 1911}/${startMonth}/${startDay}`,
+      ed: `${+endYear - 1911}/${endMonth}/${endDay}`,
+      o: 'json',
+    });
+    const url = `https://www.tpex.org.tw/web/bulletin/parvaluechg/rslt_result.php?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.iTotalRecords > 0 && response.data;
+    if (!json) return null;
+
+    const data = json.aaData.map((row: string[]) => {
+      const [date, symbol, name, ...values] = row;
+      
+      const data: Record<string, any> = {};
+      data.resumptionDate = `${date}`.replace(/(\d{3})(\d{2})(\d{2})/, (_, year, month, day) => `${+year + 1911}-${month}-${day}`);
+      data.exchange = Exchange.TWSE;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.lastClosingPrice = numeral(values[0]).value();
+      data.referencePrice = numeral(values[1]).value();
+      data.upperLimitPrice = numeral(values[2]).value();
+      data.lowerLimitPrice = numeral(values[3]).value();
+      data.openingReferencePrice = numeral(values[4]).value();
+
+      return data;
+    }) as Record<string, any>[];
+
+    return symbol ? data.filter((data) => data.symbol === symbol) : data;
+  }
+
+  async fetchStocksCapitalReduction(options: { startDate: string; endDate: string, symbol?: string }) {
+    const { startDate, endDate, symbol } = options;
+    const [startYear, startMonth, startDay] = startDate.split('-')
+    const [endYear, endMonth, endDay] = endDate.split('-')
+    const query = new URLSearchParams({
+      d: `${+startYear - 1911}/${startMonth}/${startDay}`,
+      ed: `${+endYear - 1911}/${endMonth}/${endDay}`,
+      o: 'json',
+    });
+    const url = `https://www.tpex.org.tw/web/stock/exright/revivt/revivt_result.php?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.iTotalRecords > 0 && response.data;
+    if (!json) return null;
+
+    const data = json.aaData.map((row: string[]) => {
+      const [date, symbol, name, ...values] = row;
+      
+      const data: Record<string, any> = {};
+      data.resumptionDate = `${date}`.replace(/(\d{3})(\d{2})(\d{2})/, (_, year, month, day) => `${+year + 1911}-${month}-${day}`);
+      data.exchange = Exchange.TWSE;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.lastClosingPrice = numeral(values[0]).value();
+      data.resumptionReferencePrice = numeral(values[1]).value();
+      data.upperLimitPrice = numeral(values[2]).value();
+      data.lowerLimitPrice = numeral(values[3]).value();
+      data.openingReferencePrice = numeral(values[4]).value();
+      data.rightsIssueReferencePrice = numeral(values[5]).value();
+      data.capitalReductionReason = values[6].trim();
+
+      return data;
+    }) as Record<string, any>[];
+
+    return symbol ? data.filter((data) => data.symbol === symbol) : data;
+  }
+
+  async fetchStocksRightsAndDividend(options: { startDate: string; endDate: string, symbol?: string }) {
+    const { startDate, endDate, symbol } = options;
+    const [startYear, startMonth, startDay] = startDate.split('-')
+    const [endYear, endMonth, endDay] = endDate.split('-')
+    const query = new URLSearchParams({
+      d: `${+startYear - 1911}/${startMonth}/${startDay}`,
+      ed: `${+endYear - 1911}/${endMonth}/${endDay}`,
+      o: 'json',
+    });
+    const url = `https://www.tpex.org.tw/web/stock/exright/dailyquo/exDailyQ_result.php?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.iTotalRecords > 0 && response.data;
+    if (!json) return null;
+
+    const data = json.aaData.map((row: string[]) => {
+      const [date, symbol, name, ...values] = row;
+      const formattedDate = date.replace(/(\d+)年(\d+)月(\d+)日/, (_, year, month, day) => {
+        const westernYear = parseInt(year) + 1911;
+        return `${westernYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      });
+
+      const data: Record<string, any> = {};
+      data.resumptionDate = formattedDate;
+      data.exchange = Exchange.TWSE;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.closingPriceBeforeRightsAndDividends = numeral(values[0]).value();
+      data.referencePrice = numeral(values[1]).value();
+      data.rightsValue = numeral(values[2]).value();
+      data.dividendValue = numeral(values[3]).value();
+      data.rightsValuePlusDividendValue = numeral(values[4]).value();
+      data.rightsOrDividend = values[5].trim();
+      data.upperLimitPrice = numeral(values[6]).value();
+      data.lowerLimitPrice = numeral(values[7]).value();
+      data.openingReferencePrice = numeral(values[8]).value();
+      data.referencePriceAfterDividendDeduction = numeral(values[9]).value();
+
+      return data;
+    }) as Record<string, any>[];
+
+    return symbol ? data.filter((data) => data.symbol === symbol) : data;
+  }
+
   async fetchIndicesHistorical(options: { date: string, symbol?: string }) {
     const { date, symbol } = options;
     const [ year, month, day ] = date.split('-');
