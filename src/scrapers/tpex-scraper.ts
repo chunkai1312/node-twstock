@@ -278,14 +278,14 @@ export class TpexScraper extends Scraper {
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
-    if (!json) return null;
+    if (!json) return [];
 
     const data = json.aaData.map((row: string[]) => {
       const [date, symbol, name, ...values] = row;
       
       const data: Record<string, any> = {};
       data.resumptionDate = `${date}`.replace(/(\d{3})(\d{2})(\d{2})/, (_, year, month, day) => `${+year + 1911}-${month}-${day}`);
-      data.exchange = Exchange.TWSE;
+      data.exchange = Exchange.TPEx;
       data.symbol = symbol;
       data.name = name.trim();
       data.lastClosingPrice = numeral(values[0]).value();
@@ -313,23 +313,38 @@ export class TpexScraper extends Scraper {
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
-    if (!json) return null;
+    if (!json) return [];
 
     const data = json.aaData.map((row: string[]) => {
       const [date, symbol, name, ...values] = row;
       
       const data: Record<string, any> = {};
       data.resumptionDate = `${date}`.replace(/(\d{3})(\d{2})(\d{2})/, (_, year, month, day) => `${+year + 1911}-${month}-${day}`);
-      data.exchange = Exchange.TWSE;
+      data.exchange = Exchange.TPEx;
       data.symbol = symbol;
       data.name = name.trim();
       data.lastClosingPrice = numeral(values[0]).value();
-      data.resumptionReferencePrice = numeral(values[1]).value();
+      data.referencePrice = numeral(values[1]).value();
       data.upperLimitPrice = numeral(values[2]).value();
       data.lowerLimitPrice = numeral(values[3]).value();
       data.openingReferencePrice = numeral(values[4]).value();
       data.rightsIssueReferencePrice = numeral(values[5]).value();
       data.capitalReductionReason = values[6].trim();
+
+      const urlPattern = /window\.open\('(.+?)',/;
+      const match = values[7].match(urlPattern);
+
+      if (match) {
+        const url = match[1];
+        const urlParams = new URLSearchParams(url.split('?')[1]);
+        const details = [...urlParams.values()];
+        data.stopTradingDate = `${details[2]}`.replace(
+          /(\d{3})(\d{2})(\d{2})/,
+          (_, year, month, day) => `${+year + 1911}-${month}-${day}`
+        );
+        data.newSharesPerThousand = numeral(details[4]).value();
+        data.refundPerShare = numeral(details[5]).value();
+      }
 
       return data;
     }) as Record<string, any>[];
@@ -350,30 +365,28 @@ export class TpexScraper extends Scraper {
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
-    if (!json) return null;
+    if (!json) return [];
 
     const data = json.aaData.map((row: string[]) => {
       const [date, symbol, name, ...values] = row;
-      const formattedDate = date.replace(/(\d+)年(\d+)月(\d+)日/, (_, year, month, day) => {
-        const westernYear = parseInt(year) + 1911;
-        return `${westernYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-      });
-
+      const [year, month, day] = date.split('/');
       const data: Record<string, any> = {};
-      data.resumptionDate = formattedDate;
-      data.exchange = Exchange.TWSE;
+      data.resumptionDate = `${+year + 1911}-${month}-${day}`;
+      data.exchange = Exchange.TPEx;
       data.symbol = symbol;
       data.name = name.trim();
       data.closingPriceBeforeRightsAndDividends = numeral(values[0]).value();
       data.referencePrice = numeral(values[1]).value();
-      data.rightsValue = numeral(values[2]).value();
-      data.dividendValue = numeral(values[3]).value();
+      // data.rightsValue = numeral(values[2]).value();
+      // data.dividendValue = numeral(values[3]).value();
       data.rightsValuePlusDividendValue = numeral(values[4]).value();
-      data.rightsOrDividend = values[5].trim();
+      data.rightsOrDividend = values[5].trim().replace('除', '');
       data.upperLimitPrice = numeral(values[6]).value();
       data.lowerLimitPrice = numeral(values[7]).value();
       data.openingReferencePrice = numeral(values[8]).value();
       data.referencePriceAfterDividendDeduction = numeral(values[9]).value();
+      data.dividendPerShare = numeral(values[10]).value();
+      data.rightPerShare = numeral(values[11]).value();
 
       return data;
     }) as Record<string, any>[];

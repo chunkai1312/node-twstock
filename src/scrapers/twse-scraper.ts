@@ -256,8 +256,8 @@ export class TwseScraper extends Scraper {
     const url = `https://www.twse.com.tw/pcversion/zh/exchangeReport/TWTB8U?${query}`;
 
     const response = await this.httpService.get(url);
-    const json = response.data.stat === "OK" && response.data;
-    if (!json) return null;
+    const json = response.data.stat === 'OK' && response.data;
+    if (!json) return [];
 
     const data = json.data.map((row: string[]) => {
       const [date, symbol, name, ...values] = row;
@@ -290,10 +290,10 @@ export class TwseScraper extends Scraper {
     const url = `https://www.twse.com.tw/rwd/zh/reducation/TWTAUU?${query}`;
 
     const response = await this.httpService.get(url);
-    const json = response.data.stat === "OK" && response.data;
-    if (!json) return null;
+    const json = response.data.stat === 'OK' && response.data;
+    if (!json) return [];
 
-    const data = json.data.map((row: string[]) => {
+    const data = await Promise.all(json.data.map(async (row: string[]) => {
       const [date, symbol, name, ...values] = row;
       const [year, month, day] = date.split('/');
 
@@ -303,17 +303,50 @@ export class TwseScraper extends Scraper {
       data.symbol = symbol;
       data.name = name.trim();
       data.lastClosingPrice = numeral(values[0]).value();
-      data.resumptionReferencePrice = numeral(values[1]).value();
+      data.referencePrice = numeral(values[1]).value();
       data.upperLimitPrice = numeral(values[2]).value();
       data.lowerLimitPrice = numeral(values[3]).value();
       data.openingReferencePrice = numeral(values[4]).value();
       data.rightsIssueReferencePrice = numeral(values[5]).value();
       data.capitalReductionReason = values[6].trim();
-
-      return data;
-    }) as Record<string, any>[];
+      
+      const [_, detailDate] = values[7].split(',');
+      const detail = await this.fetchStockCapitalReductionDetail({symbol, date: detailDate})
+      
+      return {
+        ...data,
+        ...detail,
+      };
+    }) as Record<string, any>[]);
 
     return symbol ? data.filter((data) => data.symbol === symbol) : data;
+  }
+
+  async fetchStockCapitalReductionDetail(options: {symbol: string, date: string}) {
+    const { date, symbol } = options;
+    const query = new URLSearchParams({
+      STK_NO: symbol,
+      FILE_DATE: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/reducation/TWTAVUDetail?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.stat === 'OK' && response.data;
+    if (!json) return null;
+
+    const [_, name, ...values] = json.data[0];
+    const [year, month, day] = values[0].split('/');
+
+    const data: Record<string, any> = {};
+
+    data.symbol = symbol;
+    data.name = name.trim();
+    data.stopTradingDate = `${+year + 1911}-${month}-${day}`;
+    data.newSharesPerThousand = parseFloat(values[1]);
+    data.refundPerShare = parseFloat(values[2]);
+
+    return data;
   }
 
   async fetchStocksRightsAndDividend(options: { startDate: string; endDate: string, symbol?: string }) {
@@ -323,18 +356,24 @@ export class TwseScraper extends Scraper {
       endDate: DateTime.fromISO(endDate).toFormat("yyyyMMdd"),
       response: "json",
     });
-    const url = `https://wwwc.twse.com.tw/rwd/zh/exRight/TWT49U?${query}`;
+    const url = `https://www.twse.com.tw/rwd/zh/exRight/TWT49U?${query}`;
 
     const response = await this.httpService.get(url);
-    const json = response.data.stat === "OK" && response.data;
-    if (!json) return null;
+    const json = response.data.stat === 'OK' && response.data;
+    if (!json) return [];
 
-    const data = json.data.map((row: string[]) => {
+    const data = await Promise.all(json.data.map(async (row: string[]) => {
       const [date, symbol, name, ...values] = row;
-      const formattedDate = date.replace(/(\d+)年(\d+)月(\d+)日/, (_, year, month, day) => {
-        const westernYear = parseInt(year) + 1911;
-        return `${westernYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-      });
+      const formattedDate = date.replace(
+        /(\d+)年(\d+)月(\d+)日/,
+        (_, year, month, day) => {
+          const westernYear = parseInt(year) + 1911;
+          return `${westernYear}-${month.padStart(2, '0')}-${day.padStart(
+            2,
+            '0'
+          )}`;
+        }
+      );
 
       const data: Record<string, any> = {};
       data.resumptionDate = formattedDate;
@@ -349,11 +388,42 @@ export class TwseScraper extends Scraper {
       data.lowerLimitPrice = numeral(values[5]).value();
       data.openingReferencePrice = numeral(values[6]).value();
       data.referencePriceAfterDividendDeduction = numeral(values[7]).value();
+      
+      const [_, detailDate] = values[8].split(',');
+      const detail = await this.fetchStocksRightsAndDividendDetail({symbol, date: detailDate})
 
-      return data;
-    }) as Record<string, any>[];
+      return {
+        ...data,
+        ...detail,
+      };
+    }) as Record<string, any>[]);
 
     return symbol ? data.filter((data) => data.symbol === symbol) : data;
+  }
+
+  async fetchStocksRightsAndDividendDetail(options: { date: string, symbol: string }) {
+    const { date, symbol } = options;
+
+    const query = new URLSearchParams({
+      STK_NO: symbol,
+      T1: DateTime.fromISO(date).toFormat('yyyyMMdd'),
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/exRight/TWT49UDetail?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.stat === 'ok' && response.data;
+    if (!json) return null;
+    
+    const [_, name, ...values] = json.data[0];
+    const data: Record<string, any> = {};
+
+    data.symbol = symbol;
+    data.name = name.trim();
+    data.dividendPerShare = values[0] ? parseFloat(values[0]) : null;
+    data.rightPerShare = values[2] ? parseFloat(values[2]) : null;
+
+    return data;
   }
 
   async fetchIndicesHistorical(options: { date: string, symbol?: string }) {
