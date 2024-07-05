@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.2.0](https://github.com/chunkai1312/node-twstock/compare/v1.1.1...v1.2.0) (2024-07-05)
+
+
+### Features
+
+* support for fetching information on stocks' ex-right, capital reduction, and change of par value ([52adec2](https://github.com/chunkai1312/node-twstock/commit/52adec2f7a57eb1d6d857d1379934d7218744e47))
+
 ## [1.1.1](https://github.com/chunkai1312/node-twstock/compare/v1.1.0...v1.1.1) (2024-01-30)
 
 
