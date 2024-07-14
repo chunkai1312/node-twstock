@@ -455,6 +455,20 @@ describe('TaifexScraper', () => {
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBe(null);
     });
+
+    it('should return null when the given date is invalid', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-institutional-datetime-error.html') });
+
+      const data = await scraper.fetchFuturesInstitutional({ date: '2100-01-01', symbol: 'TXF' });
+      const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2100/01/01',
+        queryEndDate: '2100/01/01',
+        commodityId: 'TXF',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBe(null);
+    });
   });
 
   describe('.fetchOptionsInstitutional()', () => {
@@ -579,11 +593,25 @@ describe('TaifexScraper', () => {
     it('should return null when no data is available', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-institutional-no-data.html') });
 
-      const data = await scraper.fetchOptionsInstitutional({ date: '2023-01-30', symbol: 'TXO' });
+      const data = await scraper.fetchOptionsInstitutional({ date: '2023-01-01', symbol: 'TXO' });
       const url = 'https://www.taifex.com.tw/cht/3/callsAndPutsDateDown';
       const form = new URLSearchParams({
-        queryStartDate: '2023/01/30',
-        queryEndDate: '2023/01/30',
+        queryStartDate: '2023/01/01',
+        queryEndDate: '2023/01/01',
+        commodityId: 'TXO',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBe(null);
+    });
+
+    it('should return null when the given date is invalid', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-institutional-datetime-error.html') });
+
+      const data = await scraper.fetchOptionsInstitutional({ date: '2100-01-01', symbol: 'TXO' });
+      const url = 'https://www.taifex.com.tw/cht/3/callsAndPutsDateDown';
+      const form = new URLSearchParams({
+        queryStartDate: '2100/01/01',
+        queryEndDate: '2100/01/01',
         commodityId: 'TXO',
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });

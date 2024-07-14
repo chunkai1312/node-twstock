@@ -169,6 +169,7 @@ export class TaifexScraper extends Scraper {
     const url = 'https://www.taifex.com.tw/cht/3/futContractsDateDown';
     const response = await this.httpService.post(url, form, { responseType: 'arraybuffer' });
     if (response.data.toString().includes('查無資料')) return null;
+    if (response.data.toString().includes('日期時間錯誤')) return null;
 
     const csv = iconv.decode(response.data, 'big5');
     const json = await csvtojson({ noheader: true, output: 'csv' }).fromString(csv);
@@ -208,6 +209,7 @@ export class TaifexScraper extends Scraper {
     const url = 'https://www.taifex.com.tw/cht/3/callsAndPutsDateDown';
     const response = await this.httpService.post(url, form, { responseType: 'arraybuffer' });
     if (response.data.toString().includes('查無資料')) return null;
+    if (response.data.toString().includes('日期時間錯誤')) return null;
 
     const csv = iconv.decode(response.data, 'big5');
     const json = await csvtojson({ noheader: true, output: 'csv' }).fromString(csv);
