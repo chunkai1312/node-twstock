@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/chunkai1312/node-twstock/compare/v1.2.1...v1.2.2) (2024-07-14)
+
+
+### Bug Fixes
+
+* add the missing alias index name ([7312c7e](https://github.com/chunkai1312/node-twstock/commit/7312c7eab026951f285725208d1bead3440e980f))
+
 ## [1.2.1](https://github.com/chunkai1312/node-twstock/compare/v1.2.0...v1.2.1) (2024-07-14)
 
 
