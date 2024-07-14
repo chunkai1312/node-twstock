@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/chunkai1312/node-twstock/compare/v1.2.0...v1.2.1) (2024-07-14)
+
+
+### Bug Fixes
+
+* handle datetime errors that occur when fetching futures & options institutional investors' trades ([ec23ad4](https://github.com/chunkai1312/node-twstock/commit/ec23ad47d8c8419c91de4086fb6e35ab59f31e3e))
+
 # [1.2.0](https://github.com/chunkai1312/node-twstock/compare/v1.1.1...v1.2.0) (2024-07-05)
 
 
