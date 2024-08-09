@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.3.0](https://github.com/chunkai1312/node-twstock/compare/v1.2.2...v1.3.0) (2024-08-09)
+
+
+### Features
+
+* support for fetching TMF retail investors' position and long short ratio ([5e849ab](https://github.com/chunkai1312/node-twstock/commit/5e849abf7f9bcd40778f948da16abd0c0b523e0e))
+
 ## [1.2.2](https://github.com/chunkai1312/node-twstock/compare/v1.2.1...v1.2.2) (2024-07-14)
 
 
