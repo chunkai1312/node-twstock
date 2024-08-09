@@ -1040,6 +1040,67 @@ describe('TaifexScraper', () => {
     });
   });
 
+  describe('.fetchTmfRetailPosition()', () => {
+    it('should fetch TMF retail investors\' position for the given date', async () => {
+      // @ts-ignore
+      mockAxios.post.mockImplementation((url: string) => {
+        return new Promise((resolve, reject) => {
+          switch (url) {
+            case 'https://www.taifex.com.tw/cht/3/futDataDown':
+              return resolve({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical-20240729.csv') });
+            case 'https://www.taifex.com.tw/cht/3/futContractsDateDown':
+              return resolve({ data: fs.readFileSync('./test/fixtures/taifex-futures-institutional-20240729.csv') });
+            default: return reject();
+          }
+        });
+      });
+
+      const data = await scraper.fetchTmfRetailPosition({ date: '2024-07-29' });
+      const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
+      const form = new URLSearchParams({
+        down_type: '1',
+        queryStartDate: '2024/07/29',
+        queryEndDate: '2024/07/29',
+        commodity_id: 'all',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBeDefined();
+      expect(data).toEqual({
+        date: '2024-07-29',
+        tmfRetailLongOi: 3039,
+        tmfRetailShortOi: 1394,
+        tmfRetailNetOi: 1645,
+        tmfRetailLongShortRatio: 0.5406,
+      });
+    });
+
+    it('should return null when no data is available', async () => {
+      // @ts-ignore
+      mockAxios.post.mockImplementation((url: string) => {
+        return new Promise((resolve, reject) => {
+          switch (url) {
+            case 'https://www.taifex.com.tw/cht/3/futDataDown':
+              return resolve({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical-no-data.csv') });
+            case 'https://www.taifex.com.tw/cht/3/futContractsDateDown':
+              return resolve({ data: fs.readFileSync('./test/fixtures/taifex-futures-institutional-no-data.html') });
+            default: return reject();
+          }
+        });
+      });
+
+      const data = await scraper.fetchTmfRetailPosition({ date: '2023-01-01' });
+      const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
+      const form = new URLSearchParams({
+        down_type: '1',
+        queryStartDate: '2023/01/01',
+        queryEndDate: '2023/01/01',
+        commodity_id: 'all',
+      });
+      expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
+      expect(data).toBe(null);
+    });
+  });
+
   describe('.fetchTxoPutCallRatio()', () => {
     it('should fetch TXO Put/Call ratio for the given date', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-txo-put-call-ratio.csv') });

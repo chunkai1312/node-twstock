@@ -42,6 +42,7 @@
   * [.futopt.institutional(options)](#futoptinstitutionaloptions)
   * [.futopt.largeTraders(options)](#futoptlargetradersoptions)
   * [.futopt.mxfRetailPosition(options)](#futoptmxfretailpositionoptions)
+  * [.futopt.tmfRetailPosition(options)](#futopttmfretailpositionoptions)
   * [.futopt.txoPutCallRatio(options)](#futopttxoputcallratiooptions)
   * [.futopt.exchangeRates(options)](#futoptexchangeratesoptions)
 * [Disclaimer](#disclaimer)
@@ -1403,6 +1404,32 @@ twstock.futopt.mxfRetailPosition({ date: '2023-01-30' })
 //   mxfRetailShortOi: 38959,
 //   mxfRetailNetOi: -8833,
 //   mxfRetailLongShortRatio: -0.2004
+// }
+```
+
+### `.futopt.tmfRetailPosition(options)`
+
+取得特定日期的微台散戶部位數及多空比
+
+* `options`: {Object}
+  * `date`: {string} 日期 (`'YYYY-MM-DD'`)
+* Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
+  * `date`: {string} 日期
+  * `tmfRetailLongOi`: {number} 微台散戶多單
+  * `tmfRetailShortOi`: {number} 微台散戶空單
+  * `tmfRetailNetOi`: {number} 微台散戶淨部位
+  * `tmfRetailLongShortRatio`: {number} 微台散戶多空比
+  
+```js
+twstock.futopt.mxfRetailPosition({ date: '2024-07-29' })
+  .then(data => console.log(data));
+// Prints:
+// {
+//   date: '2024-07-29',
+//   tmfRetailLongOi: 3039,
+//   tmfRetailShortOi: 1394,
+//   tmfRetailNetOi: 1645,
+//   tmfRetailLongShortRatio: 0.5406
 // }
 ```
 

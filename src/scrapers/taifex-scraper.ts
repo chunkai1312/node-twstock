@@ -352,6 +352,34 @@ export class TaifexScraper extends Scraper {
     return data;
   }
 
+  async fetchTmfRetailPosition(options: { date: string }) {
+    const date = options.date;
+
+    const [fetchedTmfHistorical, fetchedTmfInstitutional] = await Promise.all([
+      this.fetchFuturesHistorical({ date, symbol: 'TMF' }),
+      this.fetchFuturesInstitutional({ date, symbol: 'TMF' }),
+    ]);
+    if (!fetchedTmfHistorical || !fetchedTmfInstitutional) return null;
+
+    const tmfMarketOi = fetchedTmfHistorical
+      .filter(row => row.session === '一般' && !row.volumeSpread)
+      .reduce((oi, row) => oi + (numeral(row.openInterest).value() as number), 0);
+
+    const { tmfInstitutionalLongOi, tmfInstitutionalShortOi } = fetchedTmfInstitutional.institutional
+      .reduce((institutional: Record<string, number>, row: Record<string, any>) => ({
+        tmfInstitutionalLongOi: institutional.tmfInstitutionalLongOi + row.longOiVolume,
+        tmfInstitutionalShortOi: institutional.tmfInstitutionalShortOi + row.shortOiVolume,
+      }), { tmfInstitutionalLongOi: 0, tmfInstitutionalShortOi: 0 });
+
+    const data: Record<string, any> = {};
+    data.date = date;
+    data.tmfRetailLongOi = tmfMarketOi - tmfInstitutionalLongOi;
+    data.tmfRetailShortOi = tmfMarketOi - tmfInstitutionalShortOi;
+    data.tmfRetailNetOi = data.tmfRetailLongOi - data.tmfRetailShortOi;
+    data.tmfRetailLongShortRatio = Math.round(data.tmfRetailNetOi / tmfMarketOi * 10000) / 10000;
+    return data;
+  }
+
   async fetchTxoPutCallRatio(options: { date: string }) {
     const { date } = options;
     const queryDate = DateTime.fromISO(date).toFormat('yyyy/MM/dd');

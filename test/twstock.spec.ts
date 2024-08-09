@@ -644,6 +644,13 @@ describe('TwStock', () => {
       });
     });
 
+    describe('.tmfRetailPosition()', () => {
+      it('should fetch TMF retail position', async () => {
+        await twstock.futopt.tmfRetailPosition({ date: '2024-08-09' });
+        expect(TaifexScraper.prototype.fetchTmfRetailPosition).toBeCalledWith({ date: '2024-08-09' });
+      });
+    });
+
     describe('.txoPutCallRatio()', () => {
       it('should fetch TXO Put/Call ratio', async () => {
         await twstock.futopt.txoPutCallRatio({ date: '2023-01-30' });
