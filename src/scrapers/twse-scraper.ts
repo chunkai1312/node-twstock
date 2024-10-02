@@ -15,7 +15,7 @@ export class TwseScraper extends Scraper {
     });
     const url = `https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?${query}`;
 
-    const response = await this.httpService.get(url);
+    const response = await this.httpService.get(url, { headers: { 'Connection': 'keep-alive' }});
     const json = (response.data.stat === 'OK') && response.data;
     if (!json) return null;
 
