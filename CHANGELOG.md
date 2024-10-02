@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/chunkai1312/node-twstock/compare/v1.3.0...v1.3.1) (2024-10-02)
+
+
+### Bug Fixes
+
+* include keep-alive header in HTTP GET request for TWSE historical stock data retrieval ([c1c9769](https://github.com/chunkai1312/node-twstock/commit/c1c9769355d74fbbcfbf145b249101f7766e2a6c))
+
 # [1.3.0](https://github.com/chunkai1312/node-twstock/compare/v1.2.2...v1.3.0) (2024-08-09)
 
 
