@@ -20,6 +20,7 @@ describe('TwseScraper', () => {
       const data = await scraper.fetchStocksHistorical({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230130&type=ALLBUT0999&response=json',
+        { headers: { 'Connection': 'keep-alive' }},
       );
       expect(data).toBeDefined();
       expect(data?.length).toBeGreaterThan(0);
@@ -31,6 +32,7 @@ describe('TwseScraper', () => {
       const data = await scraper.fetchStocksHistorical({ date: '2023-01-30', symbol: '2330' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230130&type=ALLBUT0999&response=json',
+        { headers: { 'Connection': 'keep-alive' }},
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -55,6 +57,7 @@ describe('TwseScraper', () => {
       const data = await scraper.fetchStocksHistorical({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230101&type=ALLBUT0999&response=json',
+        { headers: { 'Connection': 'keep-alive' }},
       );
       expect(data).toBe(null);
     });
