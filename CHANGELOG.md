@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.4](https://github.com/chunkai1312/node-twstock/compare/v1.3.3...v1.3.4) (2024-10-07)
+
+
+### Bug Fixes
+
+* add aliases for parsing index symbols ([923e5b0](https://github.com/chunkai1312/node-twstock/commit/923e5b0fbcbad1c059a35202a564a78149ebdacc))
+
 ## [1.3.3](https://github.com/chunkai1312/node-twstock/compare/v1.3.2...v1.3.3) (2024-10-03)
 
 ## [1.3.2](https://github.com/chunkai1312/node-twstock/compare/v1.3.1...v1.3.2) (2024-10-03)
