@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.6](https://github.com/chunkai1312/node-twstock/compare/v1.3.5...v1.3.6) (2024-10-07)
+
+
+### Bug Fixes
+
+* add alias for Trading and Consumers' Goods Index symbol ([174b550](https://github.com/chunkai1312/node-twstock/commit/174b550a68ad72bf7077cc70dfdc66d9c915e355))
+
 ## [1.3.5](https://github.com/chunkai1312/node-twstock/compare/v1.3.4...v1.3.5) (2024-10-07)
 
 
