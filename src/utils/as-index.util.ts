@@ -1,7 +1,7 @@
 import { Index } from '../enums';
 
-export function asIndex(index: string): Index {
-  const indices: Record<string, Index> = {
+export function asIndex(index: string) {
+  const indices: Record<string, string> = {
     '發行量加權股價指數': Index.TAIEX,
     '未含金融指數': Index.NonFinance,
     '未含電子指數': Index.NonElectronics,
@@ -71,6 +71,9 @@ export function asIndex(index: string): Index {
     '加權股價': Index.TAIEX,
     '未含金融': Index.NonFinance,
     '未含電子': Index.NonElectronics,
+    '未含金融電子': Index.NonFinanceNonElectronics,
+    '綜合平均': '',
+    '工業平均': '',
     '水泥類': Index.Cement,
     '水泥工業': Index.Cement,
     '水泥工業類': Index.Cement,
