@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.5](https://github.com/chunkai1312/node-twstock/compare/v1.3.4...v1.3.5) (2024-10-07)
+
+
+### Bug Fixes
+
+* add alias for Non-Finance Non-Electronics Sub-Index symbol ([a7e4e45](https://github.com/chunkai1312/node-twstock/commit/a7e4e45677253f2ea9f9ca41deaa13a74833055e))
+
 ## [1.3.4](https://github.com/chunkai1312/node-twstock/compare/v1.3.3...v1.3.4) (2024-10-07)
 
 
