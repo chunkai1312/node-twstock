@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.7](https://github.com/chunkai1312/node-twstock/compare/v1.3.6...v1.3.7) (2024-10-08)
+
+
+### Bug Fixes
+
+* add alias for TPEx Game Index Index symbol ([36e6c06](https://github.com/chunkai1312/node-twstock/commit/36e6c06af6f818a23edc069f0e47fef83bfdd07d))
+
 ## [1.3.6](https://github.com/chunkai1312/node-twstock/compare/v1.3.5...v1.3.6) (2024-10-07)
 
 
