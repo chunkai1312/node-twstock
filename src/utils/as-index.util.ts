@@ -167,6 +167,7 @@ export function asIndex(index: string) {
     '櫃買電腦及週邊設備業類指數': Index.TPExComputerAndPeripheralEquipment,
     '櫃買觀光事業類指數': Index.TPExTourismAndHospitality,
     '櫃買紡纖纖維類指數': Index.TPExTextiles,
+    '櫃買線上遊戲類指數': Index.TPExGame,
   };
   return indices[index];
 }
