@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.11](https://github.com/chunkai1312/node-twstock/compare/v1.3.10...v1.3.11) (2024-10-10)
+
+
+### Bug Fixes
+
+* add alias for Other Index symbol ([a72673f](https://github.com/chunkai1312/node-twstock/commit/a72673f47fbae13ae0a62accd5a5a232561b57b5))
+
 ## [1.3.10](https://github.com/chunkai1312/node-twstock/compare/v1.3.9...v1.3.10) (2024-10-10)
 
 
