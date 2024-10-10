@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.9](https://github.com/chunkai1312/node-twstock/compare/v1.3.8...v1.3.9) (2024-10-10)
+
+
+### Bug Fixes
+
+* retrieve trades for TPEx Electronic sector ([8c5cdca](https://github.com/chunkai1312/node-twstock/commit/8c5cdca13c9e01fc5dbc6592a12fe14e0ececfe7))
+
 ## [1.3.8](https://github.com/chunkai1312/node-twstock/compare/v1.3.7...v1.3.8) (2024-10-10)
 
 
