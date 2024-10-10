@@ -475,26 +475,29 @@ export class TpexScraper extends Scraper {
       return data;
     }) as Record<string, any>[];
 
-    const electronics = [
-      'IX0053', 'IX0054', 'IX0055', 'IX0056',
-      'IX0057', 'IX0058', 'IX0059', 'IX0099',
-    ];
+    if (!data.find(row => row.symbol === 'IX0047')) {
+      const electronics = [
+        'IX0053', 'IX0054', 'IX0055', 'IX0056',
+        'IX0057', 'IX0058', 'IX0059', 'IX0099',
+      ];
 
-    const [electronic] = _(data)
-      .filter(data => electronics.includes(data.symbol))
-      .groupBy(_ => 'IX0047')
-      .map((data, symbol) => ({
-        date,
-        exchange: Exchange.TPEx,
-        symbol,
-        name: '櫃買電子類指數',
-        tradeVolume: _.sumBy(data, 'tradeVolume'),
-        tradeValue: _.sumBy(data, 'tradeValue'),
-        tradeWeight: +numeral(_.sumBy(data, 'tradeWeight')).format('0.00'),
-      }))
-      .value() as Record<string, any>[];
+      const [electronic] = _(data)
+        .filter(data => electronics.includes(data.symbol))
+        .groupBy(_ => 'IX0047')
+        .map((data, symbol) => ({
+          date,
+          exchange: Exchange.TPEx,
+          symbol,
+          name: '櫃買電子類指數',
+          tradeVolume: _.sumBy(data, 'tradeVolume'),
+          tradeValue: _.sumBy(data, 'tradeValue'),
+          tradeWeight: +numeral(_.sumBy(data, 'tradeWeight')).format('0.00'),
+        }))
+        .value() as Record<string, any>[];
 
-    data = [...data, electronic].filter(index => index.symbol);
+      data = [...data, electronic];
+    }
+    data = data.filter(index => index.symbol);
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
