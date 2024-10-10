@@ -126,6 +126,7 @@ export function asIndex(index: string) {
     '百貨貿易類指數': Index.TradingAndConsumerGoods,
     '其它': Index.Other,
     '其它類': Index.Other,
+    '其他類': Index.Other,
     '化學工業': Index.Chemical,
     '生技醫療': Index.BiotechnologyAndMedicalCare,
     '油電燃氣': Index.OilGasAndElectricity,
