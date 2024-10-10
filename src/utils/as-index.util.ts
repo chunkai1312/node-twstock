@@ -92,6 +92,7 @@ export function asIndex(index: string) {
     '化學工業類': Index.ChemicalBiotechnologyAndMedicalCare,
     '化學生技醫': Index.ChemicalBiotechnologyAndMedicalCare,
     '化學生技醫療': Index.ChemicalBiotechnologyAndMedicalCare,
+    '化學生技醫療類': Index.ChemicalBiotechnologyAndMedicalCare,
     '玻璃陶瓷': Index.GlassAndCeramic,
     '玻璃陶瓷類': Index.GlassAndCeramic,
     '造紙類': Index.PaperAndPulp,
