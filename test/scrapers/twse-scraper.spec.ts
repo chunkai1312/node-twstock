@@ -1,6 +1,5 @@
 import mockAxios from 'jest-mock-axios';
 import { TwseScraper } from '../../src/scrapers/twse-scraper';
-import { options } from 'numeral';
 
 describe('TwseScraper', () => {
   let scraper: TwseScraper;
@@ -126,6 +125,96 @@ describe('TwseScraper', () => {
           {
             investor: '三大法人',
             difference: 82459130,
+          },
+        ],
+      });
+    });
+
+    it('should fetch stocks institutional investors\' trades without foreign dealers for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-institutional-without-foreign-dealers.json') });
+
+      const data = await scraper.fetchStocksInstitutional({ date: '2014-12-01', symbol: '2330' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/fund/T86?date=20141201&selectType=ALLBUT0999&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual({
+        date: '2014-12-01',
+        exchange: 'TWSE',
+        symbol: '2330',
+        name: '台積電',
+        institutional: [
+          {
+            investor: '外資及陸資',
+            totalBuy: 35804576,
+            totalSell: 38515962,
+            difference: -2711386,
+          },
+          {
+            investor: '投信',
+            totalBuy: 0,
+            totalSell: 417000,
+            difference: -417000,
+          },
+          {
+            investor: '自營商',
+            difference: 1374000,
+          },
+          {
+            investor: '自營商(自行買賣)',
+            totalBuy: 1083000,
+            totalSell: 159000,
+            difference: 924000,
+          },
+          {
+            investor: '自營商(避險)',
+            totalBuy: 699000,
+            totalSell: 249000,
+            difference: 450000,
+          },
+          {
+            investor: '三大法人',
+            difference: -1754386,
+          },
+        ],
+      });
+    });
+
+    it('should fetch stocks institutional investors\' trades without foreign dealers and undifferentiated dealers for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-institutional-origin.json') });
+
+      const data = await scraper.fetchStocksInstitutional({ date: '2012-05-02', symbol: '2330' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/fund/T86?date=20120502&selectType=ALLBUT0999&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual({
+        date: '2012-05-02',
+        exchange: 'TWSE',
+        symbol: '2330',
+        name: '台積電',
+        institutional: [
+          {
+            investor: '外資及陸資',
+            totalBuy: 38841300,
+            totalSell: 32897643,
+            difference: 5943657,
+          },
+          {
+            investor: '投信',
+            totalBuy: 284000,
+            totalSell: 272000,
+            difference: 12000,
+          },
+          {
+            investor: '自營商',
+            totalBuy: 731000,
+            totalSell: 1774000,
+            difference: 1043000,
+          },
+          {
+            investor: '三大法人',
+            difference: 6686657,
           },
         ],
       });
