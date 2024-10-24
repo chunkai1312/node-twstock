@@ -6,7 +6,7 @@ import { RateLimitOptions } from "../interfaces";
 export abstract class Scraper {
   protected readonly httpService: AxiosInstance;
 
-  constructor(options: RateLimitOptions = { limit: 3, ttl: 5000 }) {
+  constructor(options: RateLimitOptions = { limit: 1, ttl: 5000 }) {
     const maxRequests = options.limit;
     const perMilliseconds = options.ttl;
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
