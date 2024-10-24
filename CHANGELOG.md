@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.13](https://github.com/chunkai1312/node-twstock/compare/v1.3.12...v1.3.13) (2024-10-24)
+
+
+### Bug Fixes
+
+* correct field mapping for institutional investors' trades in TWSE stocks ([2bf3f66](https://github.com/chunkai1312/node-twstock/commit/2bf3f669989e0a92610d0e46ef26330a7437a402))
+
 ## [1.3.12](https://github.com/chunkai1312/node-twstock/compare/v1.3.11...v1.3.12) (2024-10-24)
 
 
