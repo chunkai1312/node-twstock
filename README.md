@@ -69,9 +69,9 @@ const { TwStock } = require('node-twstock');
 
 * `options`: {Object} 可配置選項，用於設定速率限制 (Rate Limiting)
   - `ttl`: 每個請求持續的毫秒數。**Default:** `5000`
-  - `limit`: 在 TTL 限制內的最大請求數。**Default:** `3`
+  - `limit`: 在 TTL 限制內的最大請求數。**Default:** `1`
 
-> 注意：過於頻繁的請求可能導致被交易所禁止訪問。預設設定為每 5 秒最多發送 3 個請求。
+> 注意：過於頻繁的請求可能導致被交易所禁止訪問。預設設定為每 5 秒最多發送 1 個請求。
 
 ```js
 const twstock = new TwStock({ ttl: 5000, limit: 3 });
@@ -273,7 +273,7 @@ twstock.stocks.institutional({ date: '2023-01-30', symbol: '2330' })
 //       difference: 937673
 //     },
 //     {
-//       investor: '自營商合計',
+//       investor: '自營商',
 //       difference: 880408
 //     },
 //     {
@@ -289,7 +289,7 @@ twstock.stocks.institutional({ date: '2023-01-30', symbol: '2330' })
 //       difference: 439408
 //     },
 //     {
-//       investor: '合計',
+//       investor: '三大法人',
 //       difference: 82459130
 //     }
 //   ]
@@ -983,7 +983,7 @@ twstock.market.institutional({ date: '2023-01-30', exchange: 'TWSE' })
 //       difference: -36789050
 //     },
 //     {
-//       investor: '合計',
+//       investor: '三大法人',
 //       totalBuy: 226200542418,
 //       totalSell: 143066882919,
 //       difference: 83133659499

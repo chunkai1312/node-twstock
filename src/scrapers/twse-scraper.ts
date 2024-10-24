@@ -80,7 +80,7 @@ export class TwseScraper extends Scraper {
           difference: numeral(values[8]).value(),
         },
         {
-          investor: '自營商合計',
+          investor: '自營商',
           difference: numeral(values[9]).value(),
         },
         {
@@ -96,7 +96,7 @@ export class TwseScraper extends Scraper {
           difference: numeral(values[15]).value(),
         },
         {
-          investor: '合計',
+          investor: '三大法人',
           difference: numeral(values[16]).value(),
         },
       ];
@@ -577,7 +577,7 @@ export class TwseScraper extends Scraper {
     data.date = date;
     data.exchange = Exchange.TWSE,
     data.institutional = json.data.map((row: string[]) => ({
-      investor: row[0].trim(),
+      investor: row[0] === '合計' ? '三大法人' : row[0],
       totalBuy: numeral(row[1]).value(),
       totalSell: numeral(row[2]).value(),
       difference: numeral(row[3]).value(),

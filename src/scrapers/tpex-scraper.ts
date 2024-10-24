@@ -65,54 +65,89 @@ export class TpexScraper extends Scraper {
       data.exchange = Exchange.TPEx;
       data.symbol = symbol;
       data.name = name.trim();
-      data.institutional = [
-        {
-          investor: '外資及陸資(不含外資自營商)',
-          totalBuy: numeral(values[0]).value(),
-          totalSell: numeral(values[1]).value(),
-          difference: numeral(values[2]).value(),
-        },
-        {
-          investor: '外資自營商',
-          totalBuy: numeral(values[3]).value(),
-          totalSell: numeral(values[4]).value(),
-          difference: numeral(values[5]).value(),
-        },
-        {
-          investor: '外資及陸資合計',
-          totalBuy: numeral(values[6]).value(),
-          totalSell: numeral(values[7]).value(),
-          difference: numeral(values[8]).value(),
-        },
-        {
-          investor: '投信',
-          totalBuy: numeral(values[9]).value(),
-          totalSell: numeral(values[10]).value(),
-          difference: numeral(values[11]).value(),
-        },
-        {
-          investor: '自營商(自行買賣)',
-          totalBuy: numeral(values[12]).value(),
-          totalSell: numeral(values[13]).value(),
-          difference: numeral(values[14]).value(),
-        },
-        {
-          investor: '自營商(避險)',
-          totalBuy: numeral(values[15]).value(),
-          totalSell: numeral(values[16]).value(),
-          difference: numeral(values[17]).value(),
-        },
-        {
-          investor: '自營商合計',
-          totalBuy: numeral(values[18]).value(),
-          totalSell: numeral(values[19]).value(),
-          difference: numeral(values[20]).value(),
-        },
-        {
-          investor: '合計',
-          difference: numeral(values[21]).value(),
-        },
-      ];
+      data.institutional = (values.length < 22)
+        ? [
+            {
+              investor: '外資及陸資',
+              totalBuy: numeral(values[0]).value(),
+              totalSell: numeral(values[1]).value(),
+              difference: numeral(values[2]).value(),
+            },
+            {
+              investor: '投信',
+              totalBuy: numeral(values[3]).value(),
+              totalSell: numeral(values[4]).value(),
+              difference: numeral(values[5]).value(),
+            },
+            {
+              investor: '自營商',
+              difference: numeral(values[6]).value(),
+            },
+            {
+              investor: '自營商(自行買賣)',
+              totalBuy: numeral(values[7]).value(),
+              totalSell: numeral(values[8]).value(),
+              difference: numeral(values[9]).value(),
+            },
+            {
+              investor: '自營商(避險)',
+              totalBuy: numeral(values[10]).value(),
+              totalSell: numeral(values[11]).value(),
+              difference: numeral(values[12]).value(),
+            },
+            {
+              investor: '三大法人',
+              difference: numeral(values[13]).value(),
+            },
+          ]
+        : [
+            {
+              investor: '外資及陸資(不含外資自營商)',
+              totalBuy: numeral(values[0]).value(),
+              totalSell: numeral(values[1]).value(),
+              difference: numeral(values[2]).value(),
+            },
+            {
+              investor: '外資自營商',
+              totalBuy: numeral(values[3]).value(),
+              totalSell: numeral(values[4]).value(),
+              difference: numeral(values[5]).value(),
+            },
+            {
+              investor: '外資及陸資',
+              totalBuy: numeral(values[6]).value(),
+              totalSell: numeral(values[7]).value(),
+              difference: numeral(values[8]).value(),
+            },
+            {
+              investor: '投信',
+              totalBuy: numeral(values[9]).value(),
+              totalSell: numeral(values[10]).value(),
+              difference: numeral(values[11]).value(),
+            },
+            {
+              investor: '自營商(自行買賣)',
+              totalBuy: numeral(values[12]).value(),
+              totalSell: numeral(values[13]).value(),
+              difference: numeral(values[14]).value(),
+            },
+            {
+              investor: '自營商(避險)',
+              totalBuy: numeral(values[15]).value(),
+              totalSell: numeral(values[16]).value(),
+              difference: numeral(values[17]).value(),
+            },
+            {
+              investor: '自營商',
+              totalBuy: numeral(values[18]).value(),
+              totalSell: numeral(values[19]).value(),
+              difference: numeral(values[20]).value(),
+            },
+            {
+              investor: '三大法人',
+              difference: numeral(values[21]).value(),
+            },
+          ];
       return data;
     }) as Record<string, any>[];
 

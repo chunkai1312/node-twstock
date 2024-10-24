@@ -99,7 +99,7 @@ describe('TpexScraper', () => {
             difference: 0,
           },
           {
-            investor: '外資及陸資合計',
+            investor: '外資及陸資',
             totalBuy: 3059748,
             totalSell: 2331441,
             difference: 728307,
@@ -123,14 +123,64 @@ describe('TpexScraper', () => {
             difference: 60167,
           },
           {
-            investor: '自營商合計',
+            investor: '自營商',
             totalBuy: 395767,
             totalSell: 224000,
             difference: 171767,
           },
           {
-            investor: '合計',
+            investor: '三大法人',
             difference: 1298978,
+          },
+        ],
+      });
+    });
+
+    it('should fetch stocks institutional investors\' trades without foreign dealers for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-institutional-without-foreign-dealers.json') });
+
+      const data = await scraper.fetchStocksInstitutional({ date: '2014-12-01', symbol: '006201' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?d=103%2F12%2F01&se=EW&t=D&o=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual({
+        date: '2014-12-01',
+        exchange: 'TPEx',
+        symbol: '006201',
+        name: '寶富櫃',
+        institutional: [
+          {
+            investor: '外資及陸資',
+            totalBuy: 0,
+            totalSell: 0,
+            difference: 0,
+          },
+          {
+            investor: '投信',
+            totalBuy: 0,
+            totalSell: 0,
+            difference: 0,
+          },
+          {
+            investor: '自營商',
+            difference: -14000,
+          },
+          {
+            investor: '自營商(自行買賣)',
+            totalBuy: 0,
+            totalSell: 0,
+            difference: 0,
+          },
+          {
+            investor: '自營商(避險)',
+            totalBuy: 0,
+            totalSell: 14000,
+            difference: -14000,
+          },
+          {
+            investor: '三大法人',
+            difference: -14000,
           },
         ],
       });

@@ -108,7 +108,7 @@ describe('TwseScraper', () => {
             difference: 937673,
           },
           {
-            investor: '自營商合計',
+            investor: '自營商',
             difference: 880408,
           },
           {
@@ -124,7 +124,7 @@ describe('TwseScraper', () => {
             difference: 439408,
           },
           {
-            investor: '合計',
+            investor: '三大法人',
             difference: 82459130,
           },
         ],
@@ -962,7 +962,7 @@ describe('TwseScraper', () => {
             difference: -36789050,
           },
           {
-            investor: '合計',
+            investor: '三大法人',
             totalBuy: 226200542418,
             totalSell: 143066882919,
             difference: 83133659499,
