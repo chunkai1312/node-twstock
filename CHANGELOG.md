@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.12](https://github.com/chunkai1312/node-twstock/compare/v1.3.11...v1.3.12) (2024-10-24)
+
+
+### Bug Fixes
+
+* correct field mapping for institutional investors' trades in TPEx stocks ([d5e1906](https://github.com/chunkai1312/node-twstock/commit/d5e1906ab75f302a8c66d231ff7edb3a394d47df))
+* update default limit in RateLimitOptions to prevent excessive request frequency ([fc4d7b1](https://github.com/chunkai1312/node-twstock/commit/fc4d7b196bb74925694c0cffb4a5d5711b7b84c4))
+
 ## [1.3.11](https://github.com/chunkai1312/node-twstock/compare/v1.3.10...v1.3.11) (2024-10-10)
 
 
