@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.4.0](https://github.com/chunkai1312/node-twstock/compare/v1.3.14...v1.4.0) (2024-10-28)
+
+
+### Features
+
+* add support for retrieving stocks' shareholders from the recent week ([192e47c](https://github.com/chunkai1312/node-twstock/commit/192e47c7672e3cb2fce99b9b8561e82b9bd7ede8))
+
 ## [1.3.14](https://github.com/chunkai1312/node-twstock/compare/v1.3.13...v1.3.14) (2024-10-28)
 
 
