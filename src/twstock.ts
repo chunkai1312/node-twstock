@@ -291,7 +291,9 @@ export class TwStock {
       : await this._scraper.getTwseScraper().fetchStocksShortSales({ date, symbol });
   }
 
-  private async fetchStocksShareholders(options: { date: string, symbol: string }) {
+  private async fetchStocksShareholders(options?: { date?: string, symbol: string }) {
+    if (!options) return this._scraper.getTdccScraper().fetchStocksShareholdersRecentWeek();
+
     const { date, symbol } = options;
 
     if (symbol && !this._stocks.has(symbol)) {
@@ -299,7 +301,9 @@ export class TwStock {
       if (!stocks.length) throw new Error('symbol not found');
     }
 
-    return this._scraper.getTdccScraper().fetchStocksShareholders({ date, symbol });
+    return (!date)
+      ? this._scraper.getTdccScraper().fetchStocksShareholdersRecentWeek({ symbol })
+      : this._scraper.getTdccScraper().fetchStocksShareholders({ date, symbol });
   }
 
   private async fetchStocksEps(options: { year: number, quarter: number, exchange?: 'TWSE' | 'TPEx', symbol?: string }) {

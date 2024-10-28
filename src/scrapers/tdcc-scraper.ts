@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import * as cheerio from 'cheerio';
 import * as numeral from 'numeral';
+import * as csvtojson from 'csvtojson';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
 
@@ -37,20 +38,52 @@ export class TdccScraper extends Scraper {
     const message = $response('.table tr').find('td').eq(0).text();
     if (message === '查無此資料') return null;
 
-    const info = $response('p:eq(0)').toString();
     const data: Record<string, any> = {};
     data.date = date;
-    data.symbol = (info.match(/證券代號：(\S+)/) as string[])[1];
-    data.name = (info.match(/證券名稱：(.+)/) as string[])[1];
+    data.symbol = symbol;
     data.shareholders = $response('.table tr').slice(1).map((_, el) => {
       const td = $response(el).find('td');
       return {
-        level: td.eq(1).text().trim(),
+        level: numeral(td.eq(0).text()).value(),
         holders: numeral(td.eq(2).text()).value(),
         shares: numeral(td.eq(3).text()).value(),
         proportion: numeral(td.eq(4).text()).value(),
       };
     }).toArray();
+
+    if (data.shareholders.length === 16) {
+      data.shareholders = [
+        ...data.shareholders.slice(0, -1),
+        { level: 16, holders: null, shares: 0, proportion: 0 },
+        { ...data.shareholders[data.shareholders.length - 1], level: 17 }
+      ];
+    }
+
     return data;
+  }
+
+  async fetchStocksShareholdersRecentWeek(options?: { symbol: string }) {
+    const url = 'https://smart.tdcc.com.tw/opendata/getOD.ashx?id=1-5';
+    const response = await this.httpService.get(url);
+    const json = await csvtojson({ noheader: true, output: 'csv' }).fromString(response.data);
+    const [ fields, ...rows ] = json;
+
+    const distributions = rows.map(row => ({
+      date: DateTime.fromFormat(row[0], 'yyyyMMdd').toISODate(),
+      symbol: row[1],
+      level: numeral(row[2]).value(),
+      holders: row[2] === '16' ? null : numeral(row[3]).value(),
+      shares: row[2] === '16' ? numeral(row[4]).multiply(-1).value() : numeral(row[4]).value(),
+      proportion: row[2] === '16' ? numeral(row[5]).multiply(-1).value() : numeral(row[5]).value(),
+    }));
+
+    const data = _(distributions).groupBy('symbol')
+      .map(rows => {
+        const { date, symbol } = rows[0];
+        const shareholders = rows.map(row => _.omit(row, ['date', 'symbol']));
+        return { date, symbol, shareholders };
+      }).value();
+
+    return options?.symbol ? data.find(data => data.symbol === options.symbol) : data;
   }
 }

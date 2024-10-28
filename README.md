@@ -505,12 +505,33 @@ twstock.stocks.values({ date: '2023-01-30', symbol: '2330' })
 * Returns: {Promise} 成功時以 {Object} 履行，包含以下屬性：
   * `date`: {string} 日期
   * `symbol`: {string} 股票代號
-  * `name`: {string} 股票名稱
   * `shareholders`: {Object[]} 集保分佈資料，其中 `Object` 包含以下屬性：
     * `level`: {string} 持股分級
     * `holders`: {number} 持股人數
     * `shares`: {number} 持股股數
     * `proportion`: {number} 持股比例
+
+#### 持股分級表
+
+| 持股分級 | 說明 |
+|---:|-----|
+| 1  | 1-999 |
+| 2  | 1,000-5,000 |
+| 3  | 5,001-10,000 |
+| 4  | 10,001-15,000 |
+| 5  | 15,001-20,000 |
+| 6  | 20,001-30,000 |
+| 7  | 30,001-40,000 |
+| 8  | 40,001-50,000 |
+| 9  | 50,001-100,000 |
+| 10 | 100,001-200,000 |
+| 11 | 200,001-400,000 |
+| 12 | 400,001-600,000 |
+| 13 | 600,001-800,000 |
+| 14 | 800,001-1,000,000 |
+| 15 | 1,000,001以上 |
+| 16 | 差異數調整 |
+| 17 | 合 計 |
 
 ```js
 twstock.stocks.shareholders({ date: '2023-12-29', symbol: '2330' })
@@ -522,7 +543,7 @@ twstock.stocks.shareholders({ date: '2023-12-29', symbol: '2330' })
 //   name: '台積電',
 //   shareholders: [
 //     {
-//       level: '1-999',
+//       level: 1,
 //       holders: 731332,
 //       shares: 136341404,
 //       proportion: 0.52

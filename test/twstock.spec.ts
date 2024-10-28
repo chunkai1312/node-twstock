@@ -344,6 +344,16 @@ describe('TwStock', () => {
       it('should throw an error if the symbol is not found', async () => {
         await expect(() => twstock.stocks.shareholders({ date: '2022-12-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
       });
+
+      it('should fetch stocks holders from the recent week', async () => {
+        await twstock.stocks.shareholders();
+        expect(TdccScraper.prototype.fetchStocksShareholdersRecentWeek).toBeCalledWith();
+      });
+
+      it('should fetch stocks holders for the symbol from the recent week', async () => {
+        await twstock.stocks.shareholders({ symbol: '2330' });
+        expect(TdccScraper.prototype.fetchStocksShareholdersRecentWeek).toBeCalledWith({ symbol: '2330' });
+      });
     });
 
     describe('.eps()', () => {
