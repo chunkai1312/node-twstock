@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.14](https://github.com/chunkai1312/node-twstock/compare/v1.3.13...v1.3.14) (2024-10-28)
+
+
+### Bug Fixes
+
+* switch to TPEx legacy site URL to resolve scraper errors affecting data retrieval ([491240a](https://github.com/chunkai1312/node-twstock/commit/491240ab9e7e84079966857bb92158e3c34abf50))
+
 ## [1.3.13](https://github.com/chunkai1312/node-twstock/compare/v1.3.12...v1.3.13) (2024-10-24)
 
 
