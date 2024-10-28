@@ -14,7 +14,7 @@ export class TpexScraper extends Scraper {
       d: `${+year - 1911}/${month}/${day}`,
       o: 'json',
     });
-    const url = `https://www.tpex.org.tw/web/stock/aftertrading/daily_close_quotes/stk_quote_result.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/stock/aftertrading/daily_close_quotes/stk_quote_result.php?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
@@ -52,7 +52,7 @@ export class TpexScraper extends Scraper {
       t: 'D',
       o: 'json',
     });
-    const url = `https://www.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
@@ -201,7 +201,7 @@ export class TpexScraper extends Scraper {
       d: `${+year - 1911}/${month}/${day}`,
       o: 'json',
     });
-    const url = `https://www.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
@@ -241,7 +241,7 @@ export class TpexScraper extends Scraper {
       d: `${+year - 1911}/${month}/${day}`,
       o: 'json',
     });
-    const url = `https://www.tpex.org.tw/web/stock/margin_trading/margin_sbl/margin_sbl_result.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_sbl/margin_sbl_result.php?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
@@ -280,7 +280,7 @@ export class TpexScraper extends Scraper {
       d: `${+year - 1911}/${month}/${day}`,
       o: 'json',
     });
-    const url = `https://www.tpex.org.tw/web/stock/aftertrading/peratio_analysis/pera_result.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/stock/aftertrading/peratio_analysis/pera_result.php?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
@@ -312,7 +312,7 @@ export class TpexScraper extends Scraper {
       ed: `${+endYear - 1911}/${endMonth}/${endDay}`,
       o: 'json',
     });
-    const url = `https://www.tpex.org.tw/web/stock/exright/dailyquo/exDailyQ_result.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/stock/exright/dailyquo/exDailyQ_result.php?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
@@ -352,7 +352,7 @@ export class TpexScraper extends Scraper {
       ed: `${+endYear - 1911}/${endMonth}/${endDay}`,
       o: 'json',
     });
-    const url = `https://www.tpex.org.tw/web/stock/exright/revivt/revivt_result.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/stock/exright/revivt/revivt_result.php?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
@@ -404,7 +404,7 @@ export class TpexScraper extends Scraper {
       ed: `${+endYear - 1911}/${endMonth}/${endDay}`,
       o: 'json',
     });
-    const url = `https://www.tpex.org.tw/web/bulletin/parvaluechg/rslt_result.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/bulletin/parvaluechg/rslt_result.php?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
@@ -436,7 +436,7 @@ export class TpexScraper extends Scraper {
     const query = new URLSearchParams({
       d: `${+year - 1911}/${month}/${day}`,
     });
-    const url = `https://www.tpex.org.tw/web/stock/iNdex_info/minute_index/1MIN_print.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/stock/iNdex_info/minute_index/1MIN_print.php?${query}`;
 
     const response = await this.httpService.get(url);
     const page = response.data;
@@ -494,7 +494,7 @@ export class TpexScraper extends Scraper {
       d: `${+year - 1911}/${month}/${day}`,
       o: 'json',
     });
-    const url = `https://www.tpex.org.tw/web/stock/historical/trading_vol_ratio/sectr_result.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/stock/historical/trading_vol_ratio/sectr_result.php?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
@@ -547,7 +547,7 @@ export class TpexScraper extends Scraper {
       d: `${+year - 1911}/${month}/${day}`,
       o: 'json',
     });
-    const url = `https://www.tpex.org.tw/web/stock/aftertrading/daily_trading_index/st41_result.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/stock/aftertrading/daily_trading_index/st41_result.php?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
@@ -576,7 +576,7 @@ export class TpexScraper extends Scraper {
       d: `${+year - 1911}/${month}/${day}`,
       o: 'json',
     });
-    const url = `https://www.tpex.org.tw/web/stock/aftertrading/market_highlight/highlight_result.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/stock/aftertrading/market_highlight/highlight_result.php?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
@@ -602,7 +602,7 @@ export class TpexScraper extends Scraper {
       t: 'D',
       o: 'json',
     });
-    const url = `https://www.tpex.org.tw/web/stock/3insti/3insti_summary/3itrdsum_result.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/stock/3insti/3insti_summary/3itrdsum_result.php?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
@@ -628,7 +628,7 @@ export class TpexScraper extends Scraper {
       d: `${+year - 1911}/${month}/${day}`,
       o: 'json',
     });
-    const url = `https://www.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?${query}`;
+    const url = `https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.iTotalRecords > 0 && response.data;
