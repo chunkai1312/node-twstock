@@ -19,7 +19,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksHistorical({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/aftertrading/daily_close_quotes/stk_quote_result.php?d=112%2F01%2F30&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data?.length).toBeGreaterThan(0);
@@ -30,7 +30,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksHistorical({ date: '2023-01-30', symbol: '6488' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/aftertrading/daily_close_quotes/stk_quote_result.php?d=112%2F01%2F30&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -54,7 +54,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksHistorical({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/aftertrading/daily_close_quotes/stk_quote_result.php?d=112%2F01%2F01&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes?date=2023%2F01%2F01&response=json',
       );
       expect(data).toBe(null);
     });
@@ -66,7 +66,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksInstitutional({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?d=112%2F01%2F30&se=EW&t=D&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/insti/dailyTrade?type=Daily&sect=EW&date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data?.length).toBeGreaterThan(0);
@@ -77,7 +77,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksInstitutional({ date: '2023-01-30', symbol: '6488' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?d=112%2F01%2F30&se=EW&t=D&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/insti/dailyTrade?type=Daily&sect=EW&date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -141,7 +141,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksInstitutional({ date: '2014-12-01', symbol: '006201' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?d=103%2F12%2F01&se=EW&t=D&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/insti/dailyTrade?type=Daily&sect=EW&date=2014%2F12%2F01&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -191,7 +191,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksInstitutional({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?d=112%2F01%2F01&se=EW&t=D&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/insti/dailyTrade?type=Daily&sect=EW&date=2023%2F01%2F01&response=json',
       );
       expect(data).toBe(null);
     });
@@ -254,7 +254,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?d=112%2F01%2F30&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/margin/balance?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data?.length).toBeGreaterThan(0);
@@ -265,7 +265,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30', symbol: '6488' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?d=112%2F01%2F30&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/margin/balance?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -295,7 +295,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?d=112%2F01%2F01&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/margin/balance?date=2023%2F01%2F01&response=json',
       );
       expect(data).toBe(null);
     });
@@ -307,7 +307,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksShortSales({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_sbl/margin_sbl_result.php?d=112%2F01%2F30&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/margin/sbl?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data?.length).toBeGreaterThan(0);
@@ -318,7 +318,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksShortSales({ date: '2023-01-30', symbol: '6488' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_sbl/margin_sbl_result.php?d=112%2F01%2F30&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/margin/sbl?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -347,7 +347,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksShortSales({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_sbl/margin_sbl_result.php?d=112%2F01%2F01&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/margin/sbl?date=2023%2F01%2F01&response=json',
       );
       expect(data).toBe(null);
     });
@@ -359,7 +359,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksValues({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/aftertrading/peratio_analysis/pera_result.php?d=112%2F01%2F30&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/afterTrading/peQryDate?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data?.length).toBeGreaterThan(0);
@@ -370,7 +370,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksValues({ date: '2023-01-30', symbol: '6488' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/aftertrading/peratio_analysis/pera_result.php?d=112%2F01%2F30&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/afterTrading/peQryDate?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -390,7 +390,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksValues({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/aftertrading/peratio_analysis/pera_result.php?d=112%2F01%2F01&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/afterTrading/peQryDate?date=2023%2F01%2F01&response=json',
       );
       expect(data).toBe(null);
     });
@@ -398,11 +398,12 @@ describe('TpexScraper', () => {
 
   describe('.fetchStocksDividends()', () => {
     it('should fetch stocks rights and dividend for the given startDate and endDate', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-dividends.json') });
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-dividends.json') });
 
       const data = await scraper.fetchStocksDividends({ startDate: '2024-03-22', endDate: '2024-03-23' });
-      expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/exright/dailyquo/exDailyQ_result.php?d=113%2F03%2F22&ed=113%2F03%2F23&o=json',
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/www/zh-tw/bulletin/exDailyQ',
+        new URLSearchParams({ startDate: '2024/03/22', endDate: '2024/03/23',response: 'json' }),
       );
       expect(data).toBeDefined();
       expect(data).toEqual([
@@ -456,12 +457,14 @@ describe('TpexScraper', () => {
         },
       ]);
     });
+
     it('should fetch stocks rights and dividend for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-dividends.json') });
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-dividends.json') });
 
       const data = await scraper.fetchStocksDividends({ startDate: '2024-03-22', endDate: '2024-03-23', symbol: '5478' });
-      expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/exright/dailyquo/exDailyQ_result.php?d=113%2F03%2F22&ed=113%2F03%2F23&o=json',
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/www/zh-tw/bulletin/exDailyQ',
+        new URLSearchParams({ startDate: '2024/03/22', endDate: '2024/03/23',response: 'json' }),
       );
       expect(data).toBeDefined();
       expect(data).toEqual([{
@@ -483,11 +486,12 @@ describe('TpexScraper', () => {
     });
 
     it('should return empty array when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-dividends-no-data.json') });
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-dividends-no-data.json') });
 
-      const data = await scraper.fetchStocksDividends({ startDate: '2024-02-08', endDate: '2024-02-14' });
-      expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/exright/dailyquo/exDailyQ_result.php?d=113%2F02%2F08&ed=113%2F02%2F14&o=json',
+      const data = await scraper.fetchStocksDividends({ startDate: '2024-01-01', endDate: '2024-01-01' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/www/zh-tw/bulletin/exDailyQ',
+        new URLSearchParams({ startDate: '2024/01/01', endDate: '2024/01/01',response: 'json' }),
       );
       expect(data).toEqual([]);
     });
@@ -495,11 +499,12 @@ describe('TpexScraper', () => {
 
   describe('.fetchStocksCapitalReduction()', () => {
     it('should fetch stocks capital reducation for the given startDate and endDate', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reduction.json') });
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reduction.json') });
 
-      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-06-28' });
-      expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/exright/revivt/revivt_result.php?d=113%2F01%2F01&ed=113%2F06%2F28&o=json',
+      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-07-01' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/www/zh-tw/bulletin/revivt',
+        new URLSearchParams({ startDate: '2024/01/01', endDate: '2024/07/01',response: 'json' }),
       );
       expect(data).toBeDefined();
       expect(data).toEqual([
@@ -538,11 +543,12 @@ describe('TpexScraper', () => {
       ]);
     });
     it('should fetch stocks capital reducation for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reduction.json') });
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reduction.json') });
 
-      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-06-28', symbol: '3064' });
-      expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/exright/revivt/revivt_result.php?d=113%2F01%2F01&ed=113%2F06%2F28&o=json',
+      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-07-01', symbol: '3064' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/www/zh-tw/bulletin/revivt',
+        new URLSearchParams({ startDate: '2024/01/01', endDate: '2024/07/01',response: 'json' }),
       );
       expect(data).toBeDefined();
       expect(data).toEqual([{
@@ -564,11 +570,12 @@ describe('TpexScraper', () => {
     });
 
     it('should return empty array when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reduction-no-data.json') });
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reduction-no-data.json') });
 
       const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-01-01' });
-      expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/exright/revivt/revivt_result.php?d=113%2F01%2F01&ed=113%2F01%2F01&o=json',
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/www/zh-tw/bulletin/revivt',
+        new URLSearchParams({ startDate: '2024/01/01', endDate: '2024/01/01',response: 'json' }),
       );
       expect(data).toEqual([]);
     });
@@ -576,11 +583,12 @@ describe('TpexScraper', () => {
 
   describe('.fetchStocksSplits()', () => {
     it('should fetch stocks splits for the given startDate and endDate', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-splits.json') });
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-splits.json') });
 
-      const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2024-05-03' });
-      expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/bulletin/parvaluechg/rslt_result.php?d=110%2F01%2F01&ed=113%2F05%2F03&o=json',
+      const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2024-01-01' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/www/zh-tw/bulletin/pvChgRslt',
+        new URLSearchParams({ startDate: '2021/01/01', endDate: '2024/01/01',response: 'json' }),
       );
       expect(data).toBeDefined();
       expect(data).toEqual([
@@ -630,12 +638,14 @@ describe('TpexScraper', () => {
         },
       ]);
     });
-    it('should fetch stocks splits for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-splits.json') });
 
-      const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2024-05-03', symbol: '6613' });
-      expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/bulletin/parvaluechg/rslt_result.php?d=110%2F01%2F01&ed=113%2F05%2F03&o=json',
+    it('should fetch stocks splits for the specified stock on the given date', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-splits.json') });
+
+      const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2024-07-01', symbol: '6613' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/www/zh-tw/bulletin/pvChgRslt',
+        new URLSearchParams({ startDate: '2021/01/01', endDate: '2024/07/01',response: 'json' }),
       );
       expect(data).toBeDefined();
       expect(data).toEqual([{
@@ -652,11 +662,12 @@ describe('TpexScraper', () => {
     });
 
     it('should return empty array when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-splits-no-data.json') });
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-splits-no-data.json') });
 
-      const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2021-01-01' });
-      expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/bulletin/parvaluechg/rslt_result.php?d=110%2F01%2F01&ed=110%2F01%2F01&o=json',
+      const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2022-01-01' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/www/zh-tw/bulletin/pvChgRslt',
+        new URLSearchParams({ startDate: '2021/01/01', endDate: '2022/01/01',response: 'json' }),
       );
       expect(data).toEqual([]);
     });
@@ -664,22 +675,22 @@ describe('TpexScraper', () => {
 
   describe('.fetchIndicesHistorical()', () => {
     it('should fetch indices historical data for the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tpex-indices-historical.html').toString() });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-indices-historical.json') });
 
       const data = await scraper.fetchIndicesHistorical({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/iNdex_info/minute_index/1MIN_print.php?d=112%2F01%2F30',
+        'https://www.tpex.org.tw/www/zh-tw/indexInfo/sectinx?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data?.length).toBeGreaterThan(0);
     });
 
     it('should fetch indices historical data for the specified index on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tpex-indices-historical.html').toString() });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-indices-historical.json') });
 
       const data = await scraper.fetchIndicesHistorical({ date: '2023-01-30', symbol: 'IX0043' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/iNdex_info/minute_index/1MIN_print.php?d=112%2F01%2F30',
+        'https://www.tpex.org.tw/www/zh-tw/indexInfo/sectinx?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -696,11 +707,11 @@ describe('TpexScraper', () => {
     });
 
     it('should return null when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tpex-indices-historical-no-data.html').toString() });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-indices-historical-no-data.json') });
 
       const data = await scraper.fetchIndicesHistorical({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/iNdex_info/minute_index/1MIN_print.php?d=112%2F01%2F01',
+        'https://www.tpex.org.tw/www/zh-tw/indexInfo/sectinx?date=2023%2F01%2F01&response=json',
       );
       expect(data).toBe(null);
     });
@@ -712,7 +723,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchIndicesTrades({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/historical/trading_vol_ratio/sectr_result.php?d=112%2F01%2F30&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/afterTrading/sectRatio?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data?.length).toBeGreaterThan(0);
@@ -723,7 +734,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchIndicesTrades({ date: '2023-01-30', symbol: 'IX0055' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/historical/trading_vol_ratio/sectr_result.php?d=112%2F01%2F30&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/afterTrading/sectRatio?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -742,7 +753,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchIndicesTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/historical/trading_vol_ratio/sectr_result.php?d=112%2F01%2F01&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/afterTrading/sectRatio?date=2023%2F01%2F01&response=json',
       );
       expect(data).toBe(null);
     });
@@ -754,17 +765,15 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchMarketTrades({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/aftertrading/daily_trading_index/st41_result.php?d=112%2F01%2F30&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/afterTrading/marketStats?type=Daily&date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
         date: '2023-01-30',
         exchange: 'TPEx',
-        tradeVolume: 630687778,
-        tradeValue: 62678685445,
-        transaction: 471626,
-        index: 193.23,
-        change: 4.73,
+        tradeVolume: 1178912970,
+        tradeValue: 67389437133,
+        transaction: 516472,
       });
     });
 
@@ -773,7 +782,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchMarketTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/aftertrading/daily_trading_index/st41_result.php?d=112%2F01%2F01&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/afterTrading/marketStats?type=Daily&date=2023%2F01%2F01&response=json',
       );
       expect(data).toBe(null);
     });
@@ -785,7 +794,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchMarketBreadth({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/aftertrading/market_highlight/highlight_result.php?d=112%2F01%2F30&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/afterTrading/highlight?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -805,7 +814,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchMarketBreadth({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/aftertrading/market_highlight/highlight_result.php?d=112%2F01%2F01&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/afterTrading/highlight?date=2023%2F01%2F01&response=json',
       );
       expect(data).toBe(null);
     });
@@ -817,7 +826,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchMarketInstitutional({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/3insti/3insti_summary/3itrdsum_result.php?d=112%2F01%2F30&t=D&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/insti/summary?type=Daily&date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -844,9 +853,9 @@ describe('TpexScraper', () => {
           },
           {
             investor: '投信',
-            totalBuy: 1543494365,
-            totalSell: 579611355,
-            difference: 963883010,
+            totalBuy: 1546109950,
+            totalSell: 581494970,
+            difference: 964614980,
           },
           {
             investor: '自營商合計',
@@ -868,9 +877,9 @@ describe('TpexScraper', () => {
           },
           {
             investor: '三大法人合計*',
-            totalBuy: 23740380371,
-            totalSell: 17934486601,
-            difference: 5805893770,
+            totalBuy: 23742995956,
+            totalSell: 17936370216,
+            difference: 5806625740,
           },
         ],
       });
@@ -881,7 +890,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchMarketInstitutional({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/3insti/3insti_summary/3itrdsum_result.php?d=112%2F01%2F01&t=D&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/insti/summary?type=Daily&date=2023%2F01%2F01&response=json',
       );
       expect(data).toBe(null);
     });
@@ -893,7 +902,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchMarketMarginTrades({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?d=112%2F01%2F30&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/margin/balance?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -922,7 +931,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchMarketMarginTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?d=112%2F01%2F01&o=json',
+        'https://www.tpex.org.tw/www/zh-tw/margin/balance?date=2023%2F01%2F01&response=json',
       );
       expect(data).toBe(null);
     });

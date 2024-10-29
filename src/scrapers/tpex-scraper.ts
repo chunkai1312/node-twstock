@@ -2,25 +2,25 @@ import * as _ from 'lodash';
 import * as cheerio from 'cheerio';
 import * as iconv from 'iconv-lite';
 import * as numeral from 'numeral';
+import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
-import { Exchange, Market } from '../enums';
+import { Exchange } from '../enums';
 import { asIndex, isWarrant } from '../utils';
 
 export class TpexScraper extends Scraper {
   async fetchStocksHistorical(options: { date: string, symbol?: string }) {
     const { date, symbol } = options;
-    const [ year, month, day ] = date.split('-');
     const query = new URLSearchParams({
-      d: `${+year - 1911}/${month}/${day}`,
-      o: 'json',
+      date: DateTime.fromISO(date).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/stock/aftertrading/daily_close_quotes/stk_quote_result.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes?${query}`;
 
     const response = await this.httpService.get(url);
-    const json = response.data.iTotalRecords > 0 && response.data;
+    const json = (response.data.tables[0].totalCount > 0) && response.data;
     if (!json) return null;
 
-    const data = json.aaData
+    const data = json.tables[0].data
       .filter((row: string[]) => !isWarrant(row[0]))
       .map((row: string[]) => {
         const [symbol, name, ...values] = row;
@@ -45,20 +45,19 @@ export class TpexScraper extends Scraper {
 
   async fetchStocksInstitutional(options: { date: string, symbol?: string }) {
     const { date, symbol } = options;
-    const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
-      d: `${+year - 1911}/${month}/${day}`,
-      se: 'EW',
-      t: 'D',
-      o: 'json',
+      type: 'Daily',
+      sect: 'EW',
+      date: DateTime.fromISO(date).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/stock/3insti/daily_trade/3itrade_hedge_result.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/insti/dailyTrade?${query}`;
 
     const response = await this.httpService.get(url);
-    const json = response.data.iTotalRecords > 0 && response.data;
+    const json = (response.data.tables[0].totalCount > 0 || response.data.tables[1].totalCount > 0) && response.data;
     if (!json) return null;
 
-    const data = json.aaData.map((row: string[]) => {
+    const data = (json.tables[0].data || json.tables[1].data).map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
@@ -67,7 +66,7 @@ export class TpexScraper extends Scraper {
       data.name = name.trim();
       data.institutional = ((values) => {
         switch (values.length) {
-          case 23: return [
+          case 22: return [
             {
               investor: '外資及陸資(不含外資自營商)',
               totalBuy: numeral(values[0]).value(),
@@ -115,7 +114,7 @@ export class TpexScraper extends Scraper {
               difference: numeral(values[21]).value(),
             },
           ];
-          case 15: return [
+          case 14: return [
             {
               investor: '外資及陸資',
               totalBuy: numeral(values[0]).value(),
@@ -196,18 +195,17 @@ export class TpexScraper extends Scraper {
 
   async fetchStocksMarginTrades(options: { date: string, symbol?: string }) {
     const { date, symbol } = options;
-    const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
-      d: `${+year - 1911}/${month}/${day}`,
-      o: 'json',
+      date: DateTime.fromISO(date).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/margin/balance?${query}`;
 
     const response = await this.httpService.get(url);
-    const json = response.data.iTotalRecords > 0 && response.data;
+    const json = (response.data.tables[0].totalCount > 0) && response.data;
     if (!json) return null;
 
-    const data = json.aaData.map((row: string[]) => {
+    const data = json.tables[0].data.map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
@@ -236,18 +234,17 @@ export class TpexScraper extends Scraper {
 
   async fetchStocksShortSales(options: { date: string, symbol?: string }) {
     const { date, symbol } = options;
-    const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
-      d: `${+year - 1911}/${month}/${day}`,
-      o: 'json',
+      date: DateTime.fromISO(date).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_sbl/margin_sbl_result.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/margin/sbl?${query}`;
 
     const response = await this.httpService.get(url);
-    const json = response.data.iTotalRecords > 0 && response.data;
+    const json = (response.data.tables[0].totalCount > 0) && response.data;
     if (!json) return null;
 
-    const data = json.aaData.map((row: string[]) => {
+    const data = json.tables[0].data.map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
@@ -275,18 +272,17 @@ export class TpexScraper extends Scraper {
 
   async fetchStocksValues(options: { date: string, symbol?: string }) {
     const { date, symbol } = options;
-    const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
-      d: `${+year - 1911}/${month}/${day}`,
-      o: 'json',
+      date: DateTime.fromISO(date).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/stock/aftertrading/peratio_analysis/pera_result.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/afterTrading/peQryDate?${query}`;
 
     const response = await this.httpService.get(url);
-    const json = response.data.iTotalRecords > 0 && response.data;
+    const json = (response.data.tables[0].totalCount > 0) && response.data;
     if (!json) return null;
 
-    const data = json.aaData.map((row: string[]) => {
+    const data = json.tables[0].data.map((row: string[]) => {
       const [symbol, name, ...values] = row;
       const data: Record<string, any> = {};
       data.date = date;
@@ -305,20 +301,18 @@ export class TpexScraper extends Scraper {
 
   async fetchStocksDividends(options: { startDate: string; endDate: string, symbol?: string }) {
     const { startDate, endDate, symbol } = options;
-    const [startYear, startMonth, startDay] = startDate.split('-')
-    const [endYear, endMonth, endDay] = endDate.split('-')
-    const query = new URLSearchParams({
-      d: `${+startYear - 1911}/${startMonth}/${startDay}`,
-      ed: `${+endYear - 1911}/${endMonth}/${endDay}`,
-      o: 'json',
+    const form = new URLSearchParams({
+      startDate: DateTime.fromISO(startDate).toFormat('yyyy/MM/dd'),
+      endDate: DateTime.fromISO(endDate).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/stock/exright/dailyquo/exDailyQ_result.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/bulletin/exDailyQ`;
 
-    const response = await this.httpService.get(url);
-    const json = response.data.iTotalRecords > 0 && response.data;
+    const response = await this.httpService.post(url, form);
+    const json = (response.data.tables[0].totalCount > 0) && response.data;
     if (!json) return [];
 
-    const data = json.aaData.map((row: string[]) => {
+    const data = json.tables[0].data.map((row: string[]) => {
       const [date, symbol, name, ...values] = row;
       const [year, month, day] = date.split('/');
       const data: Record<string, any> = {};
@@ -345,20 +339,18 @@ export class TpexScraper extends Scraper {
 
   async fetchStocksCapitalReduction(options: { startDate: string; endDate: string, symbol?: string }) {
     const { startDate, endDate, symbol } = options;
-    const [startYear, startMonth, startDay] = startDate.split('-')
-    const [endYear, endMonth, endDay] = endDate.split('-')
-    const query = new URLSearchParams({
-      d: `${+startYear - 1911}/${startMonth}/${startDay}`,
-      ed: `${+endYear - 1911}/${endMonth}/${endDay}`,
-      o: 'json',
+    const form = new URLSearchParams({
+      startDate: DateTime.fromISO(startDate).toFormat('yyyy/MM/dd'),
+      endDate: DateTime.fromISO(endDate).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/stock/exright/revivt/revivt_result.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/bulletin/revivt`;
 
-    const response = await this.httpService.get(url);
-    const json = response.data.iTotalRecords > 0 && response.data;
+    const response = await this.httpService.post(url, form);
+    const json = (response.data.tables[0].totalCount > 0) && response.data;
     if (!json) return [];
 
-    const data = json.aaData.map((row: string[]) => {
+    const data = json.tables[0].data.map((row: string[]) => {
       const [date, symbol, name, ...values] = row;
 
       const data: Record<string, any> = {};
@@ -374,19 +366,15 @@ export class TpexScraper extends Scraper {
       data.exrightReferencePrice = numeral(values[5]).value();
       data.reason = values[6].trim();
 
-      const urlPattern = /window\.open\('(.+?)',/;
-      const match = values[7].match(urlPattern);
-
-      if (match) {
-        const url = match[1];
-        const urlParams = new URLSearchParams(url.split('?')[1]);
-        const details = [...urlParams.values()];
-        data.haltDate = `${details[2]}`.replace(
-          /(\d{3})(\d{2})(\d{2})/,
-          (_, year, month, day) => `${+year + 1911}-${month}-${day}`
-        );
-        data.sharesPerThousand = numeral(details[4]).value();
-        data.refundPerShare = numeral(details[5]).value();
+      if (values[7]) {
+        const $ = cheerio.load(values[7]);
+        const haltDate = $(`th:contains('停止買賣日期')`).next('td').text().trim();
+        const sharesPerThousand = $(`th:contains('每壹仟股換發新股票')`).next('td').text().trim();
+        const refundPerShare = $(`th:contains('每股退還股款')`).next('td').text().trim();
+        const [year, month, day] = haltDate.split('/');
+        data.haltDate = `${+year + 1911}-${month}-${day}`;
+        data.sharesPerThousand = numeral(sharesPerThousand.replace(' 股', '')).value();
+        data.refundPerShare = numeral(refundPerShare.replace(' 元/股', '')).value();
       }
 
       return data;
@@ -397,20 +385,18 @@ export class TpexScraper extends Scraper {
 
   async fetchStocksSplits(options: { startDate: string; endDate: string, symbol?: string }) {
     const { startDate, endDate, symbol } = options;
-    const [startYear, startMonth, startDay] = startDate.split('-')
-    const [endYear, endMonth, endDay] = endDate.split('-')
-    const query = new URLSearchParams({
-      d: `${+startYear - 1911}/${startMonth}/${startDay}`,
-      ed: `${+endYear - 1911}/${endMonth}/${endDay}`,
-      o: 'json',
+    const form = new URLSearchParams({
+      startDate: DateTime.fromISO(startDate).toFormat('yyyy/MM/dd'),
+      endDate: DateTime.fromISO(endDate).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/bulletin/parvaluechg/rslt_result.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/bulletin/pvChgRslt`;
 
-    const response = await this.httpService.get(url);
-    const json = response.data.iTotalRecords > 0 && response.data;
+    const response = await this.httpService.post(url, form);
+    const json = (response.data.tables[0].totalCount > 0) && response.data;
     if (!json) return [];
 
-    const data = json.aaData.map((row: string[]) => {
+    const data = json.tables[0].data.map((row: string[]) => {
       const [date, symbol, name, ...values] = row;
 
       const data: Record<string, any> = {};
@@ -432,75 +418,48 @@ export class TpexScraper extends Scraper {
 
   async fetchIndicesHistorical(options: { date: string, symbol?: string }) {
     const { date, symbol } = options;
-    const [ year, month, day ] = date.split('-');
     const query = new URLSearchParams({
-      d: `${+year - 1911}/${month}/${day}`,
+      date: DateTime.fromISO(date).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/stock/iNdex_info/minute_index/1MIN_print.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/indexInfo/sectinx?${query}`;
 
     const response = await this.httpService.get(url);
-    const page = response.data;
-    const $ = cheerio.load(page);
+    const json = (response.data.tables[0].totalCount > 0) && response.data;
+    if (!json) return null;
 
-    const total = $('tfoot tr td').text().trim();
-    if (total === '共0筆') return null;
+    const data = json.tables[0].data.map((row: string[]) => {
+      const [_, ...values] = row;
+      const name = (row[0] !== '櫃買指數') ? `櫃買${row[0].replace('類', '')}類指數` : row[0];
+      const data: Record<string, any> = {};
+      data.date = date,
+      data.exchange = Exchange.TPEx;
+      data.symbol = asIndex(name),
+      data.name = name;
+      data.open = numeral(values[2]).value();
+      data.high = numeral(values[3]).value();
+      data.low = numeral(values[4]).value();
+      data.close = numeral(values[0]).value();
+      data.change = numeral(values[1]).value();
+      return data;
+    }) as Record<string, any>[];
 
-    const indices = $('thead tr th').slice(1, -7).map((_, el) => {
-      const name = $(el).text().trim();
-      const index = (name !== '櫃買指數') ? `櫃買${name.replace('類', '')}類指數` : name;
-      return {
-        symbol: asIndex(index),
-        name: index,
-      };
-    }).toArray();
-
-    const quotes = $('tbody tr').map((_, el) => {
-      const td = $(el).find('td');
-      const row = td.map((_, el) => $(el).text().trim()).toArray();
-      const [time, ...values] = row;
-      return values.slice(0, -7).map((value: any, i: number) => ({
-        date,
-        time,
-        symbol: indices[i].symbol,
-        name: indices[i].name,
-        price: numeral(value).value(),
-      }));
-    }).toArray() as any;
-
-    const data = _(quotes).groupBy('symbol')
-      .map(quotes => {
-        const [prev, ...rows] = quotes;
-        const { date, symbol, name } = prev;
-        const data: Record<string, any> = {};
-        data.date = date,
-        data.exchange = Exchange.TPEx;
-        data.symbol = symbol,
-        data.name = name.trim();
-        data.open = _.minBy(rows, 'time').price;
-        data.high = _.maxBy(rows, 'price').price;
-        data.low = _.minBy(rows, 'price').price;
-        data.close = _.maxBy(rows, 'time').price;
-        data.change = numeral(data.close).subtract(prev.price).value();
-        return data;
-      }).value() as Record<string, any>[];
-
-      return symbol ? data.find(data => data.symbol === symbol) : data;
+    return symbol ? data.find(data => data.symbol === symbol) : data;
   }
 
   async fetchIndicesTrades(options: { date: string, symbol?: string }) {
     const { date, symbol } = options;
-    const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
-      d: `${+year - 1911}/${month}/${day}`,
-      o: 'json',
+      date: DateTime.fromISO(date).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/stock/historical/trading_vol_ratio/sectr_result.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/afterTrading/sectRatio?${query}`;
 
     const response = await this.httpService.get(url);
-    const json = response.data.iTotalRecords > 0 && response.data;
+    const json = (response.data.tables[0].totalCount > 0) && response.data;
     if (!json) return null;
 
-    let data = json.aaData.map((values: string[]) => {
+    let data = json.tables[0].data.map((values: string[]) => {
       const index = `櫃買${values[0]}類指數`
       const data: Record<string, any> = {};
       data.date = date,
@@ -542,76 +501,69 @@ export class TpexScraper extends Scraper {
 
   async fetchMarketTrades(options: { date: string }) {
     const { date } = options;
-    const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
-      d: `${+year - 1911}/${month}/${day}`,
-      o: 'json',
+      type: 'Daily',
+      date: DateTime.fromISO(date).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/stock/aftertrading/daily_trading_index/st41_result.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/afterTrading/marketStats?${query}`;
 
     const response = await this.httpService.get(url);
-    const json = response.data.iTotalRecords > 0 && response.data;
+    const json = (response.data.tables[0].data.length) && response.data;
     if (!json) return null;
 
-    const data = json.aaData.map((row: string[]) => {
-      const [year, month, day] = row[0].split('/');
-      return {
-        date: `${+year + 1911}-${month}-${day}`,
-        exchange: Exchange.TPEx,
-        tradeVolume: numeral(row[1]).value(),
-        tradeValue: numeral(row[2]).value(),
-        transaction: numeral(row[3]).value(),
-        index: numeral(row[4]).value(),
-        change: numeral(row[5]).value(),
-      };
-    }) as Record<string, any>[];
+    const [ _, ...values ] = json.tables[0].summary[1];
+    const data: Record<string, any> = {};
+    data.date = date,
+    data.exchange = Exchange.TPEx;
+    data.tradeVolume = numeral(values[1]).value();
+    data.tradeValue = numeral(values[0]).value();
+    data.transaction = numeral(values[2]).value();
 
-    return data.find(data => data.date === date);
+    return data;
   }
 
   async fetchMarketBreadth(options: { date: string }) {
     const { date } = options;
-    const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
-      d: `${+year - 1911}/${month}/${day}`,
-      o: 'json',
+      date: DateTime.fromISO(date).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/stock/aftertrading/market_highlight/highlight_result.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/afterTrading/highlight?${query}`;
 
     const response = await this.httpService.get(url);
-    const json = response.data.iTotalRecords > 0 && response.data;
+    const json = response.data.stat === 'ok' && response.data;
     if (!json) return null;
 
     const data: Record<string, any> = {};
     data.date = date;
     data.exchange = Exchange.TPEx;
-    data.up = numeral(json.upNum).value();
-    data.limitUp = numeral(json.upStopNum).value();
-    data.down = numeral(json.downNum).value();
-    data.limitDown = numeral(json.downStopNum).value();
-    data.unchanged = numeral(json.noChangeNum).value();
-    data.unmatched= numeral(json.noTradeNum).value();
+    data.up = numeral(json.tables[0].data[0][7]).value();
+    data.limitUp = numeral(json.tables[0].data[0][8]).value();
+    data.down = numeral(json.tables[0].data[0][9]).value();
+    data.limitDown = numeral(json.tables[0].data[0][10]).value();
+    data.unchanged = numeral(json.tables[0].data[0][11]).value();
+    data.unmatched= numeral(json.tables[0].data[0][12]).value();
     return data;
   }
 
   async fetchMarketInstitutional(options: { date: string }) {
     const { date } = options;
-    const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
-      d: `${+year - 1911}/${month}/${day}`,
-      t: 'D',
-      o: 'json',
+      type: 'Daily',
+      date: DateTime.fromISO(date).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/stock/3insti/3insti_summary/3itrdsum_result.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/insti/summary?${query}`;
 
     const response = await this.httpService.get(url);
-    const json = response.data.iTotalRecords > 0 && response.data;
+    const json = (response.data.tables[0].data.length) && response.data;
     if (!json) return null;
 
     const data: Record<string, any> = {};
     data.date = date;
     data.exchange = Exchange.TPEx,
-    data.institutional = json.aaData.map((row: string[]) => ({
+    data.institutional = json.tables[0].data.map((row: string[]) => ({
       investor: row[0].trim(),
       totalBuy: numeral(row[1]).value(),
       totalSell: numeral(row[2]).value(),
@@ -623,18 +575,17 @@ export class TpexScraper extends Scraper {
 
   async fetchMarketMarginTrades(options: { date: string }) {
     const { date } = options;
-    const [year, month, day] = date.split('-');
     const query = new URLSearchParams({
-      d: `${+year - 1911}/${month}/${day}`,
-      o: 'json',
+      date: DateTime.fromISO(date).toFormat('yyyy/MM/dd'),
+      response: 'json',
     });
-    const url = `https://wwwov.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?${query}`;
+    const url = `https://www.tpex.org.tw/www/zh-tw/margin/balance?${query}`;
 
     const response = await this.httpService.get(url);
-    const json = response.data.iTotalRecords > 0 && response.data;
+    const json = (response.data.tables[0].totalCount > 0) && response.data;
     if (!json) return null;
 
-    const values = [...json.tfootData_one, ...json.tfootData_two];
+    const values = [...json.tables[0].summary[0].slice(2, -5), ...json.tables[0].summary[1].slice(2)];
     const data: Record<string, any> = {};
     data.date = date;
     data.exchange = Exchange.TPEx;

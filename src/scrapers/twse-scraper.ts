@@ -570,26 +570,21 @@ export class TwseScraper extends Scraper {
       date: DateTime.fromISO(date).toFormat('yyyyMMdd'),
       response: 'json',
     });
-    const url = `https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?${query}`;
+    const url = `https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?${query}`;
 
-    const response = await this.httpService.get(url);
+    const response = await this.httpService.get(url, { headers: { 'Connection': 'keep-alive' }});
     const json = (response.data.stat === 'OK') && response.data;
     if (!json) return null;
 
-    const data = json.data.map((row: string[]) => {
-      const [year, month, day] = row[0].split('/');
-      return {
-        date: `${+year + 1911}-${month}-${day}`,
-        exchange: Exchange.TWSE,
-        tradeVolume: numeral(row[1]).value(),
-        tradeValue: numeral(row[2]).value(),
-        transaction: numeral(row[3]).value(),
-        index: numeral(row[4]).value(),
-        change: numeral(row[5]).value(),
-      };
-    }) as Record<string, any>[];
+    const [ _, ...values ] = json.tables[6].data.slice(-1)[0];
+    const data: Record<string, any> = {};
+    data.date = date,
+    data.exchange = Exchange.TWSE;
+    data.tradeVolume = numeral(values[1]).value();
+    data.tradeValue = numeral(values[0]).value();
+    data.transaction = numeral(values[2]).value();
 
-    return data.find(data => data.date === date);
+    return data;
   }
 
   async fetchMarketBreadth(options: { date: string }) {
@@ -600,7 +595,7 @@ export class TwseScraper extends Scraper {
     });
     const url = `https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?${query}`;
 
-    const response = await this.httpService.get(url);
+    const response = await this.httpService.get(url, { headers: { 'Connection': 'keep-alive' }});
     const json = (response.data.stat === 'OK') && response.data;
     if (!json) return null;
 

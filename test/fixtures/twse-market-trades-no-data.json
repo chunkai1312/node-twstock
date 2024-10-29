@@ -1,1 +1,1 @@
-{"stat":"查詢日期大於今日，請重新查詢!"}
+{"tables":[{},{},{},{},{},{},{},{},{},{}],"params":{"date":"20230101","type":"MS","response":"json","controller":"afterTrading","action":"MI_INDEX","lang":"zh"},"stat":"很抱歉，沒有符合條件的資料!","date":"20230101"}

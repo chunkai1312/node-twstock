@@ -856,7 +856,7 @@ describe('TwseScraper', () => {
           switch (url) {
             case 'https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?date=20230130&response=json':
               return resolve({ data: require('../fixtures/twse-indices-trades.json') });
-            case 'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20230130&response=json':
+            case 'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230130&response=json':
               return resolve({ data: require('../fixtures/twse-market-trades.json') });
             default: return reject();
           }
@@ -877,7 +877,7 @@ describe('TwseScraper', () => {
           switch (url) {
             case 'https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?date=20230130&response=json':
               return resolve({ data: require('../fixtures/twse-indices-trades.json') });
-            case 'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20230130&response=json':
+            case 'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230130&response=json':
               return resolve({ data: require('../fixtures/twse-market-trades.json') });
             default: return reject();
           }
@@ -907,7 +907,7 @@ describe('TwseScraper', () => {
           switch (url) {
             case 'https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?date=20230101&response=json':
               return resolve({ data: require('../fixtures/twse-indices-trades.json') });
-            case 'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20230101&response=json':
+            case 'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230101&response=json':
               return resolve({ data: require('../fixtures/twse-market-trades-no-data.json') });
             default: return reject();
           }
@@ -949,7 +949,8 @@ describe('TwseScraper', () => {
 
       const data = await scraper.fetchMarketTrades({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20230130&response=json',
+        'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230130&response=json',
+        { headers: { 'Connection': 'keep-alive' }},
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -958,8 +959,6 @@ describe('TwseScraper', () => {
         tradeVolume: 6919326963,
         tradeValue: 354872347181,
         transaction: 2330770,
-        index: 15493.82,
-        change: 560.89,
       });
     });
 
@@ -968,7 +967,8 @@ describe('TwseScraper', () => {
 
       const data = await scraper.fetchMarketTrades({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20230101&response=json',
+        'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230101&response=json',
+        { headers: { 'Connection': 'keep-alive' }},
       );
       expect(data).toBe(null);
     });
@@ -981,6 +981,7 @@ describe('TwseScraper', () => {
       const data = await scraper.fetchMarketBreadth({ date: '2023-01-30' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230130&response=json',
+        { headers: { 'Connection': 'keep-alive' }},
       );
       expect(data).toBeDefined();
       expect(data).toEqual({
@@ -1002,6 +1003,7 @@ describe('TwseScraper', () => {
       const data = await scraper.fetchMarketBreadth({ date: '2023-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230101&response=json',
+        { headers: { 'Connection': 'keep-alive' }},
       );
       expect(data).toBe(null);
     });

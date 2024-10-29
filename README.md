@@ -896,8 +896,6 @@ twstock.indices.trades({ date: '2023-01-30', symbol: 'IX0028' })
   * `tradeVolume`: {number} 成交股數
   * `tradeValue`: {number} 成交金額
   * `transaction`: {number} 成交筆數
-  * `index`: {number} 大盤指數
-  * `change`: {number} 指數漲跌
 
 ```js
 twstock.market.trades({ date: '2023-01-30', exchange: 'TWSE' })
@@ -908,9 +906,7 @@ twstock.market.trades({ date: '2023-01-30', exchange: 'TWSE' })
 //   exchange: 'TWSE',
 //   tradeVolume: 6919326963,
 //   tradeValue: 354872347181,
-//   transaction: 2330770,
-//   index: 15493.82,
-//   change: 560.89
+//   transaction: 2330770
 // }
 ```
 
