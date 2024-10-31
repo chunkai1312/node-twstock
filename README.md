@@ -26,7 +26,7 @@
   * [.stocks.eps(options)](#stocksepsoptions)
   * [.stocks.revenue(options)](#stocksrevenueoptions)
   * [.stocks.dividends(options)](#stocksdividendsoptions)
-  * [.stocks.capitalReduction(options)](#stockscapitalreductionoptions)
+  * [.stocks.capitalReductions(options)](#stockscapitalreductionoptions)
   * [.stocks.splits(options)](#stockssplitsoptions)
   * [.indices.list([options])](#indiceslistoptions)
   * [.indices.quote(options)](#indicesquoteoptions)
@@ -665,7 +665,7 @@ twstock.stocks.dividends({ startDate: '2023-01-01', endDate: '2023-01-31', symbo
 // ]
 ```
 
-### `.stocks.capitalReduction(options)`
+### `.stocks.capitalReductions(options)`
 
 取得上市(櫃)股票在特定期間的普通股減資資料。
 
@@ -691,7 +691,7 @@ twstock.stocks.dividends({ startDate: '2023-01-01', endDate: '2023-01-31', symbo
   * `refundPerShare`: {number} 每股退還股款
 
 ```js
-twstock.stocks.capitalReduction({ startDate: '2023-02-01', endDate: '2023-02-28', exchange: 'TWSE' })
+twstock.stocks.capitalReductions({ startDate: '2023-02-01', endDate: '2023-02-28', exchange: 'TWSE' })
   .then(data => console.log(data));
 // Prints:
 // [
@@ -1189,7 +1189,7 @@ twstock.futopt.quote({ symbol: 'TXFA4' })
   * `bestAsk`: {number} 最後最佳賣價
   * `historicalHigh`: {number} 歷史最高價
   * `historicalLow`: {number} 歷史最低價
-  * `session`: {number} 交易時段
+  * `session`: {string} 交易時段
   * `volumeSpread`: {number} 價差對價差成交量
 
 ```js
@@ -1235,7 +1235,7 @@ twstock.futopt.historical({ date: '2023-01-30', symbol: 'TXF' })
   * `symbol`: {string} 契約代號
   * `name`: {string} 契約名稱
   * `institutional`: {Object[]} 三大法人交易口數、契約金額與未平倉餘額，其中 `Object` 包含以下屬性：
-    * `investor`: {number} 單位名稱
+    * `investor`: {string} 單位名稱
     * `longTradeVolume`: {number} 多方交易口數
     * `longTradeValue`: {number} 多方交易契約金額(千元)
     * `shortTradeVolume`: {number} 空方交易口數
