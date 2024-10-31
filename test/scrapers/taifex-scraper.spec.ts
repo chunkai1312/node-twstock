@@ -21,8 +21,8 @@ describe('TaifexScraper', () => {
       const data = await scraper.fetchListedStockFutOpt();
       expect(mockAxios.get).toHaveBeenCalledWith('https://www.taifex.com.tw/cht/2/stockLists');
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
-      expect(data?.[0]).toEqual({
+      expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
         symbol: 'CAF',
         name: '南亞期貨',
         exchange: 'TAIFEX',

@@ -484,6 +484,7 @@ describe('TwseScraper', () => {
         },
       ]);
     });
+
     it('should fetch stocks rights and dividend for the specified stock on the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-dividends.json') });
 
@@ -537,7 +538,7 @@ describe('TwseScraper', () => {
   });
 
   describe('.fetchStocksDividendsDetail()', () => {
-    it('should fetch capital reducation detail for the given date and symbol', async () => {
+    it('should fetch stock dividends detail for the given date and symbol', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-dividends-detail.json') });
 
       const data = await scraper.fetchStocksDividendsDetail({ date: '2024-03-04', symbol: '00913' });
@@ -564,9 +565,9 @@ describe('TwseScraper', () => {
     });
   });
 
-  describe('.fetchStocksCapitalReduction()', () => {
-    it('should fetch stocks capital reducation for the given startDate and endDate', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-capital-reduction.json') });
+  describe('.fetchStocksCapitalReductions()', () => {
+    it('should fetch stocks capital reducations for the given startDate and endDate', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-capital-reductions.json') });
 
       scraper.fetchStockCapitalReductionDetail = jest
         .fn()
@@ -592,7 +593,7 @@ describe('TwseScraper', () => {
           refundPerShare: 1.443336,
         });
 
-      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-06-28' });
+      const data = await scraper.fetchStocksCapitalReductions({ startDate: '2024-01-01', endDate: '2024-06-28' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/reducation/TWTAUU?startDate=20240101&endDate=20240628&response=json',
       );
@@ -648,8 +649,9 @@ describe('TwseScraper', () => {
         },
       ]);
     });
-    it('should fetch stocks capital reducation for the specified stock on the given date', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-capital-reduction.json') });
+
+    it('should fetch stocks capital reducations for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-capital-reductions.json') });
       const args = { startDate: '2024-01-01', endDate: '2024-06-28', symbol: '2911' }
 
       scraper.fetchStockCapitalReductionDetail = jest
@@ -676,7 +678,7 @@ describe('TwseScraper', () => {
           refundPerShare: 1.443336,
         });
 
-      const data = await scraper.fetchStocksCapitalReduction(args);
+      const data = await scraper.fetchStocksCapitalReductions(args);
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/reducation/TWTAUU?startDate=20240101&endDate=20240628&response=json',
       );
@@ -700,9 +702,9 @@ describe('TwseScraper', () => {
     });
 
     it('should return empty array when no data is available', async () => {
-      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-capital-reduction-no-data.json') });
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-capital-reductions-no-data.json') });
 
-      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-01-01' });
+      const data = await scraper.fetchStocksCapitalReductions({ startDate: '2024-01-01', endDate: '2024-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/reducation/TWTAUU?startDate=20240101&endDate=20240101&response=json',
       );

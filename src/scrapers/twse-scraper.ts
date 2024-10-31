@@ -383,7 +383,7 @@ export class TwseScraper extends Scraper {
     return data;
   }
 
-  async fetchStocksCapitalReduction(options: { startDate: string; endDate: string, symbol?: string }) {
+  async fetchStocksCapitalReductions(options: { startDate: string; endDate: string, symbol?: string }) {
     const { startDate, endDate, symbol } = options;
     const query = new URLSearchParams({
       startDate: DateTime.fromISO(startDate).toFormat('yyyyMMdd'),

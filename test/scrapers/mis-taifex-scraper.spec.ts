@@ -1,6 +1,6 @@
 import mockAxios from 'jest-mock-axios';
 import { MisTaifexScraper } from '../../src/scrapers/mis-taifex-scraper';
-import { Ticker } from '../../src/interfaces';
+import { FutOptQuote, Ticker } from '../../src/interfaces';
 
 describe('MisTaifexScraper', () => {
   let scraper: MisTaifexScraper;
@@ -78,7 +78,7 @@ describe('MisTaifexScraper', () => {
 
       const data = await scraper.fetchFutOptQuoteList({
         ticker: { symbol: 'TXF', type: 'F' } as Ticker,
-      });
+      }) as FutOptQuote[];
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://mis.taifex.com.tw/futures/api/getQuoteList',
         JSON.stringify({
@@ -89,7 +89,7 @@ describe('MisTaifexScraper', () => {
         { headers: { 'Content-Type': 'application/json' } },
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch futures realtime quote for afterhours trading', async () => {
@@ -98,7 +98,7 @@ describe('MisTaifexScraper', () => {
       const data = await scraper.fetchFutOptQuoteList({
         ticker: { symbol: 'TXF', type: 'F' } as Ticker,
         afterhours: true,
-      });
+      }) as FutOptQuote[];
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://mis.taifex.com.tw/futures/api/getQuoteList',
         JSON.stringify({
@@ -109,7 +109,7 @@ describe('MisTaifexScraper', () => {
         { headers: { 'Content-Type': 'application/json' } },
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch options realtime quote', async () => {
@@ -117,7 +117,7 @@ describe('MisTaifexScraper', () => {
 
       const data = await scraper.fetchFutOptQuoteList({
         ticker: { symbol: 'TXO', type: 'O' } as Ticker,
-      });
+      }) as FutOptQuote[];
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://mis.taifex.com.tw/futures/api/getQuoteList',
         JSON.stringify({
@@ -128,7 +128,7 @@ describe('MisTaifexScraper', () => {
         { headers: { 'Content-Type': 'application/json' } },
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch options realtime quote for afterhours trading', async () => {
@@ -137,7 +137,7 @@ describe('MisTaifexScraper', () => {
       const data = await scraper.fetchFutOptQuoteList({
         ticker: { symbol: 'TXO', type: 'O' } as Ticker,
         afterhours: true,
-      });
+      }) as FutOptQuote[];;
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://mis.taifex.com.tw/futures/api/getQuoteList',
         JSON.stringify({
@@ -148,7 +148,7 @@ describe('MisTaifexScraper', () => {
         { headers: { 'Content-Type': 'application/json' } },
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should return null when no data is available', async () => {

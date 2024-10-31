@@ -27,7 +27,7 @@ export class TwStock {
       eps: this.fetchStocksEps.bind(this),
       revenue: this.fetchStocksRevenue.bind(this),
       dividends: this.fetchStocksDividends.bind(this),
-      capitalReduction: this.fetchStocksCapitalReduction.bind(this),
+      capitalReductions: this.fetchStocksCapitalReductions.bind(this),
       splits: this.fetchStocksSplits.bind(this),
     };
   }
@@ -211,7 +211,7 @@ export class TwStock {
       : await this._scraper.getTwseScraper().fetchStocksSplits({ symbol, startDate, endDate });
   }
 
-  private async fetchStocksCapitalReduction(options: { exchange?: 'TWSE' | 'TPEx', startDate: string, endDate: string, symbol?: string }) {
+  private async fetchStocksCapitalReductions(options: { exchange?: 'TWSE' | 'TPEx', startDate: string, endDate: string, symbol?: string }) {
     const { symbol, startDate, endDate } = options;
 
     if (symbol && !this._stocks.has(symbol)) {
@@ -223,8 +223,8 @@ export class TwStock {
     const exchange = symbol ? ticker.exchange : options.exchange;
 
     return (exchange === Exchange.TPEx)
-      ? await this._scraper.getTpexScraper().fetchStocksCapitalReduction({ symbol, startDate, endDate })
-      : await this._scraper.getTwseScraper().fetchStocksCapitalReduction({ symbol, startDate, endDate });
+      ? await this._scraper.getTpexScraper().fetchStocksCapitalReductions({ symbol, startDate, endDate })
+      : await this._scraper.getTwseScraper().fetchStocksCapitalReductions({ symbol, startDate, endDate });
   }
 
   private async fetchStocksDividends(options: { startDate: string, endDate: string, exchange?: 'TWSE' | 'TPEx', symbol?: string }) {

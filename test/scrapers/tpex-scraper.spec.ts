@@ -499,10 +499,10 @@ describe('TpexScraper', () => {
   });
 
   describe('.fetchStocksCapitalReduction()', () => {
-    it('should fetch stocks capital reducation for the given startDate and endDate', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reduction.json') });
+    it('should fetch stocks capital reducations for the given startDate and endDate', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reductions.json') });
 
-      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-07-01' });
+      const data = await scraper.fetchStocksCapitalReductions({ startDate: '2024-01-01', endDate: '2024-07-01' });
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/www/zh-tw/bulletin/revivt',
         new URLSearchParams({ startDate: '2024/01/01', endDate: '2024/07/01',response: 'json' }),
@@ -543,10 +543,10 @@ describe('TpexScraper', () => {
         },
       ]);
     });
-    it('should fetch stocks capital reducation for the specified stock on the given date', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reduction.json') });
+    it('should fetch stocks capital reducations for the specified stock on the given date', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reductions.json') });
 
-      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-07-01', symbol: '3064' });
+      const data = await scraper.fetchStocksCapitalReductions({ startDate: '2024-01-01', endDate: '2024-07-01', symbol: '3064' });
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/www/zh-tw/bulletin/revivt',
         new URLSearchParams({ startDate: '2024/01/01', endDate: '2024/07/01',response: 'json' }),
@@ -571,9 +571,9 @@ describe('TpexScraper', () => {
     });
 
     it('should return empty array when no data is available', async () => {
-      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reduction-no-data.json') });
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-capital-reductions-no-data.json') });
 
-      const data = await scraper.fetchStocksCapitalReduction({ startDate: '2024-01-01', endDate: '2024-01-01' });
+      const data = await scraper.fetchStocksCapitalReductions({ startDate: '2024-01-01', endDate: '2024-01-01' });
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/www/zh-tw/bulletin/revivt',
         new URLSearchParams({ startDate: '2024/01/01', endDate: '2024/01/01',response: 'json' }),

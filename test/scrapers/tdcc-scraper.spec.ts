@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as cheerio from 'cheerio';
 import mockAxios from 'jest-mock-axios';
 import { TdccScraper } from '../../src/scrapers/tdcc-scraper';
+import { StockShareholders } from '../../src';
 
 describe('TdccScraper', () => {
   let scraper: TdccScraper;
@@ -153,10 +154,10 @@ describe('TdccScraper', () => {
     it('should fetch stocks holders', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/TDCC_OD_1-5.csv').toString() });
 
-      const data = await scraper.fetchStocksShareholdersRecentWeek();
+      const data = await scraper.fetchStocksShareholdersRecentWeek() as StockShareholders[];
       expect(mockAxios.get).toHaveBeenCalledWith('https://smart.tdcc.com.tw/opendata/getOD.ashx?id=1-5');
       expect(data).toBeDefined();
-      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch stocks holders for the specified stock', async () => {

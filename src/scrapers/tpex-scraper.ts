@@ -339,7 +339,7 @@ export class TpexScraper extends Scraper {
     return symbol ? data.filter((data) => data.symbol === symbol) : data;
   }
 
-  async fetchStocksCapitalReduction(options: { startDate: string; endDate: string, symbol?: string }) {
+  async fetchStocksCapitalReductions(options: { startDate: string; endDate: string, symbol?: string }) {
     const { startDate, endDate, symbol } = options;
     const form = new URLSearchParams({
       startDate: DateTime.fromISO(startDate).toFormat('yyyy/MM/dd'),
