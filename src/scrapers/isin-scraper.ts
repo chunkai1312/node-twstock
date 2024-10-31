@@ -4,6 +4,7 @@ import * as iconv from 'iconv-lite';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
 import { asExchange, asIndustry } from '../utils';
+import { FutOpt, Stock } from '../interfaces';
 
 export class IsinScraper extends Scraper {
   async fetchListed(options: { symbol: string }) {
@@ -23,7 +24,7 @@ export class IsinScraper extends Scraper {
         industry: asIndustry(td.eq(6).text().trim()),
         listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate(),
       } as Record<string, any>;
-    }).toArray();
+    }).toArray() as Stock[];
 
     return data;
   }
@@ -48,7 +49,7 @@ export class IsinScraper extends Scraper {
         industry: asIndustry(td.eq(6).text().trim()),
         listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate(),
       } as Record<string, any>;
-    }).toArray();
+    }).toArray() as Stock[];
 
     return data;
   }
@@ -69,7 +70,7 @@ export class IsinScraper extends Scraper {
         type: td.eq(5).text().trim(),
         listedDate: DateTime.fromFormat(td.eq(7).text().trim(), 'yyyy/MM/dd').toISODate(),
       } as Record<string, any>;
-    }).toArray();
+    }).toArray() as FutOpt[];
 
     return data.filter(row => {
       if (type === 'F') return row.type.includes('期貨');

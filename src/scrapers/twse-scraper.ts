@@ -4,6 +4,7 @@ import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
 import { Exchange } from '../enums';
 import { asIndex } from '../utils';
+import { IndexHistorical, IndexTrades, MarketBreadth, MarketInstitutional, MarketMarginTrades, MarketTrades, StockCapitalReductions, StockDividends, StockFiniHoldings, StockHistorical, StockInstitutional, StockMarginTrades, StockShortSales, StockSplits, StockValues } from '../interfaces';
 
 export class TwseScraper extends Scraper {
   async fetchStocksHistorical(options: { date: string, symbol?: string }) {
@@ -35,7 +36,7 @@ export class TwseScraper extends Scraper {
       data.transaction = numeral(values[1]).value();
       data.change = values[7].includes('green') ? numeral(values[8]).multiply(-1).value() : numeral(values[8]).value();
       return data;
-    }) as Record<string, any>[];
+    }) as StockHistorical[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -163,7 +164,7 @@ export class TwseScraper extends Scraper {
         }
       })(values);
       return data;
-    }) as Record<string, any>[];
+    }) as StockInstitutional[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -195,7 +196,7 @@ export class TwseScraper extends Scraper {
       data.heldPercent = numeral(values[4]).value();
       data.upperLimitPercent = numeral(values[5]).value();
       return data;
-    }) as Record<string, any>[];
+    }) as StockFiniHoldings[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -235,7 +236,7 @@ export class TwseScraper extends Scraper {
       data.offset = numeral(values[12]).value();
       data.note = values[13].trim();
       return data;
-    }) as Record<string, any>[];
+    }) as StockMarginTrades[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -273,7 +274,7 @@ export class TwseScraper extends Scraper {
       data.sblShortQuota = numeral(values[11]).value();
       data.note = values[12].trim();
       return data;
-    }) as Record<string, any>[];
+    }) as StockShortSales[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -303,7 +304,7 @@ export class TwseScraper extends Scraper {
       data.dividendYield = numeral(values[0]).value();
       data.dividendYear = numeral(values[1]).add(1911).value();
       return data;
-    }) as Record<string, any>[];
+    }) as StockValues[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -351,11 +352,8 @@ export class TwseScraper extends Scraper {
       const [_, detailDate] = values[8].split(',');
       const detail = await this.fetchStocksDividendsDetail({symbol, date: detailDate})
 
-      return {
-        ...data,
-        ...detail,
-      };
-    }) as Record<string, any>[]);
+      return { ...data, ...detail };
+    }) as StockDividends[]);
 
     return symbol ? data.filter((data) => data.symbol === symbol) : data;
   }
@@ -418,11 +416,8 @@ export class TwseScraper extends Scraper {
       const [_, detailDate] = values[7].split(',');
       const detail = await this.fetchStockCapitalReductionDetail({symbol, date: detailDate})
 
-      return {
-        ...data,
-        ...detail,
-      };
-    }) as Record<string, any>[]);
+      return { ...data, ...detail };
+    }) as StockCapitalReductions[]);
 
     return symbol ? data.filter((data) => data.symbol === symbol) : data;
   }
@@ -482,7 +477,7 @@ export class TwseScraper extends Scraper {
       data.limitDownPrice = numeral(values[3]).value();
       data.openingReferencePrice = numeral(values[4]).value();
       return data;
-    }) as Record<string, any>[];
+    }) as StockSplits[];
 
     return symbol ? data.filter((data) => data.symbol === symbol) : data;
   }
@@ -530,7 +525,7 @@ export class TwseScraper extends Scraper {
         data.close = _.maxBy(rows, 'time').price;
         data.change = numeral(data.close).subtract(prev.price).value();
         return data;
-      }).value() as Record<string, any>[];
+      }).value() as IndexHistorical[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -559,7 +554,7 @@ export class TwseScraper extends Scraper {
       data.tradeValue = numeral(row[2]).value();
       data.tradeWeight = +numeral(data.tradeValue).divide(market.tradeValue).multiply(100).format('0.00');
       return data;
-    }) as Record<string, any>[];
+    }) as IndexTrades[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -584,7 +579,7 @@ export class TwseScraper extends Scraper {
     data.tradeValue = numeral(values[0]).value();
     data.transaction = numeral(values[2]).value();
 
-    return data;
+    return data as MarketTrades;
   }
 
   async fetchMarketBreadth(options: { date: string }) {
@@ -614,7 +609,7 @@ export class TwseScraper extends Scraper {
     data.unchanged = numeral(unchanged).value();
     data.unmatched = numeral(unmatched).value();
     data.notApplicable = numeral(notApplicable).value();
-    return data;
+    return data as MarketBreadth;
   }
 
   async fetchMarketInstitutional(options: { date: string }) {
@@ -639,7 +634,7 @@ export class TwseScraper extends Scraper {
       totalSell: numeral(row[2]).value(),
       difference: numeral(row[3]).value(),
     }));
-    return data;
+    return data as MarketInstitutional;
   }
 
   async fetchMarketMarginTrades(options: { date: string }) {
@@ -674,6 +669,6 @@ export class TwseScraper extends Scraper {
     data.marginRedeemValue = numeral(values[12]).value();
     data.marginBalancePrevValue = numeral(values[13]).value();
     data.marginBalanceValue = numeral(values[14]).value();
-    return data;
+    return data as MarketMarginTrades;
   }
 }

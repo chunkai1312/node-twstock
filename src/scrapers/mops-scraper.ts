@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import * as iconv from 'iconv-lite';
 import * as numeral from 'numeral';
 import { Scraper } from './scraper';
+import { StockEps, StockRevenue } from '../interfaces';
 
 export class MopsScraper extends Scraper {
   async fetchStocksEps(options: { exchange: string, year: number, quarter: number, symbol?: string }) {
@@ -31,7 +32,7 @@ export class MopsScraper extends Scraper {
       const name = td.eq(1).text().trim();
       const eps = numeral(td.eq(td.length - 1).text().trim()).value();
       return { exchange, symbol, name, eps, year, quarter };
-    }).toArray() as Record<string, any>[];
+    }).toArray() as StockEps[];
 
     return symbol ? data.find(data => data.symbol === symbol) : _.sortBy(data, 'symbol');
   }
@@ -61,7 +62,7 @@ export class MopsScraper extends Scraper {
         const revenue = numeral(td.eq(2).text().trim()).value();
         return { exchange, symbol, name, revenue, year, month };
       })
-      .toArray() as Record<string, any>[];
+      .toArray() as StockRevenue[];
 
     return symbol ? data.find(data => data.symbol === symbol) : _.sortBy(data, 'symbol');
   }

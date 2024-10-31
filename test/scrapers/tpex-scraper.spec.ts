@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import mockAxios from 'jest-mock-axios';
 import { TpexScraper } from '../../src/scrapers/tpex-scraper';
+import { IndexHistorical, IndexTrades, StockFiniHoldings, StockHistorical, StockInstitutional, StockMarginTrades, StockShortSales, StockValues } from '../../src/interfaces';
 
 describe('TpexScraper', () => {
   let scraper: TpexScraper;
@@ -17,12 +18,12 @@ describe('TpexScraper', () => {
     it('should fetch stocks historical data for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-historical.json') });
 
-      const data = await scraper.fetchStocksHistorical({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksHistorical({ date: '2023-01-30' }) as StockHistorical[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch stocks historical data for the specified stock on the given date', async () => {
@@ -64,12 +65,12 @@ describe('TpexScraper', () => {
     it('should fetch stocks institutional investors\' trades for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-institutional.json') });
 
-      const data = await scraper.fetchStocksInstitutional({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksInstitutional({ date: '2023-01-30' }) as StockInstitutional[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/www/zh-tw/insti/dailyTrade?type=Daily&sect=EW&date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch stocks institutional investors\' trades for the specified stock on the given date', async () => {
@@ -201,14 +202,14 @@ describe('TpexScraper', () => {
     it('should fetch stocks FINI holdings for the given date', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/tpex-stocks-fini-holdings.html') });
 
-      const data = await scraper.fetchStocksFiniHoldings({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksFiniHoldings({ date: '2023-01-30' }) as StockFiniHoldings[];
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/server-java/t13sa150_otc',
         new URLSearchParams({ years: '2023', months: '01', days: '30', bcode: '', step: '2' }),
         { responseType: 'arraybuffer' },
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch stocks FINI holdings for the specified stock on the given date', async () => {
@@ -252,12 +253,12 @@ describe('TpexScraper', () => {
     it('should fetch stocks margin trades for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-margin-trades.json') });
 
-      const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30' }) as StockMarginTrades[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/www/zh-tw/margin/balance?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch stocks margin trades for the specified stock on the given date', async () => {
@@ -305,12 +306,12 @@ describe('TpexScraper', () => {
     it('should fetch stocks short sales for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-short-sales.json') });
 
-      const data = await scraper.fetchStocksShortSales({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksShortSales({ date: '2023-01-30' }) as StockShortSales[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/www/zh-tw/margin/sbl?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch stocks short sales for the specified stock on the given date', async () => {
@@ -357,12 +358,12 @@ describe('TpexScraper', () => {
     it('should fetch stocks values for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-values.json') });
 
-      const data = await scraper.fetchStocksValues({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksValues({ date: '2023-01-30' }) as StockValues[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/www/zh-tw/afterTrading/peQryDate?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch stocks values for the specified stock on the given date', async () => {
@@ -677,12 +678,12 @@ describe('TpexScraper', () => {
     it('should fetch indices historical data for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-indices-historical.json') });
 
-      const data = await scraper.fetchIndicesHistorical({ date: '2023-01-30' });
+      const data = await scraper.fetchIndicesHistorical({ date: '2023-01-30' }) as IndexHistorical[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/www/zh-tw/indexInfo/sectinx?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch indices historical data for the specified index on the given date', async () => {
@@ -721,12 +722,12 @@ describe('TpexScraper', () => {
     it('should fetch indices trades for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-indices-trades.json') });
 
-      const data = await scraper.fetchIndicesTrades({ date: '2023-01-30' });
+      const data = await scraper.fetchIndicesTrades({ date: '2023-01-30' }) as IndexTrades[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.tpex.org.tw/www/zh-tw/afterTrading/sectRatio?date=2023%2F01%2F30&response=json',
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch indices trades for the specified index on the given date', async () => {

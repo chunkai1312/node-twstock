@@ -445,6 +445,7 @@ export class TwStock {
         ? await this.loadFutOpt()
         : await this.loadFutOptContracts({ symbol });
 
+      // @ts-ignore
       if (!map(futopt, 'symbol').includes(symbol)) throw new Error('symbol not found');
     }
 

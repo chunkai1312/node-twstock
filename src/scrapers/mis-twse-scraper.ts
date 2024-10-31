@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as numeral from 'numeral';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
-import { Ticker } from '../interfaces';
+import { IndexQuote, StockQuote, Ticker } from '../interfaces';
 import { asIndex } from '../utils';
 
 export class MisTwseScraper extends Scraper {
@@ -61,7 +61,7 @@ export class MisTwseScraper extends Scraper {
       bidSize: row.g && row.g.split('_').slice(0, -1).map((size: string) => numeral(size).value()),
       askSize: row.f && row.f.split('_').slice(0, -1).map((size: string) => numeral(size).value()),
       lastUpdated: row.tlong && numeral(row.tlong).value(),
-    })) as Record<string, any>[];
+    })) as StockQuote[];
 
     return data.find(row => row.symbol === ticker.symbol);
   }
@@ -88,7 +88,7 @@ export class MisTwseScraper extends Scraper {
       close: row.z && numeral(row.z).value(),
       volume: row.v && numeral(row.v).value(),
       lastUpdated: row.tlong && numeral(row.tlong).value(),
-    })) as Record<string, any>[];
+    })) as IndexQuote[];
 
     return data.find(row => row.symbol === ticker.symbol);
   }

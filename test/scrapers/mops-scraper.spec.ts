@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import mockAxios from 'jest-mock-axios';
 import { MopsScraper } from '../../src/scrapers/mops-scraper';
+import { StockEps, StockRevenue } from '../../src/interfaces';
 
 describe('MopsScraper', () => {
   let scraper: MopsScraper;
@@ -17,7 +18,7 @@ describe('MopsScraper', () => {
     it('should fetch TWSE listed stocks quarterly EPS', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-twse-stocks-eps.html') });
 
-      const data = await scraper.fetchStocksEps({ exchange: 'TWSE', year: 2023, quarter: 1 });
+      const data = await scraper.fetchStocksEps({ exchange: 'TWSE', year: 2023, quarter: 1 }) as StockEps[];
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/mops/web/t163sb04',
         new URLSearchParams({
@@ -32,7 +33,7 @@ describe('MopsScraper', () => {
         }),
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch TWSE listed stocks quarterly EPS for the specified stock', async () => {
@@ -86,7 +87,7 @@ describe('MopsScraper', () => {
     it('should fetch TPEx listed stocks quarterly EPS', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-tpex-stocks-eps.html') });
 
-      const data = await scraper.fetchStocksEps({ exchange: 'TPEx', year: 2023, quarter: 1 });
+      const data = await scraper.fetchStocksEps({ exchange: 'TPEx', year: 2023, quarter: 1 }) as StockEps[];
       expect(mockAxios.post).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/mops/web/t163sb04',
         new URLSearchParams({
@@ -101,7 +102,7 @@ describe('MopsScraper', () => {
         }),
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch TPEx listed stocks quarterly EPS for the specified stock', async () => {
@@ -157,13 +158,13 @@ describe('MopsScraper', () => {
     it('should fetch TWSE listed stocks monthly revenue', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-twse-stocks-revenue.html') });
 
-      const data = await scraper.fetchStocksRevenue({ exchange: 'TWSE', year: 2023, month: 1 });
+      const data = await scraper.fetchStocksRevenue({ exchange: 'TWSE', year: 2023, month: 1 }) as StockRevenue[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/nas/t21/sii/t21sc03_112_1_0.html',
         { responseType: 'arraybuffer' },
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch TWSE listed stocks monthly revenue for the specified stock', async () => {
@@ -199,13 +200,13 @@ describe('MopsScraper', () => {
     it('should fetch TPEx listed stocks monthly revenue', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/mops-tpex-stocks-revenue.html') });
 
-      const data = await scraper.fetchStocksRevenue({ exchange: 'TPEx', year: 2023, month: 1 });
+      const data = await scraper.fetchStocksRevenue({ exchange: 'TPEx', year: 2023, month: 1 }) as StockRevenue[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mops.twse.com.tw/nas/t21/otc/t21sc03_112_1_0.html',
         { responseType: 'arraybuffer' },
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch TPEx listed stocks monthly revenue for the specified stock', async () => {

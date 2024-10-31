@@ -6,6 +6,8 @@ import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
 import { Exchange } from '../enums';
 import { asIndex, isWarrant } from '../utils';
+import { IndexHistorical, IndexTrades, MarketBreadth, MarketInstitutional, MarketMarginTrades, MarketTrades, StockCapitalReductions, StockDividends, StockFiniHoldings, StockHistorical, StockInstitutional, StockMarginTrades, StockShortSales, StockSplits, StockValues } from '../interfaces';
+
 
 export class TpexScraper extends Scraper {
   async fetchStocksHistorical(options: { date: string, symbol?: string }) {
@@ -38,7 +40,7 @@ export class TpexScraper extends Scraper {
         data.transaction = numeral(values[8]).value();
         data.change = numeral(values[1]).value();
         return data;
-      }) as Record<string, any>[];
+      }) as StockHistorical[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -151,7 +153,7 @@ export class TpexScraper extends Scraper {
         }
       })(values);
       return data;
-    }) as Record<string, any>[];
+    }) as StockInstitutional[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -188,7 +190,7 @@ export class TpexScraper extends Scraper {
         heldPercent: numeral(td.eq(6).text()).value(),
         upperLimitPercent: numeral(td.eq(7).text()).value(),
       };
-    }).toArray() as Record<string, any>[];
+    }).toArray() as StockFiniHoldings[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -227,7 +229,7 @@ export class TpexScraper extends Scraper {
       data.offset = numeral(values[16]).value();
       data.note = values[17].trim();
       return data;
-    }) as Record<string, any>[];
+    }) as StockMarginTrades[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -265,7 +267,7 @@ export class TpexScraper extends Scraper {
       data.sblShortQuota = numeral(values[11]).value();
       data.note = values[12].trim();
       return data;
-    }) as Record<string, any>[];
+    }) as StockShortSales[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -294,7 +296,7 @@ export class TpexScraper extends Scraper {
       data.dividendYield = numeral(values[3]).value();
       data.dividendYear = numeral(values[2]).add(1911).value();
       return data;
-    }) as Record<string, any>[];
+    }) as StockValues[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -332,7 +334,7 @@ export class TpexScraper extends Scraper {
       data.stockDividendShares = numeral(values[11]).value();
 
       return data;
-    }) as Record<string, any>[];
+    }) as StockDividends[];
 
     return symbol ? data.filter((data) => data.symbol === symbol) : data;
   }
@@ -378,7 +380,7 @@ export class TpexScraper extends Scraper {
       }
 
       return data;
-    }) as Record<string, any>[];
+    }) as StockCapitalReductions[];
 
     return symbol ? data.filter((data) => data.symbol === symbol) : data;
   }
@@ -411,7 +413,7 @@ export class TpexScraper extends Scraper {
       data.openingReferencePrice = numeral(values[4]).value();
 
       return data;
-    }) as Record<string, any>[];
+    }) as StockSplits[];
 
     return symbol ? data.filter((data) => data.symbol === symbol) : data;
   }
@@ -442,7 +444,7 @@ export class TpexScraper extends Scraper {
       data.close = numeral(values[0]).value();
       data.change = numeral(values[1]).value();
       return data;
-    }) as Record<string, any>[];
+    }) as IndexHistorical[];
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
@@ -470,7 +472,7 @@ export class TpexScraper extends Scraper {
       data.tradeValue = numeral(values[1]).value();
       data.tradeWeight = numeral(values[2]).value();
       return data;
-    }) as Record<string, any>[];
+    }) as IndexTrades[];
 
     if (!data.find(row => row.symbol === 'IX0047')) {
       const electronics = [
@@ -490,7 +492,7 @@ export class TpexScraper extends Scraper {
           tradeValue: _.sumBy(data, 'tradeValue'),
           tradeWeight: +numeral(_.sumBy(data, 'tradeWeight')).format('0.00'),
         }))
-        .value() as Record<string, any>[];
+        .value() as IndexTrades[];
 
       data = [...data, electronic];
     }
@@ -520,7 +522,7 @@ export class TpexScraper extends Scraper {
     data.tradeValue = numeral(values[0]).value();
     data.transaction = numeral(values[2]).value();
 
-    return data;
+    return data as MarketTrades;
   }
 
   async fetchMarketBreadth(options: { date: string }) {
@@ -544,7 +546,7 @@ export class TpexScraper extends Scraper {
     data.limitDown = numeral(json.tables[0].data[0][10]).value();
     data.unchanged = numeral(json.tables[0].data[0][11]).value();
     data.unmatched= numeral(json.tables[0].data[0][12]).value();
-    return data;
+    return data as MarketBreadth;
   }
 
   async fetchMarketInstitutional(options: { date: string }) {
@@ -570,7 +572,7 @@ export class TpexScraper extends Scraper {
       difference: numeral(row[3]).value(),
     }));
 
-    return data;
+    return data as MarketInstitutional;
   }
 
   async fetchMarketMarginTrades(options: { date: string }) {
@@ -604,6 +606,6 @@ export class TpexScraper extends Scraper {
     data.marginRedeemValue = numeral(values[16]).value();
     data.marginBalancePrevValue = numeral(values[13]).value();
     data.marginBalanceValue = numeral(values[17]).value();
-    return data;
+    return data as MarketMarginTrades;
   }
 }

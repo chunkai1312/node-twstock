@@ -1,5 +1,6 @@
 import mockAxios from 'jest-mock-axios';
 import { TwseScraper } from '../../src/scrapers/twse-scraper';
+import { IndexHistorical, IndexTrades, StockFiniHoldings, StockHistorical, StockInstitutional, StockMarginTrades, StockShortSales, StockValues } from '../../src/interfaces';
 
 describe('TwseScraper', () => {
   let scraper: TwseScraper;
@@ -16,13 +17,13 @@ describe('TwseScraper', () => {
     it('should fetch stocks historical data for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-historical.json') });
 
-      const data = await scraper.fetchStocksHistorical({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksHistorical({ date: '2023-01-30' }) as StockHistorical[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20230130&type=ALLBUT0999&response=json',
         { headers: { 'Connection': 'keep-alive' }},
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch stocks historical data for the specified stock on the given date', async () => {
@@ -66,12 +67,12 @@ describe('TwseScraper', () => {
     it('should fetch stocks institutional investors\' trades for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-institutional.json') });
 
-      const data = await scraper.fetchStocksInstitutional({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksInstitutional({ date: '2023-01-30' }) as StockInstitutional[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/fund/T86?date=20230130&selectType=ALLBUT0999&response=json',
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch stocks institutional investors\' trades for the specified stock on the given date', async () => {
@@ -235,12 +236,12 @@ describe('TwseScraper', () => {
     it('should fetch stocks FINI holdings for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-fini-holdings.json') });
 
-      const data = await scraper.fetchStocksFiniHoldings({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksFiniHoldings({ date: '2023-01-30' }) as StockFiniHoldings[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/fund/MI_QFIIS?date=20230130&selectType=ALLBUT0999&response=json',
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch stocks FINI holdings for the specified stock on the given date', async () => {
@@ -280,12 +281,12 @@ describe('TwseScraper', () => {
     it('should fetch stocks margin trades for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-margin-trades.json') });
 
-      const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-30' }) as StockMarginTrades[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20230130&selectType=ALL&response=json',
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch stocks margin trades for the specified stock on the given date', async () => {
@@ -321,7 +322,7 @@ describe('TwseScraper', () => {
     it('should return null when no data is available', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-margin-trades-no-data.json') });
 
-      const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-01' });
+      const data = await scraper.fetchStocksMarginTrades({ date: '2023-01-01' }) as StockMarginTrades[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20230101&selectType=ALL&response=json',
       );
@@ -333,12 +334,12 @@ describe('TwseScraper', () => {
     it('should fetch stocks short sales for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-short-sales.json') });
 
-      const data = await scraper.fetchStocksShortSales({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksShortSales({ date: '2023-01-30' }) as StockShortSales[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/marginTrading/TWT93U?date=20230130&response=json',
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch stocks short sales for the specified stock on the given date', async () => {
@@ -385,12 +386,12 @@ describe('TwseScraper', () => {
     it('should fetch stocks values for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-values.json') });
 
-      const data = await scraper.fetchStocksValues({ date: '2023-01-30' });
+      const data = await scraper.fetchStocksValues({ date: '2023-01-30' }) as StockValues[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?date=20230130&selectType=ALL&response=json',
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch stocks values for the specified stock on the given date', async () => {
@@ -808,12 +809,12 @@ describe('TwseScraper', () => {
     it('should fetch indices historical data for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-indices-historical.json') });
 
-      const data = await scraper.fetchIndicesHistorical({ date: '2023-01-30' });
+      const data = await scraper.fetchIndicesHistorical({ date: '2023-01-30' }) as IndexHistorical[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/TAIEX/MI_5MINS_INDEX?date=20230130&response=json',
       );
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch indices historical data for the specified index on the given date', async () => {
@@ -863,11 +864,12 @@ describe('TwseScraper', () => {
         });
       });
 
-      const data = await scraper.fetchIndicesTrades({ date: '2023-01-30' });
+      const data = await scraper.fetchIndicesTrades({ date: '2023-01-30' }) as IndexTrades[];
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://www.twse.com.tw/rwd/zh/afterTrading/BFIAMU?date=20230130&response=json',
       );
       expect(data).toBeDefined();
+      expect(data.length).toBeGreaterThan(0);
     });
 
     it('should fetch indices trades for the specified index on the given date', async () => {

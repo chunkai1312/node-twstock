@@ -4,8 +4,10 @@ import * as csvtojson from 'csvtojson';
 import * as iconv from 'iconv-lite';
 import * as numeral from 'numeral';
 import { DateTime } from 'luxon';
-import { Exchange, FutOpt } from '../enums';
+import { Exchange } from '../enums';
 import { Scraper } from './scraper';
+import { FutOptHistorical, FutOptInstitutional, FutOptLargeTraders, FutOptMxfRetailPosition, FutOptTmfRetailPosition, FutOptTxoPutCallRatio, StockFutOpt } from '../interfaces';
+import { FutOptExchangeRates } from '../interfaces/futopt-exchange-rates.interface';
 
 export class TaifexScraper extends Scraper {
   async fetchListedStockFutOpt() {
@@ -51,7 +53,7 @@ export class TaifexScraper extends Scraper {
       if (row.hasFutures) data.push(futures);
       if (row.hasOptions) data.push(options);
       return data;
-    }, []);
+    }, []) as StockFutOpt[];
 
     return data;
   }
@@ -105,7 +107,7 @@ export class TaifexScraper extends Scraper {
       data.session = values[14];
       data.volumeSpread = numeral(values[15]).value();
       return data;
-    }).filter(row => afterhours ? row.session === '盤後' : row.session === '一般');
+    }).filter(row => afterhours ? row.session === '盤後' : row.session === '一般') as FutOptHistorical[];
 
     return symbol ? data.filter(data => data.symbol === symbol) : data;
   }
@@ -153,7 +155,7 @@ export class TaifexScraper extends Scraper {
       data.change = numeral(values[13]).value();
       data.changePercent = numeral(values[14].replace('%', '')).value();
       return data;
-    }).filter(row => afterhours ? row.session === '盤後' : row.session === '一般');
+    }).filter(row => afterhours ? row.session === '盤後' : row.session === '一般') as FutOptHistorical[];
 
     return symbol ? data.filter(data => data.symbol === symbol) : data;
   }
@@ -195,7 +197,7 @@ export class TaifexScraper extends Scraper {
       netOiVolume: numeral(row[13]).value(),
       netOiValue: numeral(row[14]).value(),
     }));
-    return data;
+    return data as FutOptInstitutional;
   }
 
   async fetchOptionsInstitutional(options: { date: string, symbol: string }) {
@@ -236,7 +238,7 @@ export class TaifexScraper extends Scraper {
       netOiVolume: numeral(row[14]).value(),
       netOiValue: numeral(row[15]).value(),
     }));
-    return data;
+    return data as FutOptInstitutional;
   }
 
   async fetchFuturesLargeTraders(options: { date: string, symbol: string }) {
@@ -281,7 +283,7 @@ export class TaifexScraper extends Scraper {
         topTenShortOi: numeral(row[8]).value(),
         marketOi: numeral(row[9]).value(),
       }));
-    return data;
+    return data as FutOptLargeTraders;
   }
 
   async fetchOptionsLargeTraders(options: { date: string, symbol: string }) {
@@ -321,7 +323,7 @@ export class TaifexScraper extends Scraper {
         topTenShortOi: numeral(row[9]).value(),
         marketOi: numeral(row[10]).value(),
       }));
-    return data;
+    return data as FutOptLargeTraders;
   }
 
   async fetchMxfRetailPosition(options: { date: string }) {
@@ -333,7 +335,7 @@ export class TaifexScraper extends Scraper {
     ]);
     if (!fetchedMxfHistorical || !fetchedMxfInstitutional) return null;
 
-    const mxfMarketOi = fetchedMxfHistorical
+    const mxfMarketOi = (fetchedMxfHistorical as FutOptHistorical[])
       .filter(row => row.session === '一般' && !row.volumeSpread)
       .reduce((oi, row) => oi + (numeral(row.openInterest).value() as number), 0);
 
@@ -349,7 +351,7 @@ export class TaifexScraper extends Scraper {
     data.mxfRetailShortOi = mxfMarketOi - mxfInstitutionalShortOi;
     data.mxfRetailNetOi = data.mxfRetailLongOi - data.mxfRetailShortOi;
     data.mxfRetailLongShortRatio = Math.round(data.mxfRetailNetOi / mxfMarketOi * 10000) / 10000;
-    return data;
+    return data as FutOptMxfRetailPosition;
   }
 
   async fetchTmfRetailPosition(options: { date: string }) {
@@ -361,7 +363,7 @@ export class TaifexScraper extends Scraper {
     ]);
     if (!fetchedTmfHistorical || !fetchedTmfInstitutional) return null;
 
-    const tmfMarketOi = fetchedTmfHistorical
+    const tmfMarketOi = (fetchedTmfHistorical as FutOptHistorical[])
       .filter(row => row.session === '一般' && !row.volumeSpread)
       .reduce((oi, row) => oi + (numeral(row.openInterest).value() as number), 0);
 
@@ -377,7 +379,7 @@ export class TaifexScraper extends Scraper {
     data.tmfRetailShortOi = tmfMarketOi - tmfInstitutionalShortOi;
     data.tmfRetailNetOi = data.tmfRetailLongOi - data.tmfRetailShortOi;
     data.tmfRetailLongShortRatio = Math.round(data.tmfRetailNetOi / tmfMarketOi * 10000) / 10000;
-    return data;
+    return data as FutOptTmfRetailPosition;
   }
 
   async fetchTxoPutCallRatio(options: { date: string }) {
@@ -404,7 +406,7 @@ export class TaifexScraper extends Scraper {
     data.txoPutOi = numeral(row[4]).value();
     data.txoCallOi = numeral(row[5]).value();
     data.txoPutCallOiRatio = numeral(row[6]).divide(100).value();
-    return data;
+    return data as FutOptTxoPutCallRatio;
   }
 
   async fetchExchangeRates(options: { date: string }) {
@@ -435,7 +437,7 @@ export class TaifexScraper extends Scraper {
     data.usdcny = numeral(row[8]).value();
     data.usdzar = numeral(row[9]).value();
     data.nzdusd = numeral(row[10]).value();
-    return data
+    return data as FutOptExchangeRates;
   }
 
   // private buildFutOptContractSymbol(symbol: string, contractMonth: string, options?: { strikePrice: number, type: string }) {

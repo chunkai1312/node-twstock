@@ -3,7 +3,7 @@ import * as numeral from 'numeral';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
 import { Exchange } from '../enums';
-import { Ticker } from '../interfaces';
+import { FutOptQuote, Ticker } from '../interfaces';
 
 export class MisTaifexScraper extends Scraper {
   async fetchListedFutOpt(options?: { type?: 'F' | 'O' }) {
@@ -68,7 +68,7 @@ export class MisTaifexScraper extends Scraper {
       testPrice: row.CTestPrice && numeral(row.CTestPrice).value(),
       testSize: row.CTestVolume && numeral(row.CTestVolume).value(),
       lastUpdated: row.CTime && DateTime.fromFormat(`${row.CDate} ${row.CTime}`, 'yyyyMMdd hhmmss', { zone: 'Asia/Taipei' }).toMillis(),
-    })) as Record<string, any>[];
+    })) as FutOptQuote[];
 
     return data;
   }
@@ -114,7 +114,7 @@ export class MisTaifexScraper extends Scraper {
       extBidSize: row.CExtBidSize && numeral(row.CExtBidSize).value(),
       extAskSize: row.CExtAskSize && numeral(row.CExtAskSize).value(),
       lastUpdated: DateTime.fromFormat(`${row.CDate} ${row.CTime}`, 'yyyyMMdd hhmmss', { zone: 'Asia/Taipei' }).toMillis(),
-    })) as Record<string, any>[];
+    })) as FutOptQuote[];
 
     return data.find(row => row.symbol.includes(ticker.symbol));
   }

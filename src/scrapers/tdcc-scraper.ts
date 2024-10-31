@@ -4,6 +4,7 @@ import * as numeral from 'numeral';
 import * as csvtojson from 'csvtojson';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
+import { StockShareholders } from '../interfaces';
 
 export class TdccScraper extends Scraper {
   async fetchStocksShareholders(options: { date: string, symbol: string }) {
@@ -59,7 +60,7 @@ export class TdccScraper extends Scraper {
       ];
     }
 
-    return data;
+    return data as StockShareholders;
   }
 
   async fetchStocksShareholdersRecentWeek(options?: { symbol: string }) {
@@ -82,7 +83,7 @@ export class TdccScraper extends Scraper {
         const { date, symbol } = rows[0];
         const shareholders = rows.map(row => _.omit(row, ['date', 'symbol']));
         return { date, symbol, shareholders };
-      }).value();
+      }).value() as StockShareholders[];
 
     return options?.symbol ? data.find(data => data.symbol === options.symbol) : data;
   }

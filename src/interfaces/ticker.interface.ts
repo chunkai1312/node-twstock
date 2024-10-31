@@ -1,12 +1,10 @@
-import { Exchange, Industry, Market } from '../enums';
-
 export interface Ticker {
   symbol: string;
   name: string;
-  exchange: Exchange;
-  market: Market;
+  exchange: string;
+  market?: string;
   type?: string;
-  industry?: Industry;
+  industry?: string;
   listedDate?: string;
   ex_ch?: string;
 }

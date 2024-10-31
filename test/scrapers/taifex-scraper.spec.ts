@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import mockAxios from 'jest-mock-axios';
 import { TaifexScraper } from '../../src/scrapers/taifex-scraper';
+import { FutOptHistorical } from '../../src/interfaces';
 
 describe('TaifexScraper', () => {
   let scraper: TaifexScraper;
@@ -44,7 +45,7 @@ describe('TaifexScraper', () => {
     it('should fetch futures historical data for the given date of regular trading', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical.csv') });
 
-      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30' });
+      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30' }) as FutOptHistorical[];
       const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
       const form = new URLSearchParams({
         down_type: '1',
@@ -54,8 +55,8 @@ describe('TaifexScraper', () => {
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
-      expect(data?.[0]).toEqual({
+      expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
         date: '2023-01-30',
         exchange: 'TAIFEX',
         symbol: 'ZFF',
@@ -81,7 +82,7 @@ describe('TaifexScraper', () => {
     it('should fetch futures historical data for the given date of after-hours trading', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical.csv') });
 
-      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30', afterhours: true });
+      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30', afterhours: true }) as FutOptHistorical[];
       const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
       const form = new URLSearchParams({
         down_type: '1',
@@ -91,8 +92,8 @@ describe('TaifexScraper', () => {
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
-      expect(data?.[0]).toEqual({
+      expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
         date: '2023-01-30',
         exchange: 'TAIFEX',
         symbol: 'ZEF',
@@ -118,7 +119,7 @@ describe('TaifexScraper', () => {
     it('should fetch TXF historical data for the given date of regular trading', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical.csv') });
 
-      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30', symbol: 'TXF' });
+      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30', symbol: 'TXF' }) as FutOptHistorical[];
       const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
       const form = new URLSearchParams({
         down_type: '1',
@@ -128,8 +129,8 @@ describe('TaifexScraper', () => {
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
-      expect(data?.[0]).toEqual({
+      expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
         date: '2023-01-30',
         exchange: 'TAIFEX',
         symbol: 'TXF',
@@ -155,7 +156,7 @@ describe('TaifexScraper', () => {
     it('should fetch TXF historical data for the given date of after-hours trading', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-futures-historical.csv') });
 
-      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30', symbol: 'TXF', afterhours: true });
+      const data = await scraper.fetchFuturesHistorical({ date: '2023-01-30', symbol: 'TXF', afterhours: true }) as FutOptHistorical[];
       const url = 'https://www.taifex.com.tw/cht/3/futDataDown';
       const form = new URLSearchParams({
         down_type: '1',
@@ -165,8 +166,8 @@ describe('TaifexScraper', () => {
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
-      expect(data?.[0]).toEqual({
+      expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
         date: '2023-01-30',
         exchange: 'TAIFEX',
         symbol: 'TXF',
@@ -209,7 +210,7 @@ describe('TaifexScraper', () => {
     it('should fetch options historical data for the given date of regular trading', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-historical.csv') });
 
-      const data = await scraper.fetchOptionsHistorical({ date: '2023-01-30' });
+      const data = await scraper.fetchOptionsHistorical({ date: '2023-01-30' }) as FutOptHistorical[];;
       const url = 'https://www.taifex.com.tw/cht/3/optDataDown';
       const form = new URLSearchParams({
         down_type: '1',
@@ -219,8 +220,8 @@ describe('TaifexScraper', () => {
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
-      expect(data?.[0]).toEqual({
+      expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
         date: '2023-01-30',
         exchange: 'TAIFEX',
         symbol: 'CAO',
@@ -247,7 +248,7 @@ describe('TaifexScraper', () => {
     it('should fetch options historical data for the given date of after-hours trading', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-historical.csv') });
 
-      const data = await scraper.fetchOptionsHistorical({ date: '2023-01-30', afterhours: true });
+      const data = await scraper.fetchOptionsHistorical({ date: '2023-01-30', afterhours: true }) as FutOptHistorical[];;
       const url = 'https://www.taifex.com.tw/cht/3/optDataDown';
       const form = new URLSearchParams({
         down_type: '1',
@@ -257,8 +258,8 @@ describe('TaifexScraper', () => {
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
-      expect(data?.[0]).toEqual({
+      expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
         date: '2023-01-30',
         exchange: 'TAIFEX',
         symbol: 'TGO',
@@ -285,7 +286,7 @@ describe('TaifexScraper', () => {
     it('should fetch TXO historical data for the given date of regular trading', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-historical.csv') });
 
-      const data = await scraper.fetchOptionsHistorical({ date: '2023-01-30', symbol: 'TXO' });
+      const data = await scraper.fetchOptionsHistorical({ date: '2023-01-30', symbol: 'TXO' }) as FutOptHistorical[];;
       const url = 'https://www.taifex.com.tw/cht/3/optDataDown';
       const form = new URLSearchParams({
         down_type: '1',
@@ -295,8 +296,8 @@ describe('TaifexScraper', () => {
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
-      expect(data?.[0]).toEqual({
+      expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
         date: '2023-01-30',
         exchange: 'TAIFEX',
         symbol: 'TXO',
@@ -323,7 +324,7 @@ describe('TaifexScraper', () => {
     it('should fetch TXO historical data for the given date of after-hours trading', async () => {
       mockAxios.post.mockResolvedValueOnce({ data: fs.readFileSync('./test/fixtures/taifex-options-historical.csv') });
 
-      const data = await scraper.fetchOptionsHistorical({ date: '2023-01-30', symbol: 'TXO', afterhours: true });
+      const data = await scraper.fetchOptionsHistorical({ date: '2023-01-30', symbol: 'TXO', afterhours: true }) as FutOptHistorical[];;
       const url = 'https://www.taifex.com.tw/cht/3/optDataDown';
       const form = new URLSearchParams({
         down_type: '1',
@@ -333,8 +334,8 @@ describe('TaifexScraper', () => {
       });
       expect(mockAxios.post).toHaveBeenCalledWith(url, form, { responseType: 'arraybuffer' });
       expect(data).toBeDefined();
-      expect(data?.length).toBeGreaterThan(0);
-      expect(data?.[0]).toEqual({
+      expect(data.length).toBeGreaterThan(0);
+      expect(data[0]).toEqual({
         date: '2023-01-30',
         exchange: 'TAIFEX',
         symbol: 'TXO',
