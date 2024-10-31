@@ -1,5 +1,14 @@
 # Changelog
 
+# [2.0.0](https://github.com/chunkai1312/node-twstock/compare/v1.4.0...v2.0.0) (2024-10-31)
+
+
+### Features
+
+* add interface definitions for response data structure ([51b67ef](https://github.com/chunkai1312/node-twstock/commit/51b67efe35bbad87b23dc23a234c1f0d8bd73856))
+* rename function from capitalReduction to capitalReductions ([58485fb](https://github.com/chunkai1312/node-twstock/commit/58485fbd84047c6926944c97ec4f91693e785cce))
+* update TPExScraper to adapt to new TPEx site URL for data scraping ([401c426](https://github.com/chunkai1312/node-twstock/commit/401c4260051f3eca2776dfc9ad304d3400c56473))
+
 # [1.4.0](https://github.com/chunkai1312/node-twstock/compare/v1.3.14...v1.4.0) (2024-10-28)
 
 
