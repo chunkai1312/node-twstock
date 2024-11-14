@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.1.0](https://github.com/chunkai1312/node-twstock/compare/v2.0.0...v2.1.0) (2024-11-14)
+
+
+### Features
+
+* add trades for Non-Finance, Non-Electronics, and Non-Finance Non-Electronics sub-indices ([a1428c3](https://github.com/chunkai1312/node-twstock/commit/a1428c34c69aa6786210988442db64d54b7e033d))
+
 # [2.0.0](https://github.com/chunkai1312/node-twstock/compare/v1.4.0...v2.0.0) (2024-10-31)
 
 
