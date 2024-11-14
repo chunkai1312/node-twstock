@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as numeral from 'numeral';
 import { DateTime } from 'luxon';
 import { Scraper } from './scraper';
-import { Exchange } from '../enums';
+import { Exchange, Index } from '../enums';
 import { asIndex } from '../utils';
 import { IndexHistorical, IndexTrades, MarketBreadth, MarketInstitutional, MarketMarginTrades, MarketTrades, StockCapitalReductions, StockDividends, StockFiniHoldings, StockHistorical, StockInstitutional, StockMarginTrades, StockShortSales, StockSplits, StockValues } from '../interfaces';
 
@@ -555,6 +555,50 @@ export class TwseScraper extends Scraper {
       data.tradeWeight = +numeral(data.tradeValue).divide(market.tradeValue).multiply(100).format('0.00');
       return data;
     }) as IndexTrades[];
+
+    const excludedSymbols = [Index.ChemicalBiotechnologyAndMedicalCare, Index.Electronics];
+    const total = data
+      .filter(row => !excludedSymbols.includes(row.symbol as Index))
+      .reduce((total, row) => ({
+        tradeVolume: total.tradeVolume + row.tradeVolume,
+        tradeValue: total.tradeValue + row.tradeValue,
+      }), { tradeVolume: 0, tradeValue: 0 });
+
+    const electronics = _.find(data, { symbol: Index.Electronics }) as IndexTrades;
+    const finance = _.find(data, { symbol: Index.FinancialAndInsurance }) as IndexTrades;
+
+    const createIndexEntry = (symbol: Index, name: string, tradeVolume: number, tradeValue: number) => ({
+      date,
+      exchange: Exchange.TWSE,
+      symbol,
+      name,
+      tradeVolume,
+      tradeValue,
+      tradeWeight: +numeral(tradeValue).divide(market.tradeValue).multiply(100).format('0.00')
+    });
+
+    const nonFinance = createIndexEntry(
+      Index.NonFinance,
+      '未含金融保險股指數',
+      total.tradeVolume - finance.tradeVolume,
+      total.tradeValue - finance.tradeValue
+    );
+
+    const nonElectronics = createIndexEntry(
+      Index.NonElectronics,
+      '未含電子股指數',
+      total.tradeVolume - electronics.tradeVolume,
+      total.tradeValue - electronics.tradeValue
+    );
+
+    const nonFinanceNonElectronics = createIndexEntry(
+      Index.NonFinanceNonElectronics,
+      '未含金融電子股指數',
+      total.tradeVolume - (finance.tradeVolume + electronics.tradeVolume),
+      total.tradeValue - (finance.tradeValue + electronics.tradeValue)
+    );
+
+    data.push(nonFinance, nonElectronics, nonFinanceNonElectronics);
 
     return symbol ? data.find(data => data.symbol === symbol) : data;
   }
