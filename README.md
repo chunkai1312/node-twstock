@@ -28,6 +28,7 @@
   * [.stocks.dividends(options)](#stocksdividendsoptions)
   * [.stocks.capitalReductions(options)](#stockscapitalreductionoptions)
   * [.stocks.splits(options)](#stockssplitsoptions)
+  * [.stocks.etfSplits(options)](#stocksetfsplitsoptions)
   * [.indices.list([options])](#indiceslistoptions)
   * [.indices.quote(options)](#indicesquoteoptions)
   * [.indices.historical(options)](#indiceshistoricaloptions)
@@ -751,6 +752,32 @@ twstock.stocks.splits({ startDate: '2022-07-01', endDate: '2022-07-31', exchange
 //     openingReferencePrice: 621
 //   }
 // ]
+```
+
+### `.stocks.etfSplits(options)`
+
+取得上市(櫃) ETF 在特定期間的分割(反分割)資料。
+
+* `options`: {Object}
+  * `startDate`: {string} 開始日期 (`'YYYY-MM-DD'`)
+  * `endDate`: {string} 結束日期 (`'YYYY-MM-DD'`)
+  * `exchange` (optional): {string} 市場別 (`'TWSE'`：上市；`'TPEx'`：上櫃)
+  * `symbol` (optional): {string} ETF 代號
+  * `reverseSplit` (optional): {boolean} 反分割
+* Returns: {Promise} 成功時以 {Object[]} 履行，其中 `Object` 包含以下屬性：
+  * `resumeDate`: {string} 恢復買賣日期
+  * `exchange`: {string} 市場別
+  * `symbol`: {string} ETF 代號
+  * `name`: {string} ETF 名稱
+  * `previousClose`: {number} 停止買賣前收盤價格
+  * `referencePrice`: {number} 恢復買賣參考價
+  * `limitUpPrice`: {number} 漲停價格
+  * `limitDownPrice`: {number} 跌停價格
+  * `openingReferencePrice`: {number} 開盤競價基準
+
+```js
+twstock.stocks.etfSplits({ startDate: '2024-12-01', endDate: '2024-12-31', exchange: 'TWSE' })
+  .then(data => console.log(data));
 ```
 
 ### `.indices.list([options])`

@@ -674,6 +674,98 @@ describe('TpexScraper', () => {
     });
   });
 
+  describe('.fetchStocksEtfSplits()', () => {
+    it('should fetch stocks splits for the given startDate and endDate', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-etf-splits.json') });
+
+      const data = await scraper.fetchStocksEtfSplits({ startDate: '2099-01-01', endDate: '2099-12-31' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/www/zh-tw/bulletin/etfSplitRslt',
+        new URLSearchParams({ startDate: '2099/01/01', endDate: '2099/12/31',response: 'json' }),
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        resumeDate: '2099-12-31',
+        exchange: 'TPEx',
+        symbol: '00680L',
+        name: '元大美債20正2',
+        previousClose: 1000,
+        referencePrice: 100,
+        limitUpPrice: 110,
+        limitDownPrice: 90,
+        openingReferencePrice: 100,
+      }]);
+    });
+
+    it('should fetch stocks splits for the specified stock on the given date', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-etf-splits.json') });
+
+      const data = await scraper.fetchStocksEtfSplits({ startDate: '2099-01-01', endDate: '2099-12-31', symbol: '00680L' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/www/zh-tw/bulletin/etfSplitRslt',
+        new URLSearchParams({ startDate: '2099/01/01', endDate: '2099/12/31',response: 'json' }),
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        resumeDate: '2099-12-31',
+        exchange: 'TPEx',
+        symbol: '00680L',
+        name: '元大美債20正2',
+        previousClose: 1000,
+        referencePrice: 100,
+        limitUpPrice: 110,
+        limitDownPrice: 90,
+        openingReferencePrice: 100,
+      }]);
+    });
+  });
+
+  describe('.fetchStocksEtfReverseSplits()', () => {
+    it('should fetch stocks ETF reverse splits for the given startDate and endDate', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-etf-reverse-splits.json') });
+
+      const data = await scraper.fetchStocksEtfReverseSplits({ startDate: '2099-01-01', endDate: '2099-12-31' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/www/zh-tw/bulletin/etfRvsRslt',
+        new URLSearchParams({ startDate: '2099/01/01', endDate: '2099/12/31',response: 'json' }),
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        resumeDate: '2099-12-31',
+        exchange: 'TPEx',
+        symbol: '00681R',
+        name: '元大美債20反1',
+        previousClose: 1,
+        referencePrice: 100,
+        limitUpPrice: 110,
+        limitDownPrice: 90,
+        openingReferencePrice: 100,
+      }]);
+    });
+
+    it('should fetch stocks ETF reverse splits for the specified stock on the given date', async () => {
+      mockAxios.post.mockResolvedValueOnce({ data: require('../fixtures/tpex-stocks-etf-reverse-splits.json') });
+
+      const data = await scraper.fetchStocksEtfReverseSplits({ startDate: '2099-01-01', endDate: '2099-12-31', symbol: '00681R' });
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://www.tpex.org.tw/www/zh-tw/bulletin/etfRvsRslt',
+        new URLSearchParams({ startDate: '2099/01/01', endDate: '2099/12/31',response: 'json' }),
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        resumeDate: '2099-12-31',
+        exchange: 'TPEx',
+        symbol: '00681R',
+        name: '元大美債20反1',
+        previousClose: 1,
+        referencePrice: 100,
+        limitUpPrice: 110,
+        limitDownPrice: 90,
+        openingReferencePrice: 100,
+      }]);
+    });
+  });
+
   describe('.fetchIndicesHistorical()', () => {
     it('should fetch indices historical data for the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/tpex-indices-historical.json') });

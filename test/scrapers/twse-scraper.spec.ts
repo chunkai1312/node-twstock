@@ -747,7 +747,7 @@ describe('TwseScraper', () => {
 
       const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2024-05-03' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://www.twse.com.tw/pcversion/zh/exchangeReport/TWTB8U?strDate=20210101&endDate=20240503&response=json',
+        'https://www.twse.com.tw/rwd/zh/change/TWTB8U?startDate=20210101&endDate=20240503&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual([
@@ -780,7 +780,7 @@ describe('TwseScraper', () => {
 
       const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2024-05-03', symbol: '6415' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://www.twse.com.tw/pcversion/zh/exchangeReport/TWTB8U?strDate=20210101&endDate=20240503&response=json',
+        'https://www.twse.com.tw/rwd/zh/change/TWTB8U?startDate=20210101&endDate=20240503&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual([{
@@ -801,9 +801,95 @@ describe('TwseScraper', () => {
 
       const data = await scraper.fetchStocksSplits({ startDate: '2021-01-01', endDate: '2021-01-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://www.twse.com.tw/pcversion/zh/exchangeReport/TWTB8U?strDate=20210101&endDate=20210101&response=json',
+        'https://www.twse.com.tw/rwd/zh/change/TWTB8U?startDate=20210101&endDate=20210101&response=json',
       );
       expect(data).toEqual([]);
+    });
+  });
+
+  describe('.fetchStocksEtfSplits()', () => {
+    it('should fetch stocks ETF splits for the given startDate and endDate', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-etf-splits.json') });
+
+      const data = await scraper.fetchStocksEtfSplits({ startDate: '2099-01-01', endDate: '2099-12-31' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/split/TWTCAU?startDate=20990101&endDate=20991231&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        resumeDate: '2099-12-31',
+        exchange: 'TWSE',
+        symbol: '00631L',
+        name: '元大台灣50正2',
+        previousClose: 1000,
+        referencePrice: 100,
+        limitUpPrice: 110,
+        limitDownPrice: 90,
+        openingReferencePrice: 100,
+      }]);
+    });
+
+    it('should fetch stocks ETF splits for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-etf-splits.json') });
+
+      const data = await scraper.fetchStocksEtfSplits({ startDate: '2099-01-01', endDate: '2099-12-31', symbol: '00631L' });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/split/TWTCAU?startDate=20990101&endDate=20991231&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        resumeDate: '2099-12-31',
+        exchange: 'TWSE',
+        symbol: '00631L',
+        name: '元大台灣50正2',
+        previousClose: 1000,
+        referencePrice: 100,
+        limitUpPrice: 110,
+        limitDownPrice: 90,
+        openingReferencePrice: 100,
+      }]);
+    });
+
+    it('should fetch stocks ETF reverse splits for the given startDate and endDate', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-etf-splits.json') });
+
+      const data = await scraper.fetchStocksEtfSplits({ startDate: '2099-01-01', endDate: '2099-12-31', reverseSplit: true });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/split/TWTCAU?startDate=20990101&endDate=20991231&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        resumeDate: '2099-12-31',
+        exchange: 'TWSE',
+        symbol: '00632R',
+        name: '元大台灣50反1',
+        previousClose: 1,
+        referencePrice: 100,
+        limitUpPrice: 110,
+        limitDownPrice: 90,
+        openingReferencePrice: 100,
+      }]);
+    });
+
+    it('should fetch stocks ETF reverse splits for the specified stock on the given date', async () => {
+      mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-etf-splits.json') });
+
+      const data = await scraper.fetchStocksEtfSplits({ startDate: '2099-01-01', endDate: '2099-12-31', symbol: '00632R', reverseSplit: true });
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://www.twse.com.tw/rwd/zh/split/TWTCAU?startDate=20990101&endDate=20991231&response=json',
+      );
+      expect(data).toBeDefined();
+      expect(data).toEqual([{
+        resumeDate: '2099-12-31',
+        exchange: 'TWSE',
+        symbol: '00632R',
+        name: '元大台灣50反1',
+        previousClose: 1,
+        referencePrice: 100,
+        limitUpPrice: 110,
+        limitDownPrice: 90,
+        openingReferencePrice: 100,
+      }]);
     });
   });
 

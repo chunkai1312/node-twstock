@@ -452,15 +452,14 @@ export class TwseScraper extends Scraper {
   async fetchStocksSplits(options: { startDate: string; endDate: string, symbol?: string }) {
     const { startDate, endDate, symbol } = options;
     const query = new URLSearchParams({
-      strDate: DateTime.fromISO(startDate).toFormat('yyyyMMdd'),
+      startDate: DateTime.fromISO(startDate).toFormat('yyyyMMdd'),
       endDate: DateTime.fromISO(endDate).toFormat('yyyyMMdd'),
       response: 'json',
     });
-    const url = `https://www.twse.com.tw/pcversion/zh/exchangeReport/TWTB8U?${query}`;
+    const url = `https://www.twse.com.tw/rwd/zh/change/TWTB8U?${query}`;
 
     const response = await this.httpService.get(url);
     const json = response.data.stat === 'OK' && response.data;
-    /* istanbul ignore next */ if (!json) return null;
 
     const data = json.data.map((row: string[]) => {
       const [date, symbol, name, ...values] = row;
@@ -478,6 +477,41 @@ export class TwseScraper extends Scraper {
       data.openingReferencePrice = numeral(values[4]).value();
       return data;
     }) as StockSplits[];
+
+    return symbol ? data.filter((data) => data.symbol === symbol) : data;
+  }
+
+  async fetchStocksEtfSplits(options: { startDate: string; endDate: string, symbol?: string, reverseSplit?: boolean }) {
+    const { startDate, endDate, symbol } = options;
+    const query = new URLSearchParams({
+      startDate: DateTime.fromISO(startDate).toFormat('yyyyMMdd'),
+      endDate: DateTime.fromISO(endDate).toFormat('yyyyMMdd'),
+      response: 'json',
+    });
+    const url = `https://www.twse.com.tw/rwd/zh/split/TWTCAU?${query}`;
+
+    const response = await this.httpService.get(url);
+    const json = response.data.stat === 'OK' && response.data;
+
+    const data = json.data.map((row: string[]) => {
+      const [date, symbol, name, type, ...values] = row;
+      const [year, month, day] = date.split('/');
+
+      const data: Record<string, any> = {};
+      data.resumeDate = `${+year + 1911}-${month}-${day}`;
+      data.exchange = Exchange.TWSE;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.type = type;
+      data.previousClose = numeral(values[0]).value();
+      data.referencePrice = numeral(values[1]).value();
+      data.limitUpPrice = numeral(values[2]).value();
+      data.limitDownPrice = numeral(values[3]).value();
+      data.openingReferencePrice = numeral(values[4]).value();
+      return data;
+    })
+      .filter((row: any) => options.reverseSplit ? row.type === '反分割' : row.type === '分割')
+      .map((row: any) => _.omit(row, ['type'])) as StockSplits[];
 
     return symbol ? data.filter((data) => data.symbol === symbol) : data;
   }

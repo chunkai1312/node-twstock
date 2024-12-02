@@ -1,1 +1,54 @@
-[{"symbol":"6488","name":"環球晶","exchange":"TPEx","market":"OTC","industry":"24","listedDate":"2015-09-25"},{"symbol":"2330","name":"台積電","exchange":"TWSE","market":"TSE","industry":"24","listedDate":"1994-09-05"},{"symbol":"TXFA4","name":"臺股期貨2024/01","exchange":"TAIFEX","market":"FUTOPT","type":"臺股期貨","listedDate":"2023-10-19"}]
+[
+  {
+    "symbol": "6488",
+    "name": "環球晶",
+    "exchange": "TPEx",
+    "market": "OTC",
+    "industry": "24",
+    "listedDate": "2015-09-25"
+  },
+  {
+    "symbol": "2330",
+    "name": "台積電",
+    "exchange": "TWSE",
+    "market": "TSE",
+    "industry": "24",
+    "listedDate": "1994-09-05"
+  },
+  {
+    "symbol": "00631L",
+    "name": "元大台灣50正2",
+    "exchange": "TWSE",
+    "market": "TSE",
+    "listedDate": "2014-10-31"
+  },
+  {
+    "symbol": "00632R",
+    "name": "元大台灣50反1",
+    "exchange": "TWSE",
+    "market": "TSE",
+    "listedDate": "2014-10-31"
+  },
+  {
+    "symbol": "00680L",
+    "name": "元大美債20正2",
+    "exchange": "TPEx",
+    "market": "OTC",
+    "listedDate": "2017-01-17"
+  },
+  {
+    "symbol": "00681R",
+    "name": "元大美債20反1",
+    "exchange": "TPEx",
+    "market": "OTC",
+    "listedDate": "2017-01-17"
+  },
+  {
+    "symbol": "TXFA4",
+    "name": "臺股期貨2024/01",
+    "exchange": "TAIFEX",
+    "market": "FUTOPT",
+    "type": "臺股期貨",
+    "listedDate": "2023-10-19"
+  }
+]

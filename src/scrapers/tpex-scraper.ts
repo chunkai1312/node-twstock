@@ -311,8 +311,7 @@ export class TpexScraper extends Scraper {
     const url = `https://www.tpex.org.tw/www/zh-tw/bulletin/exDailyQ`;
 
     const response = await this.httpService.post(url, form);
-    const json = (response.data.tables[0].totalCount > 0) && response.data;
-    if (!json) return [];
+    const json = response.data;
 
     const data = json.tables[0].data.map((row: string[]) => {
       const [date, symbol, name, ...values] = row;
@@ -349,8 +348,7 @@ export class TpexScraper extends Scraper {
     const url = `https://www.tpex.org.tw/www/zh-tw/bulletin/revivt`;
 
     const response = await this.httpService.post(url, form);
-    const json = (response.data.tables[0].totalCount > 0) && response.data;
-    if (!json) return [];
+    const json = response.data;
 
     const data = json.tables[0].data.map((row: string[]) => {
       const [date, symbol, name, ...values] = row;
@@ -395,8 +393,71 @@ export class TpexScraper extends Scraper {
     const url = `https://www.tpex.org.tw/www/zh-tw/bulletin/pvChgRslt`;
 
     const response = await this.httpService.post(url, form);
-    const json = (response.data.tables[0].totalCount > 0) && response.data;
-    if (!json) return [];
+    const json = response.data;
+
+    const data = json.tables[0].data.map((row: string[]) => {
+      const [date, symbol, name, ...values] = row;
+
+      const data: Record<string, any> = {};
+      data.resumeDate = `${date}`.replace(/(\d{3})(\d{2})(\d{2})/, (_, year, month, day) => `${+year + 1911}-${month}-${day}`);
+      data.exchange = Exchange.TPEx;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.previousClose = numeral(values[0]).value();
+      data.referencePrice = numeral(values[1]).value();
+      data.limitUpPrice = numeral(values[2]).value();
+      data.limitDownPrice = numeral(values[3]).value();
+      data.openingReferencePrice = numeral(values[4]).value();
+
+      return data;
+    }) as StockSplits[];
+
+    return symbol ? data.filter((data) => data.symbol === symbol) : data;
+  }
+
+  async fetchStocksEtfSplits(options: { startDate: string; endDate: string, symbol?: string }) {
+    const { startDate, endDate, symbol } = options;
+    const form = new URLSearchParams({
+      startDate: DateTime.fromISO(startDate).toFormat('yyyy/MM/dd'),
+      endDate: DateTime.fromISO(endDate).toFormat('yyyy/MM/dd'),
+      response: 'json',
+    });
+    const url = `https://www.tpex.org.tw/www/zh-tw/bulletin/etfSplitRslt`;
+
+    const response = await this.httpService.post(url, form);
+    const json = response.data;
+
+    const data = json.tables[0].data.map((row: string[]) => {
+      const [date, symbol, name, ...values] = row;
+
+      const data: Record<string, any> = {};
+      data.resumeDate = `${date}`.replace(/(\d{3})(\d{2})(\d{2})/, (_, year, month, day) => `${+year + 1911}-${month}-${day}`);
+      data.exchange = Exchange.TPEx;
+      data.symbol = symbol;
+      data.name = name.trim();
+      data.previousClose = numeral(values[0]).value();
+      data.referencePrice = numeral(values[1]).value();
+      data.limitUpPrice = numeral(values[2]).value();
+      data.limitDownPrice = numeral(values[3]).value();
+      data.openingReferencePrice = numeral(values[4]).value();
+
+      return data;
+    }) as StockSplits[];
+
+    return symbol ? data.filter((data) => data.symbol === symbol) : data;
+  }
+
+  async fetchStocksEtfReverseSplits(options: { startDate: string; endDate: string, symbol?: string }) {
+    const { startDate, endDate, symbol } = options;
+    const form = new URLSearchParams({
+      startDate: DateTime.fromISO(startDate).toFormat('yyyy/MM/dd'),
+      endDate: DateTime.fromISO(endDate).toFormat('yyyy/MM/dd'),
+      response: 'json',
+    });
+    const url = `https://www.tpex.org.tw/www/zh-tw/bulletin/etfRvsRslt`;
+
+    const response = await this.httpService.post(url, form);
+    const json = response.data;
 
     const data = json.tables[0].data.map((row: string[]) => {
       const [date, symbol, name, ...values] = row;

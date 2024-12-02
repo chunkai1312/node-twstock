@@ -15,6 +15,10 @@ jest.mock('../src/scrapers/isin-scraper', () => {
         fetchListed: jest.fn(({ symbol }) => {
           if (symbol.split(',').includes('2330')) return require('./fixtures/fetched-stocks-list.json');
           if (symbol.split(',').includes('6488')) return require('./fixtures/fetched-stocks-list.json');
+          if (symbol.split(',').includes('00631L')) return require('./fixtures/fetched-stocks-list.json');
+          if (symbol.split(',').includes('00632R')) return require('./fixtures/fetched-stocks-list.json');
+          if (symbol.split(',').includes('00680L')) return require('./fixtures/fetched-stocks-list.json');
+          if (symbol.split(',').includes('00681R')) return require('./fixtures/fetched-stocks-list.json');
           if (symbol.split(',').includes('TXFA4')) return require('./fixtures/fetched-stocks-list.json');
           return [];
         }),
@@ -332,6 +336,52 @@ describe('TwStock', () => {
 
       it('should throw an error if the symbol is not found', async () => {
         await expect(() => twstock.stocks.splits({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
+      });
+    });
+
+    describe('.etfSplits()', () => {
+      it('should fetch TWSE listed stocks ETF splits', async () => {
+        await twstock.stocks.etfSplits({ startDate: '2023-01-30', endDate: '2023-01-30', exchange: 'TWSE' });
+        expect(TwseScraper.prototype.fetchStocksEtfSplits).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30' });
+      });
+
+      it('should fetch TWSE listed stocks ETF splits for the symbol', async () => {
+        await twstock.stocks.etfSplits({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '00631L' });
+        expect(TwseScraper.prototype.fetchStocksEtfSplits).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '00631L' });
+      });
+
+      it('should fetch TPEx listed stocks ETF splits', async () => {
+        await twstock.stocks.etfSplits({ startDate: '2023-01-30', endDate: '2023-01-30', exchange: 'TPEx' });
+        expect(TpexScraper.prototype.fetchStocksEtfSplits).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30' });
+      });
+
+      it('should fetch TPEx listed stocks ETF splits for the symbol', async () => {
+        await twstock.stocks.etfSplits({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '00680L' });
+        expect(TpexScraper.prototype.fetchStocksEtfSplits).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '00680L' });
+      });
+
+      it('should fetch TWSE listed stocks ETF reverse splits', async () => {
+        await twstock.stocks.etfSplits({ startDate: '2023-01-30', endDate: '2023-01-30', exchange: 'TWSE', reverseSplit: true });
+        expect(TwseScraper.prototype.fetchStocksEtfSplits).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30', reverseSplit: true });
+      });
+
+      it('should fetch TWSE listed stocks ETF reverse splits for the symbol', async () => {
+        await twstock.stocks.etfSplits({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '00632R', reverseSplit: true });
+        expect(TwseScraper.prototype.fetchStocksEtfSplits).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '00632R', reverseSplit: true });
+      });
+
+      it('should fetch TPEx listed stocks ETF reverse splits', async () => {
+        await twstock.stocks.etfSplits({ startDate: '2023-01-30', endDate: '2023-01-30', exchange: 'TPEx', reverseSplit: true });
+        expect(TpexScraper.prototype.fetchStocksEtfReverseSplits).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30' });
+      });
+
+      it('should fetch TPEx listed stocks ETF reverse splits for the symbol', async () => {
+        await twstock.stocks.etfSplits({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '00681R', reverseSplit: true });
+        expect(TpexScraper.prototype.fetchStocksEtfReverseSplits).toBeCalledWith({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: '00681R' });
+      });
+
+      it('should throw an error if the symbol is not found', async () => {
+        await expect(() => twstock.stocks.etfSplits({ startDate: '2023-01-30', endDate: '2023-01-30', symbol: 'foobar' })).rejects.toThrow('symbol not found');
       });
     });
 
