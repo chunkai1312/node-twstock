@@ -1,5 +1,12 @@
 # Changelog
 
+# [2.2.0](https://github.com/chunkai1312/node-twstock/compare/v2.1.0...v2.2.0) (2024-12-03)
+
+
+### Features
+
+* support for fetching information on ETFs' split & reverse split ([9416849](https://github.com/chunkai1312/node-twstock/commit/94168493d0d3154f8385b7e2bac47c00ae5b3636))
+
 # [2.1.0](https://github.com/chunkai1312/node-twstock/compare/v2.0.0...v2.1.0) (2024-11-14)
 
 
