@@ -204,7 +204,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksFiniHoldings({ date: '2023-01-30' }) as StockFiniHoldings[];
       expect(mockAxios.post).toHaveBeenCalledWith(
-        'https://mops.twse.com.tw/server-java/t13sa150_otc',
+        'https://mopsov.twse.com.tw/server-java/t13sa150_otc',
         new URLSearchParams({ years: '2023', months: '01', days: '30', bcode: '', step: '2' }),
         { responseType: 'arraybuffer' },
       );
@@ -217,7 +217,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksFiniHoldings({ date: '2023-01-30', symbol: '6488' });
       expect(mockAxios.post).toHaveBeenCalledWith(
-        'https://mops.twse.com.tw/server-java/t13sa150_otc',
+        'https://mopsov.twse.com.tw/server-java/t13sa150_otc',
         new URLSearchParams({ years: '2023', months: '01', days: '30', bcode: '', step: '2' }),
         { responseType: 'arraybuffer' },
       );
@@ -241,7 +241,7 @@ describe('TpexScraper', () => {
 
       const data = await scraper.fetchStocksFiniHoldings({ date: '2023-01-01' });
       expect(mockAxios.post).toHaveBeenCalledWith(
-        'https://mops.twse.com.tw/server-java/t13sa150_otc',
+        'https://mopsov.twse.com.tw/server-java/t13sa150_otc',
         new URLSearchParams({ years: '2023', months: '01', days: '01', bcode: '', step: '2' }),
         { responseType: 'arraybuffer' },
       );

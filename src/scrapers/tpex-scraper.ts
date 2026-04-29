@@ -168,7 +168,7 @@ export class TpexScraper extends Scraper {
       bcode: '',
       step: '2',
     });
-    const url = `https://mops.twse.com.tw/server-java/t13sa150_otc`;
+    const url = `https://mopsov.twse.com.tw/server-java/t13sa150_otc`;
     const response = await this.httpService.post(url, form, { responseType: 'arraybuffer' });
     const page = iconv.decode(response.data, 'big5');
     const $ = cheerio.load(page);
