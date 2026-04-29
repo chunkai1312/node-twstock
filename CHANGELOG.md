@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.1](https://github.com/chunkai1312/node-twstock/compare/v2.2.0...v2.2.1) (2026-04-29)
+
+
+### Bug Fixes
+
+* update URL for fetching stocks Fini holdings ([78c2f2f](https://github.com/chunkai1312/node-twstock/commit/78c2f2f622ffffed6ba4bb764c0be97ddc3854f4))
+
 # [2.2.0](https://github.com/chunkai1312/node-twstock/compare/v2.1.0...v2.2.0) (2024-12-03)
 
 
