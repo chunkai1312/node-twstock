@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.2](https://github.com/chunkai1312/node-twstock/compare/v2.2.1...v2.2.2) (2026-05-10)
+
+
+### Bug Fixes
+
+* fallback to split type when type field is empty in fetchStocksEtfSplits ([8e89c51](https://github.com/chunkai1312/node-twstock/commit/8e89c51ea409952badbe421c605a6a41a44c0090))
+
 ## [2.2.1](https://github.com/chunkai1312/node-twstock/compare/v2.2.0...v2.2.1) (2026-04-29)
 
 
