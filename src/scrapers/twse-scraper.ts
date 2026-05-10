@@ -502,7 +502,7 @@ export class TwseScraper extends Scraper {
       data.exchange = Exchange.TWSE;
       data.symbol = symbol;
       data.name = name.trim();
-      data.type = type;
+      data.type = type || '分割';
       data.previousClose = numeral(values[0]).value();
       data.referencePrice = numeral(values[1]).value();
       data.limitUpPrice = numeral(values[2]).value();

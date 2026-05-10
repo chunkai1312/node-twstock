@@ -811,84 +811,176 @@ describe('TwseScraper', () => {
     it('should fetch stocks ETF splits for the given startDate and endDate', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-etf-splits.json') });
 
-      const data = await scraper.fetchStocksEtfSplits({ startDate: '2099-01-01', endDate: '2099-12-31' });
+      const data = await scraper.fetchStocksEtfSplits({ startDate: '2021-01-01', endDate: '2025-05-01' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://www.twse.com.tw/rwd/zh/split/TWTCAU?startDate=20990101&endDate=20991231&response=json',
+        'https://www.twse.com.tw/rwd/zh/split/TWTCAU?startDate=20210101&endDate=20250501&response=json',
       );
       expect(data).toBeDefined();
-      expect(data).toEqual([{
-        resumeDate: '2099-12-31',
-        exchange: 'TWSE',
-        symbol: '00631L',
-        name: '元大台灣50正2',
-        previousClose: 1000,
-        referencePrice: 100,
-        limitUpPrice: 110,
-        limitDownPrice: 90,
-        openingReferencePrice: 100,
-      }]);
+      expect(data).toEqual([
+        {
+          resumeDate: '2025-06-11',
+          exchange: 'TWSE',
+          symbol: '00663L',
+          name: '國泰臺灣加權正2',
+          previousClose: 170.15,
+          referencePrice: 24.3,
+          limitUpPrice: 29.16,
+          limitDownPrice: 19.44,
+          openingReferencePrice: 24.3,
+        },
+        {
+          resumeDate: '2025-06-18',
+          exchange: 'TWSE',
+          symbol: '0050',
+          name: '元大台灣50',
+          previousClose: 188.65,
+          referencePrice: 47.16,
+          limitUpPrice: 51.85,
+          limitDownPrice: 42.45,
+          openingReferencePrice: 47.16,
+        },
+        {
+          resumeDate: '2025-11-26',
+          exchange: 'TWSE',
+          symbol: '0052',
+          name: '富邦科技',
+          previousClose: 245.3,
+          referencePrice: 35.04,
+          limitUpPrice: 38.54,
+          limitDownPrice: 31.54,
+          openingReferencePrice: 35.04,
+        },
+        {
+          resumeDate: '2026-03-31',
+          exchange: 'TWSE',
+          symbol: '00631L',
+          name: '元大台灣50正2',
+          previousClose: 443.15,
+          referencePrice: 20.14,
+          limitUpPrice: 24.16,
+          limitDownPrice: 16.12,
+          openingReferencePrice: 20.14,
+        },
+      ]);
     });
 
     it('should fetch stocks ETF splits for the specified stock on the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-etf-splits.json') });
 
-      const data = await scraper.fetchStocksEtfSplits({ startDate: '2099-01-01', endDate: '2099-12-31', symbol: '00631L' });
+      const data = await scraper.fetchStocksEtfSplits({ startDate: '2021-01-01', endDate: '2025-05-01', symbol: '00631L' });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://www.twse.com.tw/rwd/zh/split/TWTCAU?startDate=20990101&endDate=20991231&response=json',
+        'https://www.twse.com.tw/rwd/zh/split/TWTCAU?startDate=20210101&endDate=20250501&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual([{
-        resumeDate: '2099-12-31',
+        resumeDate: '2026-03-31',
         exchange: 'TWSE',
         symbol: '00631L',
         name: '元大台灣50正2',
-        previousClose: 1000,
-        referencePrice: 100,
-        limitUpPrice: 110,
-        limitDownPrice: 90,
-        openingReferencePrice: 100,
+        previousClose: 443.15,
+        referencePrice: 20.14,
+        limitUpPrice: 24.16,
+        limitDownPrice: 16.12,
+        openingReferencePrice: 20.14,
       }]);
     });
 
     it('should fetch stocks ETF reverse splits for the given startDate and endDate', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-etf-splits.json') });
 
-      const data = await scraper.fetchStocksEtfSplits({ startDate: '2099-01-01', endDate: '2099-12-31', reverseSplit: true });
+      const data = await scraper.fetchStocksEtfSplits({ startDate: '2021-01-01', endDate: '2025-05-01', reverseSplit: true });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://www.twse.com.tw/rwd/zh/split/TWTCAU?startDate=20990101&endDate=20991231&response=json',
+        'https://www.twse.com.tw/rwd/zh/split/TWTCAU?startDate=20210101&endDate=20250501&response=json',
       );
       expect(data).toBeDefined();
-      expect(data).toEqual([{
-        resumeDate: '2099-12-31',
-        exchange: 'TWSE',
-        symbol: '00632R',
-        name: '元大台灣50反1',
-        previousClose: 1,
-        referencePrice: 100,
-        limitUpPrice: 110,
-        limitDownPrice: 90,
-        openingReferencePrice: 100,
-      }]);
+      expect(data).toEqual([
+        {
+          resumeDate: '2024-12-11',
+          exchange: 'TWSE',
+          symbol: '00632R',
+          name: '元大台灣50反1',
+          previousClose: 3.28,
+          referencePrice: 22.96,
+          limitUpPrice: 25.25,
+          limitDownPrice: 20.67,
+          openingReferencePrice: 22.96,
+        },
+        {
+          resumeDate: '2025-02-19',
+          exchange: 'TWSE',
+          symbol: '00676R',
+          name: '富邦臺灣加權反1',
+          previousClose: 2.04,
+          referencePrice: 12.23,
+          limitUpPrice: 13.45,
+          limitDownPrice: 11.01,
+          openingReferencePrice: 12.23,
+        },
+        {
+          resumeDate: '2025-10-22',
+          exchange: 'TWSE',
+          symbol: '00673R',
+          name: '期元大S&P原油反1',
+          previousClose: 7.02,
+          referencePrice: 28.08,
+          limitUpPrice: 9999.95,
+          limitDownPrice: 0.01,
+          openingReferencePrice: 28.08,
+        },
+        {
+          resumeDate: '2025-10-22',
+          exchange: 'TWSE',
+          symbol: '00706L',
+          name: '期元大S&P日圓正2',
+          previousClose: 5.54,
+          referencePrice: 22.16,
+          limitUpPrice: 9999.95,
+          limitDownPrice: 0.01,
+          openingReferencePrice: 22.16,
+        },
+        {
+          resumeDate: '2025-12-10',
+          exchange: 'TWSE',
+          symbol: '00715L',
+          name: '期街口布蘭特正2',
+          previousClose: 10.43,
+          referencePrice: 20.86,
+          limitUpPrice: 9999.95,
+          limitDownPrice: 0.01,
+          openingReferencePrice: 20.86,
+        },
+        {
+          resumeDate: '2026-04-22',
+          exchange: 'TWSE',
+          symbol: '00674R',
+          name: '期元大S&P黃金反1',
+          previousClose: 5.18,
+          referencePrice: 25.9,
+          limitUpPrice: 9999.95,
+          limitDownPrice: 0.01,
+          openingReferencePrice: 25.9,
+        },
+      ]);
     });
 
     it('should fetch stocks ETF reverse splits for the specified stock on the given date', async () => {
       mockAxios.get.mockResolvedValueOnce({ data: require('../fixtures/twse-stocks-etf-splits.json') });
 
-      const data = await scraper.fetchStocksEtfSplits({ startDate: '2099-01-01', endDate: '2099-12-31', symbol: '00632R', reverseSplit: true });
+      const data = await scraper.fetchStocksEtfSplits({ startDate: '2021-01-01', endDate: '2025-05-01', symbol: '00632R', reverseSplit: true });
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://www.twse.com.tw/rwd/zh/split/TWTCAU?startDate=20990101&endDate=20991231&response=json',
+        'https://www.twse.com.tw/rwd/zh/split/TWTCAU?startDate=20210101&endDate=20250501&response=json',
       );
       expect(data).toBeDefined();
       expect(data).toEqual([{
-        resumeDate: '2099-12-31',
+        resumeDate: '2024-12-11',
         exchange: 'TWSE',
         symbol: '00632R',
         name: '元大台灣50反1',
-        previousClose: 1,
-        referencePrice: 100,
-        limitUpPrice: 110,
-        limitDownPrice: 90,
-        openingReferencePrice: 100,
+        previousClose: 3.28,
+        referencePrice: 22.96,
+        limitUpPrice: 25.25,
+        limitDownPrice: 20.67,
+        openingReferencePrice: 22.96,
       }]);
     });
   });
